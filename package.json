@@ -1,0 +1,19 @@
+{
+  "name": "ellarises",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kajzawesome/EllaRises.git"
+  },
+  "author": "Regan Ellsberry, KAJ Jacobs, Michael Jones, Marielle Sutton",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kajzawesome/EllaRises/issues"
+  },
+  "homepage": "https://github.com/kajzawesome/EllaRises#readme"
+}
