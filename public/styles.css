@@ -15,8 +15,7 @@ body {
     color: #2F2B2B;
 }
 
-h1,
-h2 {
+h1, h2 {
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 700;
