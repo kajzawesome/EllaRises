@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Cinzel:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div ><img class="nav-logo" src="/images/circleellarises.png" alt="Ella Rises Logo"></div>
+        <div class="nav-links">
+            <a href="/">About</a>
+            <a href="/programs">Programs</a>
+            <a href="/events">Events</a>
+            <a href="/get-involved">Get Involved</a>
+            <a href="/press">Press</a>
+            <a href="/contact">Contact Us</a>
+            <form action="/login" method="GET" class="nav-button">
+                <button type="submit" class="nav-button">Login/Register</button>
+            </form>
+            <a class="nav-donate" href="/donate">Donate</a>
+        </div>
+    </nav>
+
+    <div>
+    <h1>Login</h1>
+    <% if (error_message && error_message !== "") { %>
+      <h3 id="error_message" name="error_message"><%= error_message %></h3>
+    <% } %>
+    <br>
+    <form action="/login"  method="POST">
+      <div>
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autofocus>
+      </div><br>
+      <div>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+      </div><br>
+      <div>
+        <button type="submit">Login</button>
+      </div>
+    </form>
+  </div>
+
+</body>
+
+</html>

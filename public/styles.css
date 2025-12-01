@@ -13,6 +13,7 @@ body {
     background-color: white;
     font-family: 'EllaRises', sans-serif;
     color: #2F2B2B;
+    text-align: center;
 }
 
 h1, h2 {
@@ -33,9 +34,8 @@ h1, h2 {
 }
 
 .nav-logo {
-    font-family: 'EllaRises', serif;
-    font-size: 28px;
-    font-weight: bold;
+    width: 100px;
+    margin: 20px 0;
 }
 
 .nav-links a {
@@ -43,6 +43,15 @@ h1, h2 {
     text-decoration: none;
     color: #5E5E5E;
     font-weight: 500;
+}
+
+.nav-button {
+    display: inline;
+    padding: 8px 20px;
+    background-color: #BBD8DC;
+    border-radius: 20px;
+    font-weight: 600 !important;
+    color: #2F2B2B !important;
 }
 
 .nav-donate {
@@ -58,11 +67,6 @@ h1, h2 {
     background-color: #F6CFCB;
     padding: 80px 20px;
     text-align: center;
-}
-
-.hero-logo {
-    width: 200px;
-    margin: 20px 0;
 }
 
 .hero-text {

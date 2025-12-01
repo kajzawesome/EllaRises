@@ -43,26 +43,46 @@ const knex = require("knex")({
   }
 });
 
-//Checks to see if the user is logged in after each route
-app.use((req, res, next) => {
-  // Skip authentication check for public routes
-  if (req.path === '/' || req.path === '/login' || req.path === '/logout') {
-    return next(); // Skip to the next handler
-  }
-
-  // For all other routes, make sure the user is logged in
-  if (req.session.isLoggedIn) {
-    // User is authenticated — continue to the requested route
-    next();
-  } else {
-    // User not logged in — show login page with error
-    res.render("login", { error_message: "Please log in to access this page" });
-  }
-});
-
 // Home page route
 app.get("/", (req, res) => {
     res.render("index", { error_message: "" });
+});
+
+// Redirect to login page
+app.get("/login", (req, res) => {
+    res.render("login", { error_message: "" });
+});
+
+app.post("/login", (req, res) => {
+  // Get data from the form (HTML input names: username, password)
+  let sName = req.body.username;
+  let sPassword = req.body.password;
+
+  // Query the users table for a matching username & password
+  knex
+    .select("username", "password", "level")
+    .from("users")
+    .where("username", sName)
+    .andWhere("password", sPassword)
+    .then(users => {
+      // If a user is found, log them in
+      if (users.length > 0) {
+        // Store login state and username in the session
+        req.session.isLoggedIn = true;
+        req.session.username = sName;
+        req.session.level = users[0].level;
+        // Redirect to home page
+        res.redirect("/");
+      } else {
+        // Invalid credentials — show error
+        res.render("login", { error_message: "Invalid login" });
+      }
+    })
+    .catch(err => {
+      // If something goes wrong with the database
+      console.error("Login error:", err);
+      res.render("login", { error_message: "Invalid login" });
+    });
 });
 
 //Means the server is now waiting for client requests
