@@ -41,6 +41,7 @@ h1, h2, h3 {
 }
 
 .nav-logo {
+    width: 100px;
     font-family: 'EllaScript', cursive;
     font-size: 28px;
 }
