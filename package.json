@@ -1,7 +1,7 @@
 {
   "name": "ellarises",
   "version": "1.0.0",
-  "description": "",
+  "description": "ella rises intex",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,5 +15,13 @@
   "bugs": {
     "url": "https://github.com/kajzawesome/EllaRises/issues"
   },
-  "homepage": "https://github.com/kajzawesome/EllaRises#readme"
+  "homepage": "https://github.com/kajzawesome/EllaRises#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "knex": "^3.1.0",
+    "pg": "^8.16.3"
+  }
 }
