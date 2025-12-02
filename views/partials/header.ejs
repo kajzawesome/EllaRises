@@ -1,73 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title || "Ella Rises" %></title>
+<nav class="navbar">
+    <div>
+        <img class="nav-logo" src="/images/circleellarises.png" alt="Ella Rises Logo">
+    </div>
 
-    <link rel="stylesheet" href="/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <script src="/js/lang.js"></script>
-</head>
-
-<body>
-
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <div><img class="nav-logo" src="/images/circleellarises.png" alt="Ella Rises Logo"></div>
-
-        <div class="nav-links">
-            <!-- ABOUT -->
-            <!-- About with dropdown -->
-            <div class="dropdown lang-en">
-                <a href="#">About</a>
-                <div class="dropdown-content">
-                    <a href="/our-mission"><span class="lang-en">Our Mission</span>
-                        <span class="lang-es">Nuestra Misión</span></a>
-
-                    <a href="/our-team"><span class="lang-en">Our Team</span>
-                        <span class="lang-es">Nuestro Equipo</span></a>
-
-                    <a href="/board-of-directors"><span class="lang-en">Board of Directors</span>
-                        <span class="lang-es">Junta Directiva</span></a>
-                </div>
+    <div class="nav-links">
+        <!-- ABOUT dropdown -->
+        <div class="dropdown lang-en">
+            <a href="#">About</a>
+            <div class="dropdown-content">
+                <a href="/our-mission"><span class="lang-en">Our Mission</span><span class="lang-es">Nuestra
+                        Misión</span></a>
+                <a href="/our-team"><span class="lang-en">Our Team</span><span class="lang-es">Nuestro Equipo</span></a>
+                <a href="/board-of-directors"><span class="lang-en">Board of Directors</span><span class="lang-es">Junta
+                        Directiva</span></a>
             </div>
-
-            <!-- PROGRAMS -->
-            <a href="/programs" class="lang-en">Programs</a>
-            <a href="/programs" class="lang-es">Programas</a>
-
-            <!-- EVENTS -->
-            <a href="/events" class="lang-en">Events</a>
-            <a href="/events" class="lang-es">Eventos</a>
-
-            <!-- GET INVOLVED -->
-            <a href="/get-involved" class="lang-en">Get Involved</a>
-            <a href="/get-involved" class="lang-es">Involúcrate</a>
-
-            <!-- PRESS -->
-            <a href="/press" class="lang-en">Press</a>
-            <a href="/press" class="lang-es">Noticias</a>
-
-            <!-- CONTACT -->
-            <a href="/contact" class="lang-en">Contact Us</a>
-            <a href="/contact" class="lang-es">Contáctanos</a>
-
-            <!-- LOGIN REGISTER -->
-            <form action="/login" method="GET" class="nav-button">
-                <button type="submit" class="nav-button lang-en">Login/Register</button>
-                <button type="submit" class="nav-button lang-es">Iniciar/Registrar</button>
-            </form>
-
-            <!-- DONATE -->
-            <a class="nav-donate lang-en" href="/donate">Donate</a>
-            <a class="nav-donate lang-es" href="/donate">Donar</a>
         </div>
 
-        <!-- LANGUAGE TOGGLE -->
-        <div class="lang-toggle">
-            <button onclick="setLang('en')">English</button>
-            <button onclick="setLang('es')">Espanol</button>
-        </div>
-    </nav>
+        <!-- Other links -->
+        <a href="/programs" class="lang-en">Programs</a>
+        <a href="/programs" class="lang-es">Programas</a>
+        <a href="/events" class="lang-en">Events</a>
+        <a href="/events" class="lang-es">Eventos</a>
+        <a href="/get-involved" class="lang-en">Get Involved</a>
+        <a href="/get-involved" class="lang-es">Involúcrate</a>
+        <a href="/press" class="lang-en">Press</a>
+        <a href="/press" class="lang-es">Noticias</a>
+        <a href="/contact" class="lang-en">Contact Us</a>
+        <a href="/contact" class="lang-es">Contáctanos</a>
+
+        <!-- Login/Register -->
+        <form action="/login" method="GET" class="nav-button">
+            <button type="submit" class="lang-en">Login/Register</button>
+            <button type="submit" class="lang-es">Iniciar/Registrar</button>
+        </form>
+
+        <!-- Donate -->
+        <a class="nav-donate lang-en" href="/donate">Donate</a>
+        <a class="nav-donate lang-es" href="/donate">Donar</a>
+    </div>
+
+    <!-- Language toggle -->
+    <div class="lang-toggle">
+        <button onclick="setLang('en')">English</button>
+        <button onclick="setLang('es')">Español</button>
+    </div>
+</nav>
