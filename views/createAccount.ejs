@@ -1,169 +1,220 @@
 <%- include('partials/header', { title: 'Create Account' }) %>
 
-<div class="form-container">
-    <h1>
-        <span class="lang-en">Create Account</span>
-        <span class="lang-es">Crear Cuenta</span>
-    </h1>
-    <br>
-
-    <form action="/addUser" method="POST">
-
-        <!-- Hidden Context Input -->
-        <input type="hidden" name="context" value="<%= context || 'enroll' %>">
-
-        <!-- Username -->
-        <div>
-            <label for="username">
-                <span class="lang-en">Username *</span>
-                <span class="lang-es">Nombre de Usuario *</span>
-            </label>
-            <input type="text" id="username" name="username" required autofocus>
-        </div>
+    <div>
+        <h1 class="lang-en">Create Account</h1>
+        <h1 class="lang-es">Crear Cuenta</h1>
         <br>
 
-        <!-- Password -->
-        <div>
-            <label for="password">
-                <span class="lang-en">Password *</span>
-                <span class="lang-es">Contraseña *</span>
-            </label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <br>
+        <form action="/addUser" method="POST">
 
-        <!-- Preferred Language -->
-        <div>
-            <label>
-                <span class="lang-en">Preferred Language *</span>
-                <span class="lang-es">Idioma Preferido *</span>
-            </label>
-            <div class="radio-group">
-                <label>
-                    <input type="radio" name="preferred_language" value="en" required>
-                    <span class="lang-en">English</span>
-                    <span class="lang-es">Inglés</span>
-                </label>
-                <label>
-                    <input type="radio" name="preferred_language" value="es" required>
-                    <span class="lang-en">Spanish</span>
-                    <span class="lang-es">Español</span>
-                </label>
+            <!-- Username -->
+            <div>
+                <label class="lang-en" for="username">Username</label>
+                <label class="lang-es" for="username">Nombre de Usuario</label>
+                <input type="text" id="username" name="username" required autofocus>
             </div>
-        </div>
+            <br>
 
-        <hr>
+            <!-- Password -->
+            <div>
+                <label class="lang-en" for="password">Password</label>
+                <label class="lang-es" for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <br>
 
-        
+            <!-- Program Details -->
+            <h2 class="lang-en">Program Details</h2>
+            <h2 class="lang-es">Detalles del Programa</h2>
 
-        <!-- Conditional Sections Based on Context -->
+            <p class="lang-en">
+                Ella Rises provides a safe, supportive environment for our participants to engage in enriching
+                activities.
+                By signing this form, you grant permission for your child to participate in our programs and activities,
+                including field trips, workshops, and other planned events.
+            </p>
+            <p class="lang-es">
+                Ella Rises ofrece un entorno seguro y de apoyo para que las participantes participen en actividades
+                enriquecedoras.
+                Al firmar este formulario, usted otorga permiso para que su hija participe en todas las actividades del
+                programa,
+                incluyendo excursiones, talleres y otros eventos planificados.
+            </p>
 
-        <% if (context === 'enroll') { %>
+            <hr>
 
-            <!-- Parent / Guardian Info -->
-            <label>
-                <span class="lang-en">Parent/Guardian Name *</span>
-                <span class="lang-es">Nombre del Padre/Madre/Tutor *</span>
-            </label>
-            <input type="text" name="name" required>
+            <!-- Parent/Guardian Info -->
+            <label class="lang-en">Parent/Guardian Name *</label>
+            <label class="lang-es">Nombre del Padre/Madre/Tutor *</label>
+            <input type="text" name="parent_name" required>
 
-            <label>
-                <span class="lang-en">Phone Number *</span>
-                <span class="lang-es">Número de Teléfono *</span>
-            </label>
-            <input type="tel" name="phone" required>
+            <label class="lang-en">Phone Number *</label>
+            <label class="lang-es">Número de Teléfono *</label>
+            <input type="tel" name="parent_phone" required>
 
-            <label>
-                <span class="lang-en">Parent Email Address *</span>
-                <span class="lang-es">Correo Electrónico de los Padres *</span>
-            </label>
-            <input type="email" name="email" required>
+            <label class="lang-en">Parent Email Address *</label>
+            <label class="lang-es">Correo Electrónico de los Padres *</label>
+            <input type="email" name="parent_email" required>
 
             <!-- Participant Info -->
-            <label>
-                <span class="lang-en">Participant Name *</span>
-                <span class="lang-es">Nombre de Participante *</span>
-            </label>
+            <label class="lang-en">Participant Name *</label>
+            <label class="lang-es">Nombre de Participante *</label>
             <input type="text" name="participant_name" required>
 
-            <label>
-                <span class="lang-en">Child's Date of Birth *</span>
-                <span class="lang-es">Fecha de Nacimiento de su Hija *</span>
-            </label>
+            <label class="lang-en">Child's Date of Birth *</label>
+            <label class="lang-es">Fecha de Nacimiento de su Hija *</label>
             <input type="date" name="dob" required>
 
-            <label>
-                <span class="lang-en">Grade *</span>
-                <span class="lang-es">Año Escolar *</span>
-            </label>
+            <label class="lang-en">Date *</label>
+            <label class="lang-es">Fecha *</label>
+            <input type="date" name="form_date" required>
+
+            <label class="lang-en">Grade *</label>
+            <label class="lang-es">Año Escolar *</label>
             <input type="text" name="grade" required>
 
-            <label>
-                <span class="lang-en">What school does the student attend? *</span>
-                <span class="lang-es">¿A qué escuela asiste su hija? *</span>
-            </label>
+            <label class="lang-en">What school does the student attend? *</label>
+            <label class="lang-es">¿A qué escuela asiste su hija? *</label>
             <input type="text" name="school" required>
 
             <hr>
 
             <!-- Program Selection -->
-            <label>
-                <span class="lang-en">Which program(s) are you interested in participating in? *</span>
-                <span class="lang-es">¿En cuál(es) programas desea participar? *</span>
+            <label class="lang-en">
+                Which program(s) are you interested in participating in? *
+                <br><small>*University tours and other educational initiatives are automatically shared with all
+                    participants.</small>
             </label>
-            <small>
-                <span class="lang-en">*University tours and other educational initiatives are automatically shared with all participants.</span>
-                <span class="lang-es">*Visitas universitarias y otras iniciativas educativas se comparten automáticamente con todas nuestras participantes.</span>
-            </small>
+            <label class="lang-es">
+                ¿En cuál(es) programas desea participar? *
+                <br><small>Visitas universitarias y otras iniciativas educativas se comparten automáticamente con todas
+                    nuestras participantes.</small>
+            </label>
 
             <div class="checkbox-group">
-                <label><input type="checkbox" name="programs[]" value="Mariachi" required> <span class="lang-en">Mariachi (waitlist)</span> <span class="lang-es">Mariachi (lista de espera)</span></label>
-                <label><input type="checkbox" name="programs[]" value="Ballet Folklorico"> <span class="lang-en">Ballet Folklórico</span> <span class="lang-es">Ballet Folklórico</span></label>
-                <label><input type="checkbox" name="programs[]" value="Art"> <span class="lang-en">Art</span> <span class="lang-es">Arte</span></label>
-                <label><input type="checkbox" name="programs[]" value="STEM"> <span class="lang-en">STEM (Science, Technology, Engineering, Math)</span> <span class="lang-es">STEM (Ciencia, Tecnología, Ingeniería, Matemáticas)</span></label>
-                <label><input type="checkbox" name="programs[]" value="Summer Camps"> <span class="lang-en">Summer Day Camps</span> <span class="lang-es">Campamentos de Verano</span></label>
+                <label><input type="checkbox" name="programs[]" value="Mariachi" required> Mariachi (waitlist)</label>
+                <label><input type="checkbox" name="programs[]" value="Ballet Folklorico"> Ballet Folklórico</label>
+                <label><input type="checkbox" name="programs[]" value="Art"> Art | Arte</label>
+                <label><input type="checkbox" name="programs[]" value="STEM"> STEM (Science, Technology, Engineering,
+                    Math)</label>
+                <label><input type="checkbox" name="programs[]" value="Summer Camps"> Summer Day Camps | Campamentos de
+                    Verano</label>
             </div>
-        <% } %>
 
-        <% if (context === 'volunteer') { %>
-            <!-- Volunteer Section -->
+            <hr>
 
-            <label>
-                <span class="lang-en">Name *</span>
-                <span class="lang-es">Nombre*</span>
-            </label>
-            <input type="text" name="name" required>
+            <!-- Mariachi Instrument -->
+            <label class="lang-en">Regarding mariachi: which instrument is your daughter interested in? *</label>
+            <label class="lang-es">Con respecto al mariachi: ¿Cuál instrumento desea su hija aprender? *</label>
 
-            <label>
-                <span class="lang-en">Phone Number *</span>
-                <span class="lang-es">Número de Teléfono *</span>
-            </label>
-            <input type="tel" name="phone" required>
+            <select name="mariachi_instrument" required>
+                <option value="">-- Select / Seleccione --</option>
+                <option value="Violin">Violin</option>
+                <option value="Guitar">Guitar | Guitarra</option>
+                <option value="Trumpet">Trumpet | Trompeta</option>
+                <option value="Guitarron">Guitarron</option>
+                <option value="Vihuela">Vihuela</option>
+            </select>
 
-            <label>
-                <span class="lang-en">Email Address *</span>
-                <span class="lang-es">Correo Electrónico *</span>
-            </label>
-            <input type="email" name="email" required>
+            <label class="lang-en">If your daughter already plays an instrument, what does she play and for how long?
+                *</label>
+            <label class="lang-es">Si su hija ya toca un instrumento, ¿cuál toca y cuánto tiempo lleva tocándolo?
+                *</label>
+            <input type="text" name="instrument_experience" required>
 
-            <label>
-                <span class="lang-en">Volunteer Interests *</span>
-                <span class="lang-es">Intereses de Voluntariado *</span>
-            </label>
-            <input type="text" name="volunteer_interest" placeholder="e.g. Mariachi, STEM, Ballet">
-        <% } %>
+            <hr>
 
-        <hr>
+            <!-- Registration Fee -->
+            <label class="lang-en">Registration Fee (Annual $45) *</label>
+            <label class="lang-es">Cuota de inscripción anual ($45) *</label>
+            <small class="lang-en">Scholarships available for families in need</small>
+            <small class="lang-es">Becas disponibles</small>
 
-        <!-- Submit Button -->
-        <div>
-            <button type="submit">
-                <span class="lang-en">Create Account</span>
-                <span class="lang-es">Crear Cuenta</span>
-            </button>
-        </div>
+            <div class="radio-group">
+                <label><input type="radio" name="registration_fee" value="Can pay" required> Yes, we can pay the
+                    registration fee. | Sí</label>
+                <label><input type="radio" name="registration_fee" value="Apply scholarship"> I would like to apply for
+                    a scholarship. | Quiero aplicar para una beca.</label>
+            </div>
 
-    </form>
-</div>
+            <hr>
 
-<%- include('partials/footer') %>
+            <!-- Monthly Tuition -->
+            <label class="lang-en">Beginning May 1, 2026: monthly tuition $35 per student *</label>
+            <label class="lang-es">A partir del 1 de mayo de 2026: matrícula mensual de $35 por estudiante *</label>
+
+            <div class="radio-group">
+                <label><input type="radio" name="monthly_tuition_ack" value="Yes" required> I understand. |
+                    Entiendo.</label>
+            </div>
+
+            <hr>
+
+            <!-- Language Preference -->
+            <label class="lang-en">Language preference for reminders *</label>
+            <label class="lang-es">Preferencia de idioma *</label>
+
+            <select name="language_preference" required>
+                <option value="">-- Select / Seleccione --</option>
+                <option value="English">English | Inglés</option>
+                <option value="Spanish">Spanish | Español</option>
+                <option value="No preference">No preference | No tengo preferencia</option>
+                <option value="Other">Other Language | Otro idioma</option>
+            </select>
+
+            <hr>
+
+            <!-- Emergency Medical Consent -->
+            <label class="lang-en">Emergency Medical Consent *</label>
+            <label class="lang-es">Consentimiento de emergencias médicas *</label>
+
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="medical_consent" value="Yes" required>
+                    <span class="lang-en">I authorize Ella Rises Foundation to seek medical attention if
+                        necessary.</span>
+                    <span class="lang-es">Autorizo a la Fundación Ella Rises a buscar atención médica si es
+                        necesario.</span>
+                </label>
+            </div>
+
+            <hr>
+
+            <!-- Photo & Video Consent -->
+            <label class="lang-en">Photo & Video Consent *</label>
+            <label class="lang-es">Consentimiento de fotos y videos *</label>
+
+            <div class="radio-group">
+                <label><input type="radio" name="photo_consent" value="Yes" required> <span class="lang-en">Yes, I give
+                        permission.</span> <span class="lang-es">Sí, doy permiso.</span></label>
+                <label><input type="radio" name="photo_consent" value="No"> <span class="lang-en">No, I do not give
+                        permission.</span> <span class="lang-es">No, no doy permiso.</span></label>
+            </div>
+
+            <hr>
+
+            <!-- Agreement -->
+            <label class="lang-en">I agree *</label>
+            <label class="lang-es">Estoy de acuerdo *</label>
+            <div class="radio-group">
+                <label><input type="radio" name="agreement" value="Agree" required> <span class="lang-en">I
+                        agree.</span> <span class="lang-es">Estoy de acuerdo.</span></label>
+            </div>
+
+            <label class="lang-en">Parent/Guardian Signature (type your name) *</label>
+            <label class="lang-es">Firma del Padre/Madre/Tutor *</label>
+            <input type="text" name="signature" required>
+
+            <label class="lang-en">Date *</label>
+            <label class="lang-es">Fecha *</label>
+            <input type="date" name="signature_date" required>
+
+            <div>
+                <button type="submit" class="lang-en">Create Account</button>
+                <button type="submit" class="lang-es">Crear Cuenta</button>
+            </div>
+
+        </form>
+    </div>
+
+    <%- include('partials/footer') %>
