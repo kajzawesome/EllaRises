@@ -85,5 +85,10 @@ app.post("/login", (req, res) => {
     });
 });
 
+//Sends user to addUser page
+app.get("/addUser", (req, res) => {
+  res.render("createAccount");
+});
+
 //Means the server is now waiting for client requests
 app.listen(PORT, () => console.log("Website started"));
