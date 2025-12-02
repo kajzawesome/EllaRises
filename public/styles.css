@@ -264,3 +264,41 @@ h1, h2, h3 {
     color: #ff87d4;
     text-shadow: 0 0 10px rgba(255, 135, 212, 0.7);
 }
+
+/* Navbar dropdown */
+.navbar .dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.navbar .dropdown a {
+    padding: 0 12px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.navbar .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #fff; /* adjust to your navbar background */
+    min-width: 160px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 1;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.navbar .dropdown-content a {
+    color: #333; /* link color */
+    padding: 10px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.navbar .dropdown-content a:hover {
+    background-color: #f7f7f7; /* hover color */
+}
+
+.navbar .dropdown:hover .dropdown-content {
+    display: block;
+}
