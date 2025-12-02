@@ -7,7 +7,7 @@ const knex = require("knex")({
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "12345",
-    database: process.env.DB_NAME || "intex",
+    database: process.env.DB_NAME || "ellarises",
     port: process.env.DB_PORT || "5432"
   }
 });
@@ -39,30 +39,38 @@ app.get("/login", (req, res) => {
   res.render("login", { error_message: "", context });
 });
 
-app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    const users = await knex("users")
-      .select("username", "password", "level", "preferred_language")
-      .where({ username, password });
+app.post("/login", (req, res) => {
+  // Get data from the form (HTML input names: username, password)
+  let sName = req.body.username;
+  let sPassword = req.body.password;
 
-    if (users.length === 0) {
-      return res.render("login", { error_message: "Invalid login", context: "enroll" });
-    }
-
-    const user = users[0];
-    req.session.isLoggedIn = true;
-    req.session.user = {
-      username: user.username,
-      level: user.level,
-      preferred_language: user.preferred_language
-    };
-
-    res.redirect("/");
-  } catch (err) {
-    console.error("Login error:", err);
-    res.render("login", { error_message: "Invalid login", context: "enroll" });
-  }
+  // Query the users table for a matching username & password
+  knex
+    .select("username", "password", "level")
+    .from("logins")
+    .where("username", sName)
+    .andWhere("password", sPassword)
+    .then(users => {
+      // If a user is found, log them in
+      if (users.length > 0) {
+        // Store login state and username in the session
+        req.session.isLoggedIn = true;
+        req.session.user = {
+          username: users[0].username,
+          level: users[0].level
+        };
+        // Redirect to home page
+        res.redirect("/", {});
+      } else {
+        // Invalid credentials — show error
+        res.render("login", { error_message: "Invalid login" });
+      }
+    })
+    .catch(err => {
+      // If something goes wrong with the database
+      console.error("Login error:", err);
+      res.render("login", { error_message: "Invalid login" });
+    });
 });
 
 // logout
