@@ -1,116 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
+<%- include('partials/header', { title: 'Ella Rises' }) %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ella Rises</title>
-    <link rel="stylesheet" href="/styles.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Cinzel:wght@400;700&display=swap"
-        rel="stylesheet">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-</head>
+<!-- HERO -->
+<section class="hero">
+    <h1>WELCOME TO ELLA RISES</h1>
+    <p class="hero-text">
+        Inviting young women to pursue higher education and embrace their heritage
+        through culturally rooted programs and educational experiences.
+    </p>
 
-<body>
+    <a href="/enroll" class="button hero-button">Click here to enroll!</a>
+</section>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <div ><img class="nav-logo" src="/images/circleellarises.png" alt="Ella Rises Logo"></div>
-        <div class="nav-links">
-            <a href="/">About</a>
-            <a href="/programs">Programs</a>
-            <a href="/events">Events</a>
-            <a href="/get-involved">Get Involved</a>
-            <a href="/press">Press</a>
-            <a href="/contact">Contact Us</a>
-            <form action="/login" method="GET" class="nav-button">
-                <button type="submit" class="nav-button">Login/Register</button>
-            </form>
-            <a class="nav-donate" href="/donate">Donate</a>
+<!-- SECTION 1 -->
+<section class="section pink-section">
+    <div class="section-content">
+        <img src="/images/section1.jpg" class="section-img">
+        <div class="section-text">
+            <h2>Mariachi Program</h2>
+            <p>Our mariachi classes help students learn traditional music, build confidence, and express creativity.</p>
+            <a href="/mariachi" class="button">Learn More</a>
         </div>
-    </nav>
+    </div>
+</section>
 
-    <!-- HERO -->
-    <section class="hero">
-        <h1>WELCOME TO ELLA RISES</h1>
-        <p class="hero-text">
-            Inviting young women to pursue higher education and embrace their heritage
-            through culturally rooted programs and educational experiences.
-        </p>
-
-        <a href="/enroll" class="button hero-button">Click here to enroll!</a>
-    </section>
-
-    <!-- SECTION 1 (pink) -->
-    <section class="section pink-section">
-        <div class="section-content">
-            <img src="/images/section1.jpg" class="section-img">
-            <div class="section-text">
-                <h2>Mariachi Program</h2>
-                <p>Our mariachi classes help students learn traditional music, build confidence, and express creativity.
-                </p>
-                <a href="/mariachi" class="button">Learn More</a>
-            </div>
+<!-- SECTION 2 -->
+<section class="section white-section">
+    <div class="section-content reverse">
+        <img src="/images/section2.jpg" class="section-img">
+        <div class="section-text">
+            <h2>STEAM Workshops</h2>
+            <p>We offer hands-on science, tech, engineering, art, and math activities to spark curiosity.</p>
+            <a href="/steam" class="button">Explore STEAM</a>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- SECTION 2 (white) -->
-    <section class="section white-section">
-        <div class="section-content reverse">
-            <img src="/images/section2.jpg" class="section-img">
-            <div class="section-text">
-                <h2>STEAM Workshops</h2>
-                <p>We offer hands-on science, tech, engineering, art, and math activities to spark curiosity.</p>
-                <a href="/steam" class="button">Explore STEAM</a>
-            </div>
+<!-- SECTION 3 -->
+<section class="section pink-section">
+    <div class="section-content">
+        <img src="/images/section3.jpg" class="section-img">
+        <div class="section-text">
+            <h2>Ballet Folklórico</h2>
+            <p>Students experience the beauty of traditional dance while developing discipline and cultural pride.</p>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- SECTION 3 (pink) -->
-    <section class="section pink-section">
-        <div class="section-content">
-            <img src="/images/section3.jpg" class="section-img">
-            <div class="section-text">
-                <h2>Ballet Folklórico</h2>
-                <p>Students experience the beauty of traditional dance while developing discipline and cultural pride.
-                </p>
-            </div>
-        </div>
-    </section>
+<!-- THANK YOU -->
+<section class="white-section thankyou-section">
+    <h2>THANK YOU</h2>
+    <p>A big thank you to our supporters who make our programs possible.</p>
+    <p><strong>Your generous contributions have lasting impact.</strong></p>
 
-    <!-- THANK YOU SPONSORS -->
-    <section class="white-section thankyou-section">
-        <h2>THANK YOU</h2>
-        <p>A big thank you to our supporters who make our programs possible.</p>
-        <p><strong>Your generous contributions have lasting impact.</strong></p>
+    <div class="sponsor-logos">
+        <img src="/images/ensign.png">
+        <img src="/images/uvu.png">
+        <img src="/images/meta.png">
+        <img src="/images/tgp.png">
+    </div>
+</section>
 
-        <div class="sponsor-logos">
-            <img src="/images/ensign.png">
-            <img src="/images/uvu.png">
-            <img src="/images/meta.png">
-            <img src="/images/tgp.png">
-        </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-
-        <div class="footer-logo-strip">
-            <div class="footer-logo">ELLA ♡ RISES</div>
-        </div>
-
-        <div class="footer-icons">
-            <i class="fab fa-instagram"></i>
-            <i class="fab fa-facebook"></i>
-        </div>
-
-        <div class="footer-copy">
-            © 2025 Ella Rises. All Rights Reserved.
-        </div>
-
-    </footer>
-
-</body>
-
-</html>
+<%- include('partials/footer') %>

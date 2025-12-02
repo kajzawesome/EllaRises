@@ -1,121 +1,138 @@
+/* ----------------------------------------
+   FONTS (matches branding)
+----------------------------------------- */
 @font-face {
-  font-family: 'EllaRises';
+  font-family: 'EllaScript';
   src: url('/fonts/avenir-lt-w01_35-light1475496.woff2') format('woff2'),
        url('/fonts/avenir-lt-w01_85-heavy1475544.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
 }
 
-/* -------- GLOBAL -------- */
 body {
     margin: 0;
     padding: 0;
-    background-color: white;
-    font-family: 'EllaRises', sans-serif;
-    color: #2F2B2B;
+    background-color: #F9F5EA; /* brand off-white */
+    font-family: 'Montserrat', sans-serif;
+    color: #3A3F3B; /* charcoal */
     text-align: center;
 }
 
-h1, h2 {
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
-    text-align: center;
+/* Headings use DM Serif Display */
+h1, h2, h3 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    color: #3A3F3B;
+    margin-bottom: 20px;
 }
 
-/* -------- NAVBAR -------- */
+/* ----------------------------------------
+   NAVBAR
+----------------------------------------- */
 .navbar {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 15px 40px;
-    background-color: #F6CFCB;
+    padding: 20px 40px;
+    background-color: #FFD8D1; /* soft pink */
     gap: 40px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .nav-logo {
-    width: 100px;
-    margin: 20px 0;
+    font-family: 'EllaScript', cursive;
+    font-size: 28px;
 }
 
 .nav-links a {
     margin: 0 10px;
     text-decoration: none;
-    color: #5E5E5E;
+    color: #3A3F3B;
     font-weight: 500;
+    transition: 0.2s;
 }
 
-.nav-button {
-    display: inline;
-    padding: 8px 20px;
-    background-color: #BBD8DC;
-    border-radius: 20px;
-    font-weight: 600 !important;
-    color: #2F2B2B !important;
+.nav-links a:hover {
+    color: #CE325B; /* berry */
 }
 
+/* Donate button in brand blue-gray */
 .nav-donate {
     padding: 8px 20px;
-    background-color: #BBD8DC;
+    background-color: #99B7C6; 
     border-radius: 20px;
-    font-weight: 600 !important;
-    color: #2F2B2B !important;
+    font-weight: 600;
+    color: white !important;
+    text-decoration: none;
+    transition: 0.2s;
 }
 
-/* -------- HERO -------- */
+.nav-donate:hover {
+    background-color: #7EA3B2;
+}
+
+/* ----------------------------------------
+   HERO SECTION
+----------------------------------------- */
 .hero {
-    background-color: #F6CFCB;
-    padding: 80px 20px;
+    background-color: #FFD8D1; /* soft peach-pink background */
+    padding: 100px 20px 70px;
     text-align: center;
 }
 
 .hero-text {
     font-size: 18px;
     max-width: 650px;
-    margin: 0 auto 30px;
+    margin: 0 auto 40px;
+    color: #3A3F3B;
 }
 
 .hero-button {
     margin-top: 20px;
 }
 
-/* -------- BUTTONS -------- */
+/* ----------------------------------------
+   BUTTONS
+----------------------------------------- */
 .button {
-    padding: 12px 28px;
-    border-radius: 30px;
-    background-color: #BBD8DC;
-    color: #2F2B2B;
+    padding: 12px 32px;
+    border-radius: 28px;
+    background-color: #9AB59D; /* sage */
+    color: white;
     font-weight: 600;
     border: none;
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
-    transition: 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transition: 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .button:hover {
-    background-color: #A3C8CD;
+    background-color: #87A88C;
 }
 
-/* -------- SECTIONS -------- */
+/* ----------------------------------------
+   SECTION LAYOUTS
+----------------------------------------- */
 .section {
-    padding: 80px 20px;
+    padding: 90px 20px;
 }
 
 .pink-section {
-    background-color: #F6CFCB;
+    background-color: #FFD8D1;
 }
 
 .white-section {
-    background-color: white;
+    background-color: #F9F5EA;
 }
 
 .section-content {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 50px;
+    gap: 60px;
     max-width: 1100px;
     margin: auto;
 }
@@ -124,74 +141,87 @@ h1, h2 {
     flex-direction: row-reverse;
 }
 
+/* Images styled soft + natural */
 .section-img {
     width: 350px;
     height: 350px;
     object-fit: cover;
-    border-radius: 20px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
 }
 
 .section-text {
     max-width: 500px;
+    font-size: 18px;
+    line-height: 1.55;
+    color: #3A3F3B;
 }
 
-/* -------- SPONSORS -------- */
+/* ----------------------------------------
+   SPONSOR SECTION
+----------------------------------------- */
 .thankyou-section {
     text-align: center;
+    background-color: #F9F5EA;
 }
 
 .sponsor-logos img {
-    width: 160px;
-    margin: 20px;
+    width: 150px;
+    margin: 20px 30px;
+    opacity: 0.9;
 }
 
-/* -------- FOOTER -------- */
+/* ----------------------------------------
+   FOOTER
+----------------------------------------- */
 .footer {
-    background-color: #fff;
+    background-color: #F9F5EA;
     text-align: center;
-    padding: 40px 20px 20px;
-    color: #444;
+    padding: 40px 20px 25px;
+    color: #3A3F3B;
 }
 
+/* Black strip with serif title */
 .footer-logo-strip {
-    background-color: #000;
-    padding: 25px 0;
-    margin-bottom: 25px;
+    background-color: #3A3F3B; /* charcoal black */
+    padding: 30px 0;
+    margin-bottom: 30px;
 }
 
 .footer-logo {
-    font-family: 'EllaRises', serif;
-    font-size: 36px;
-    color: #fff;
-    letter-spacing: 10px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 34px;
+    color: white;
+    letter-spacing: 8px;
 }
 
 .footer-icons {
     margin: 20px 0;
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 25px;
 }
 
 .footer-icons i {
-    font-size: 26px;
-    color: #000;
+    font-size: 28px;
+    color: #3A3F3B;
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    transition: 0.2s;
 }
 
 .footer-icons i:hover {
-    opacity: 0.6;
+    color: #CE325B;
 }
 
 .footer-copy {
     font-size: 12px;
-    color: #606060;
     margin-top: 10px;
+    color: #3A3F3B;
 }
 
-/* -------- RESPONSIVE -------- */
+/* ----------------------------------------
+   RESPONSIVE
+----------------------------------------- */
 @media (max-width: 900px) {
 
     .section-content,
@@ -201,7 +231,8 @@ h1, h2 {
     }
 
     .section-img {
-        width: 90%;
+        width: 100%;
+        max-width: 400px;
         height: auto;
     }
 }
