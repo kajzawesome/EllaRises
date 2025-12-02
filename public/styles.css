@@ -302,3 +302,170 @@ h1, h2, h3 {
 .navbar .dropdown:hover .dropdown-content {
     display: block;
 }
+
+.programs-page {
+    padding: 40px;
+    text-align: center;
+}
+
+.programs-title {
+    font-size: 40px;
+    margin-bottom: 30px;
+}
+
+.carousel-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.carousel-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 30px;
+    padding: 20px 10px;
+}
+
+.carousel-container::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel-arrow {
+    background: #fff;
+    border: none;
+    font-size: 40px;
+    cursor: pointer;
+    padding: 10px;
+    transition: 0.2s;
+}
+
+.carousel-arrow:hover {
+    transform: scale(1.2);
+}
+
+.program-card {
+    min-width: 300px;
+    max-width: 300px;
+    background: #fafafa;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.program-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.program-title {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.program-desc {
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+.program-btn {
+    padding: 10px 20px;
+    background: #f06292;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.program-btn:hover {
+    background: #ec407a;
+}
+
+.register-program-page {
+    padding: 40px;
+}
+
+.page-title {
+    text-align: center;
+    font-size: 42px;
+    margin-bottom: 30px;
+}
+
+.program-section {
+    margin-bottom: 50px;
+}
+
+.section-title {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.program-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+}
+
+.program-card {
+    width: 300px;
+    background: #fafafa;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.program-card.past {
+    border-left: 8px solid #9575cd;
+}
+
+.program-card.registered {
+    border-left: 8px solid #4fc3f7;
+}
+
+.program-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.program-title {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.program-desc {
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+.program-btn {
+    padding: 10px 20px;
+    background: #f06292;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.program-btn:hover {
+    background: #ec407a;
+}
+
+.program-btn.disabled {
+    background: #bdbdbd;
+    cursor: not-allowed;
+}
+
+.completed-label,
+.registered-label {
+    font-weight: bold;
+    font-size: 16px;
+    color: #555;
+}

@@ -1,102 +1,160 @@
-<%- include('../partials/header', { title: title || 'Register' }) %>
+<%- include('partials/header') %>
 
-<div class="register-page">
-    <h1>
-        <span class="lang-en"><%= title || 'Register' %></span>
-        <span class="lang-es"><%= title_es || 'Registrarse' %></span>
-    </h1>
+    <div class="programs-page">
 
-    <% if (user) { %>
+        <!-- ================================
+         PROGRAMS CAROUSEL
+         (Visible always, but order depends on language)
+    ================================= -->
+        <div class="carousel-container">
+            <h2 class="lang-en">Programs</h2>
+            <h2 class="lang-es">Programas</h2>
 
-        <!-- PAST EVENTS/PROGRAMS -->
-        <% if (pastItems && pastItems.length > 0) { %>
-            <section class="past-items">
-                <h2>
-                    <span class="lang-en">Past <%= type %></span>
-                    <span class="lang-es"><%= type_es %> Pasadas</span>
-                </h2>
-                <div class="item-container">
-                    <% pastItems.forEach(item => { %>
-                        <div class="item-card">
-                            <h3><%= item.name %></h3>
-                            <p><%= item.date.toLocaleDateString() %></p>
-                            <% if (!item.surveyCompleted) { %>
-                                <form action="/<%= type.toLowerCase() %>/survey/<%= item.id %>" method="GET">
-                                    <button type="submit">
-                                        <span class="lang-en">Fill Out Survey</span>
-                                        <span class="lang-es">Completar Encuesta</span>
-                                    </button>
-                                </form>
-                            <% } else { %>
-                                <span class="completed">
-                                    <span class="lang-en">Survey Completed</span>
-                                    <span class="lang-es">Encuesta Completada</span>
-                                </span>
-                            <% } %>
-                        </div>
-                    <% }) %>
-                </div>
-            </section>
-        <% } %>
+            <div class="carousel" id="programCarousel">
 
-        <!-- UPCOMING REGISTERED EVENTS/PROGRAMS -->
-        <% if (upcomingRegistered && upcomingRegistered.length > 0) { %>
-            <section class="upcoming-registered">
-                <h2>
-                    <span class="lang-en">Your Upcoming <%= type %></span>
-                    <span class="lang-es">Tus Próximas <%= type_es %></span>
-                </h2>
-                <div class="item-container">
-                    <% upcomingRegistered.forEach(item => { %>
-                        <div class="item-card">
-                            <h3><%= item.name %></h3>
-                            <p><%= item.date.toLocaleDateString() %></p>
-                            <span class="registered">
-                                <span class="lang-en">Registered</span>
-                                <span class="lang-es">Registrado</span>
-                            </span>
-                        </div>
-                    <% }) %>
-                </div>
-            </section>
-        <% } %>
+                <% sortedPrograms.forEach(p=> { %>
+                    <div class="carousel-item">
+                        <img src="<%= p.image %>" alt="<%= p.title_en %>">
+                        <h3 class="lang-en">
+                            <%= p.title_en %>
+                        </h3>
+                        <h3 class="lang-es">
+                            <%= p.title_es %>
+                        </h3>
+                        <p class="lang-en">
+                            <%= p.desc_en %>
+                        </p>
+                        <p class="lang-es">
+                            <%= p.desc_es %>
+                        </p>
 
-        <!-- ALL UPCOMING EVENTS/PROGRAMS -->
-        <% if (availableItems && availableItems.length > 0) { %>
-            <section class="available-items">
-                <h2>
-                    <span class="lang-en">Available <%= type %></span>
-                    <span class="lang-es"><%= type_es %> Disponibles</span>
-                </h2>
-                <div class="item-container">
-                    <% availableItems.forEach(item => { %>
-                        <div class="item-card">
-                            <h3><%= item.name %></h3>
-                            <p><%= item.date.toLocaleDateString() %></p>
-                            <form action="/<%= type.toLowerCase() %>/register/<%= item.id %>" method="POST">
-                                <button type="submit">
-                                    <span class="lang-en">Register</span>
-                                    <span class="lang-es">Registrarse</span>
-                                </button>
+                        <% if (user && !userProgramIds.includes(p.id)) { %>
+                            <form action="/programs/register/<%= p.id %>" method="post">
+                                <button class="btn-primary lang-en">Register</button>
+                                <button class="btn-primary lang-es">Registrar</button>
                             </form>
-                        </div>
+                            <% } %>
+                    </div>
                     <% }) %>
-                </div>
+
+            </div>
+
+            <button class="carousel-btn left" onclick="moveCarousel(-1)">&#10094;</button>
+            <button class="carousel-btn right" onclick="moveCarousel(1)">&#10095;</button>
+        </div>
+
+
+
+        <!-- ================================
+         PAST PROGRAMS (NEEDING SURVEY)
+    ================================= -->
+        <% if (user && pastPrograms.length> 0) { %>
+            <section class="program-section">
+                <h2 class="lang-en">Past Programs — Action Needed</h2>
+                <h2 class="lang-es">Programas Pasados — Acción Necesaria</h2>
+
+                <% pastPrograms.forEach(p=> { %>
+                    <div class="program-card past">
+                        <h3 class="lang-en">
+                            <%= p.program.title_en %>
+                        </h3>
+                        <h3 class="lang-es">
+                            <%= p.program.title_es %>
+                        </h3>
+
+                        <p><strong class="lang-en">Ended:</strong><strong class="lang-es">Terminado:</strong>
+                            <%= p.endDateFormatted %>
+                        </p>
+
+                        <form action="/programs/survey/<%= p.id %>" method="get">
+                            <button class="btn-warning lang-en">Complete Survey</button>
+                            <button class="btn-warning lang-es">Completar Encuesta</button>
+                        </form>
+                    </div>
+                    <% }); %>
             </section>
-        <% } else { %>
-            <p>
-                <span class="lang-en">No upcoming <%= type %> available.</span>
-                <span class="lang-es">No hay <%= type_es %> disponibles próximamente.</span>
-            </p>
-        <% } %>
+            <% } %>
 
-    <% } else { %>
-        <!-- Not logged in -->
-        <p>
-            <span class="lang-en">Please <a href="/login?context=enroll">login</a> to view and register for <%= type %>.</span>
-            <span class="lang-es">Por favor <a href="/login?context=enroll">inicie sesión</a> para ver y registrarse en <%= type_es %>.</span>
-        </p>
-    <% } %>
-</div>
 
-<%- include('../partials/footer') %>
+
+                <!-- ================================
+         CURRENT PROGRAMS
+    ================================= -->
+                <% if (user && currentPrograms.length> 0) { %>
+                    <section class="program-section">
+                        <h2 class="lang-en">Your Current Programs</h2>
+                        <h2 class="lang-es">Sus Programas Actuales</h2>
+
+                        <% currentPrograms.forEach(p=> { %>
+                            <div class="program-card current">
+                                <h3 class="lang-en">
+                                    <%= p.program.title_en %>
+                                </h3>
+                                <h3 class="lang-es">
+                                    <%= p.program.title_es %>
+                                </h3>
+
+                                <p><strong class="lang-en">Ends:</strong><strong class="lang-es">Termina:</strong>
+                                    <%= p.endDateFormatted %>
+                                </p>
+                            </div>
+                            <% }); %>
+                    </section>
+                    <% } %>
+
+
+
+                        <!-- ================================
+         AVAILABLE PROGRAMS (NOT JOINED)
+    ================================= -->
+                        <% if (user && availablePrograms.length> 0) { %>
+                            <section class="program-section">
+                                <h2 class="lang-en">Available Programs</h2>
+                                <h2 class="lang-es">Programas Disponibles</h2>
+
+                                <% availablePrograms.forEach(p=> { %>
+                                    <div class="program-card available">
+
+                                        <h3 class="lang-en">
+                                            <%= p.title_en %>
+                                        </h3>
+                                        <h3 class="lang-es">
+                                            <%= p.title_es %>
+                                        </h3>
+
+                                        <p class="lang-en">
+                                            <%= p.desc_en %>
+                                        </p>
+                                        <p class="lang-es">
+                                            <%= p.desc_es %>
+                                        </p>
+
+                                        <form action="/programs/register/<%= p.id %>" method="post">
+                                            <button class="btn-primary lang-en">Register</button>
+                                            <button class="btn-primary lang-es">Registrar</button>
+                                        </form>
+                                    </div>
+                                    <% }); %>
+                            </section>
+                            <% } %>
+
+    </div>
+
+    <script>
+        // Simple left/right carousel control
+        let carouselIndex = 0;
+
+        function moveCarousel(direction) {
+            const container = document.getElementById('programCarousel');
+            const items = container.querySelectorAll('.carousel-item');
+
+            carouselIndex += direction;
+
+            if (carouselIndex < 0) carouselIndex = items.length - 1;
+            if (carouselIndex >= items.length) carouselIndex = 0;
+
+            container.style.transform = `translateX(-${carouselIndex * 100}%)`;
+        }
+    </script>
+
+    <%- include('partials/footer') %>
