@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="/js/lang.js"></script>
 </head>
 
 <body>
@@ -15,18 +16,46 @@
     <!-- NAVBAR -->
     <nav class="navbar">
         <div><img class="nav-logo" src="/images/circleellarises.png" alt="Ella Rises Logo"></div>
-        <div class="nav-links">
-            <a href="/">About</a>
-            <a href="/programs">Programs</a>
-            <a href="/events">Events</a>
-            <a href="/get-involved">Get Involved</a>
-            <a href="/press">Press</a>
-            <a href="/contact">Contact Us</a>
 
+        <div class="nav-links">
+            <!-- ABOUT -->
+            <a href="/" class="lang-en">About</a>
+            <a href="/" class="lang-es">Sobre Nosotros</a>
+
+            <!-- PROGRAMS -->
+            <a href="/programs" class="lang-en">Programs</a>
+            <a href="/programs" class="lang-es">Programas</a>
+
+            <!-- EVENTS -->
+            <a href="/events" class="lang-en">Events</a>
+            <a href="/events" class="lang-es">Eventos</a>
+
+            <!-- GET INVOLVED -->
+            <a href="/get-involved" class="lang-en">Get Involved</a>
+            <a href="/get-involved" class="lang-es">Involúcrate</a>
+
+            <!-- PRESS -->
+            <a href="/press" class="lang-en">Press</a>
+            <a href="/press" class="lang-es">Noticias</a>
+
+            <!-- CONTACT -->
+            <a href="/contact" class="lang-en">Contact Us</a>
+            <a href="/contact" class="lang-es">Contáctanos</a>
+
+            <!-- LOGIN REGISTER -->
             <form action="/login" method="GET" class="nav-button">
-                <button type="submit" class="nav-button">Login/Register</button>
+                <button type="submit" class="nav-button lang-en">Login/Register</button>
+                <button type="submit" class="nav-button lang-es">Iniciar/Registrar</button>
             </form>
 
-            <a class="nav-donate" href="/donate">Donate</a>
+            <!-- DONATE -->
+            <a class="nav-donate lang-en" href="/donate">Donate</a>
+            <a class="nav-donate lang-es" href="/donate">Donar</a>
+        </div>
+
+        <!-- LANGUAGE TOGGLE -->
+        <div class="lang-toggle">
+            <button onclick="setLang('en')">English</button>
+            <button onclick="setLang('es')">Espanol</button>
         </div>
     </nav>

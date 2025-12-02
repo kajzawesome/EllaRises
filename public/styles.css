@@ -236,3 +236,31 @@ h1, h2, h3 {
         height: auto;
     }
 }
+
+.lang-en, .lang-es { display: none; }
+
+/* When English is active */
+.lang-en-active .lang-en { display: block; }
+.lang-en-active .lang-es { display: none; }
+
+/* When Spanish is active */
+.lang-es-active .lang-en { display: none; }
+.lang-es-active .lang-es { display: block; }
+
+.footer-icons a {
+    color: #ffffff;        /* default icon color */
+    font-size: 1.7rem;     /* size of icons */
+    margin: 0 10px;
+    transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.footer-icons a:hover {
+    transform: scale(1.2);   /* subtle zoom */
+    color: #ff87d4;          /* the pink accent from the website */
+}
+
+.footer-icons a:hover {
+    transform: scale(1.2);
+    color: #ff87d4;
+    text-shadow: 0 0 10px rgba(255, 135, 212, 0.7);
+}
