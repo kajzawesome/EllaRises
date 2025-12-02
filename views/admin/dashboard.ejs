@@ -1,0 +1,22 @@
+<%- include('../partials/header', { title: 'Manager Dashboard' }) %>
+
+<div class="admin-dashboard">
+    <h1>
+        <span class="lang-en">Manager Dashboard</span>
+        <span class="lang-es">Panel de Administración</span>
+    </h1>
+
+    <ul class="admin-links">
+        <li><a href="/admin/addevent">
+            <span class="lang-en">Add Event</span>
+            <span class="lang-es">Agregar Evento</span>
+        </a></li>
+        <li><a href="/admin/manageusers">
+            <span class="lang-en">Manage Users</span>
+            <span class="lang-es">Administrar Usuarios</span>
+        </a></li>
+        <!-- Add more admin tools here -->
+    </ul>
+</div>
+
+<%- include('../partials/footer') %>

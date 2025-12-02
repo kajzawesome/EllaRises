@@ -1,0 +1,32 @@
+<%- include('partials/header', { title: 'Get Involved' }) %>
+
+<div class="get-involved-container">
+    <h1>
+        <span class="lang-en">Get Involved</span>
+        <span class="lang-es">Involúcrate</span>
+    </h1>
+
+    <div class="involve-options">
+
+        <!-- Enroll -->
+        <a href="/login?context=enroll" class="option-card">
+            <span class="lang-en">Enroll</span>
+            <span class="lang-es">Inscribirse</span>
+        </a>
+
+        <!-- Volunteer -->
+        <a href="/addUser?context=volunteer" class="option-card">
+            <span class="lang-en">Volunteer</span>
+            <span class="lang-es">Voluntariado</span>
+        </a>
+
+        <!-- Donate -->
+        <a href="/donate" class="option-card">
+            <span class="lang-en">Donate</span>
+            <span class="lang-es">Donar</span>
+        </a>
+
+    </div>
+</div>
+
+<%- include('partials/footer') %>

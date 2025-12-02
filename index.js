@@ -90,5 +90,97 @@ app.get("/addUser", (req, res) => {
   res.render("createAccount");
 });
 
+app.get('/events/register', async (req, res) => {
+    const user = req.session.user;
+
+    if (!user) {
+        return res.render('events/register', { user: null, type: 'Events', type_es: 'Eventos', title: 'Register for Events', title_es: 'Registro de Eventos' });
+    }
+
+    // Fetch data from DB
+    const allEvents = await Event.findAll(); // example
+    const registrations = await Registration.findAll({ where: { userId: user.id } });
+
+    const pastItems = [];
+    const upcomingRegistered = [];
+    const availableItems = [];
+
+    const today = new Date();
+
+    allEvents.forEach(event => {
+        const reg = registrations.find(r => r.eventId === event.id);
+        if (event.date < today) {
+            pastItems.push({ ...event.dataValues, surveyCompleted: reg?.surveyCompleted || false });
+        } else if (reg) {
+            upcomingRegistered.push(event);
+        } else {
+            availableItems.push(event);
+        }
+    });
+
+    res.render('events/register', {
+        user,
+        type: 'Events',
+        type_es: 'Eventos',
+        title: 'Register for Events',
+        title_es: 'Registro de Eventos',
+        pastItems,
+        upcomingRegistered,
+        availableItems
+    });
+});
+
+app.get('/programs/register', async (req, res) => {
+    const user = req.session.user;
+
+    if (!user) {
+        return res.render('programs/register', { user: null, type: 'Programs', type_es: 'Programas', title: 'Register for Programs', title_es: 'Registro de Programas' });
+    }
+
+    // Fetch data from DB
+    const allPrograms = await Programs.findAll(); // example
+    const registrations = await Registration.findAll({ where: { userId: user.id } });
+
+    const pastItems = [];
+    const upcomingRegistered = [];
+    const availableItems = [];
+
+    const today = new Date();
+
+    allEvents.forEach(event => {
+        const reg = registrations.find(r => r.eventId === event.id);
+        if (event.date < today) {
+            pastItems.push({ ...event.dataValues, surveyCompleted: reg?.surveyCompleted || false });
+        } else if (reg) {
+            upcomingRegistered.push(event);
+        } else {
+            availableItems.push(event);
+        }
+    });
+
+    res.render('programs/register', {
+        user,
+        type: 'Programs',
+        type_es: 'Programas',
+        title: 'Register for Programs',
+        title_es: 'Registro de Programas',
+        pastItems,
+        upcomingRegistered,
+        availableItems
+    });
+});
+
+
+app.get('/login', (req, res) => {
+    const context = req.query.context || 'enroll'; // default to enroll
+    res.render('login', { context });
+});
+
+app.get('/addUser', (req, res) => {
+    const context = req.query.context || 'enroll';
+    res.render('createUser', { context });
+});
+
+
 //Means the server is now waiting for client requests
 app.listen(PORT, () => console.log("Website started"));

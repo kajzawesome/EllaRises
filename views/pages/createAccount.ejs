@@ -1,0 +1,169 @@
+<%- include('partials/header', { title: 'Create Account' }) %>
+
+<div class="form-container">
+    <h1>
+        <span class="lang-en">Create Account</span>
+        <span class="lang-es">Crear Cuenta</span>
+    </h1>
+    <br>
+
+    <form action="/addUser" method="POST">
+
+        <!-- Hidden Context Input -->
+        <input type="hidden" name="context" value="<%= context || 'enroll' %>">
+
+        <!-- Username -->
+        <div>
+            <label for="username">
+                <span class="lang-en">Username *</span>
+                <span class="lang-es">Nombre de Usuario *</span>
+            </label>
+            <input type="text" id="username" name="username" required autofocus>
+        </div>
+        <br>
+
+        <!-- Password -->
+        <div>
+            <label for="password">
+                <span class="lang-en">Password *</span>
+                <span class="lang-es">Contraseña *</span>
+            </label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <br>
+
+        <!-- Preferred Language -->
+        <div>
+            <label>
+                <span class="lang-en">Preferred Language *</span>
+                <span class="lang-es">Idioma Preferido *</span>
+            </label>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="preferred_language" value="en" required>
+                    <span class="lang-en">English</span>
+                    <span class="lang-es">Inglés</span>
+                </label>
+                <label>
+                    <input type="radio" name="preferred_language" value="es" required>
+                    <span class="lang-en">Spanish</span>
+                    <span class="lang-es">Español</span>
+                </label>
+            </div>
+        </div>
+
+        <hr>
+
+        
+
+        <!-- Conditional Sections Based on Context -->
+
+        <% if (context === 'enroll') { %>
+
+            <!-- Parent / Guardian Info -->
+            <label>
+                <span class="lang-en">Parent/Guardian Name *</span>
+                <span class="lang-es">Nombre del Padre/Madre/Tutor *</span>
+            </label>
+            <input type="text" name="name" required>
+
+            <label>
+                <span class="lang-en">Phone Number *</span>
+                <span class="lang-es">Número de Teléfono *</span>
+            </label>
+            <input type="tel" name="phone" required>
+
+            <label>
+                <span class="lang-en">Parent Email Address *</span>
+                <span class="lang-es">Correo Electrónico de los Padres *</span>
+            </label>
+            <input type="email" name="email" required>
+
+            <!-- Participant Info -->
+            <label>
+                <span class="lang-en">Participant Name *</span>
+                <span class="lang-es">Nombre de Participante *</span>
+            </label>
+            <input type="text" name="participant_name" required>
+
+            <label>
+                <span class="lang-en">Child's Date of Birth *</span>
+                <span class="lang-es">Fecha de Nacimiento de su Hija *</span>
+            </label>
+            <input type="date" name="dob" required>
+
+            <label>
+                <span class="lang-en">Grade *</span>
+                <span class="lang-es">Año Escolar *</span>
+            </label>
+            <input type="text" name="grade" required>
+
+            <label>
+                <span class="lang-en">What school does the student attend? *</span>
+                <span class="lang-es">¿A qué escuela asiste su hija? *</span>
+            </label>
+            <input type="text" name="school" required>
+
+            <hr>
+
+            <!-- Program Selection -->
+            <label>
+                <span class="lang-en">Which program(s) are you interested in participating in? *</span>
+                <span class="lang-es">¿En cuál(es) programas desea participar? *</span>
+            </label>
+            <small>
+                <span class="lang-en">*University tours and other educational initiatives are automatically shared with all participants.</span>
+                <span class="lang-es">*Visitas universitarias y otras iniciativas educativas se comparten automáticamente con todas nuestras participantes.</span>
+            </small>
+
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="programs[]" value="Mariachi" required> <span class="lang-en">Mariachi (waitlist)</span> <span class="lang-es">Mariachi (lista de espera)</span></label>
+                <label><input type="checkbox" name="programs[]" value="Ballet Folklorico"> <span class="lang-en">Ballet Folklórico</span> <span class="lang-es">Ballet Folklórico</span></label>
+                <label><input type="checkbox" name="programs[]" value="Art"> <span class="lang-en">Art</span> <span class="lang-es">Arte</span></label>
+                <label><input type="checkbox" name="programs[]" value="STEM"> <span class="lang-en">STEM (Science, Technology, Engineering, Math)</span> <span class="lang-es">STEM (Ciencia, Tecnología, Ingeniería, Matemáticas)</span></label>
+                <label><input type="checkbox" name="programs[]" value="Summer Camps"> <span class="lang-en">Summer Day Camps</span> <span class="lang-es">Campamentos de Verano</span></label>
+            </div>
+        <% } %>
+
+        <% if (context === 'volunteer') { %>
+            <!-- Volunteer Section -->
+
+            <label>
+                <span class="lang-en">Name *</span>
+                <span class="lang-es">Nombre*</span>
+            </label>
+            <input type="text" name="name" required>
+
+            <label>
+                <span class="lang-en">Phone Number *</span>
+                <span class="lang-es">Número de Teléfono *</span>
+            </label>
+            <input type="tel" name="phone" required>
+
+            <label>
+                <span class="lang-en">Email Address *</span>
+                <span class="lang-es">Correo Electrónico *</span>
+            </label>
+            <input type="email" name="email" required>
+
+            <label>
+                <span class="lang-en">Volunteer Interests *</span>
+                <span class="lang-es">Intereses de Voluntariado *</span>
+            </label>
+            <input type="text" name="volunteer_interest" placeholder="e.g. Mariachi, STEM, Ballet">
+        <% } %>
+
+        <hr>
+
+        <!-- Submit Button -->
+        <div>
+            <button type="submit">
+                <span class="lang-en">Create Account</span>
+                <span class="lang-es">Crear Cuenta</span>
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<%- include('partials/footer') %>
