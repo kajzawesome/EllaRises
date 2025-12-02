@@ -1,46 +1,54 @@
 <%- include('partials/header', { title: 'Login' }) %>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <div ><img class="nav-logo" src="/images/circleellarises.png" alt="Ella Rises Logo"></div>
-        <div class="nav-links">
-            <a href="/">About</a>
-            <a href="/programs">Programs</a>
-            <a href="/events">Events</a>
-            <a href="/get-involved">Get Involved</a>
-            <a href="/press">Press</a>
-            <a href="/contact">Contact Us</a>
-            <form action="/login" method="GET" class="nav-button">
-                <button type="submit" class="nav-button">Login/Register</button>
-            </form>
-            <a class="nav-donate" href="/donate">Donate</a>
-        </div>
-    </nav>
+<div class="login-container">
+    <h1>
+        <span class="lang-en">Login</span>
+        <span class="lang-es">Iniciar Sesión</span>
+    </h1>
 
-    <div>
-    <h1>Login</h1>
     <% if (error_message && error_message !== "") { %>
-      <h3 id="error_message" name="error_message"><%= error_message %></h3>
+        <h3 id="error_message" name="error_message">
+            <span class="lang-en"><%= error_message %></span>
+            <span class="lang-es"><%= error_message_es || error_message %></span>
+        </h3>
     <% } %>
     <br>
-    <form action="/login"  method="POST">
-      <div>
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required autofocus>
-      </div><br>
-      <div>
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
-      </div><br>
-      <div>
-        <button type="submit">Login</button>
-      </div>
-    </form>
-    <form action="/addUser"  method="GET">
+
+    <!-- Login Form -->
+    <form action="/login" method="POST">
         <div>
-            <button type="submit">Create Account</button>
+            <label for="username">
+                <span class="lang-en">Username *</span>
+                <span class="lang-es">Nombre de Usuario *</span>
+            </label>
+            <input type="text" id="username" name="username" required autofocus>
+        </div>
+        <br>
+        <div>
+            <label for="password">
+                <span class="lang-en">Password *</span>
+                <span class="lang-es">Contraseña *</span>
+            </label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <br>
+        <div>
+            <button type="submit">
+                <span class="lang-en">Login</span>
+                <span class="lang-es">Iniciar Sesión</span>
+            </button>
         </div>
     </form>
-  </div>
+
+    <!-- Create Account Button -->
+    <form action="/addUser" method="GET">
+        <div>
+            <button type="submit">
+                <span class="lang-en">Create Account</span>
+                <span class="lang-es">Crear Cuenta</span>
+            </button>
+        </div>
+    </form>
+</div>
 
 <%- include('partials/footer') %>

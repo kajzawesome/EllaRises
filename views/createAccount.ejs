@@ -1,194 +1,213 @@
 <%- include('partials/header', { title: 'Create Account' }) %>
 
-    <div>
-    <h1>Create Account</h1>
+<div class="form-container">
+    <h1>
+        <span class="lang-en">Create Account</span>
+        <span class="lang-es">Crear Cuenta</span>
+    </h1>
     <br>
-    <form action="/addUser"  method="POST">
-      <div>
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required autofocus>
-      </div><br>
-      <div>
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
-      </div><br>
-  </div>
-    <h1>Program Details | Detalles del Programa</h1>
-    <p>Ella Rises provides a safe, supportive environment 
-    for our participants to engage in enriching activities. 
-    By signing this form, you grant permission for your child 
-    to participate in our programs and activities, including 
-    field trips, workshops, and other planned events. 
-    
-    Ella Rises ofrece un entorno seguro y de apoyo para que 
-    las participantes participen en actividades enriquecedoras. 
-    Al firmar este formulario, usted otorga permiso para que su 
-    hija participe en todas las actividades del programa, 
-    incluyendo excursiones, talleres y otros eventos planificados.</p>
 
-    <h2>Program Details | Detalles del Programa</h2>
-    <p>
-        Ella Rises provides a safe, supportive environment for our participants to engage in enriching activities.
-        By signing this form, you grant permission for your child to participate in our programs and activities,
-        including field trips, workshops, and other planned events.
-        <br><br>
-        Ella Rises ofrece un entorno seguro y de apoyo para que las participantes participen en actividades enriquecedoras.
-        Al firmar este formulario, usted otorga permiso para que su hija participe en todas las actividades del programa,
-        incluyendo excursiones, talleres y otros eventos planificados.
-    </p>
+    <form action="/addUser" method="POST">
 
-    <hr>
+        <!-- Username -->
+        <div>
+            <label for="username">
+                <span class="lang-en">Username *</span>
+                <span class="lang-es">Nombre de Usuario *</span>
+            </label>
+            <input type="text" id="username" name="username" required autofocus>
+        </div>
+        <br>
 
-    <!-- Parent/Guardian Info -->
-    <label>Parent/Guardian Name | Nombre del Padre/Madre/Tutor *</label>
-    <input type="text" name="parent_name" required>
+        <!-- Password -->
+        <div>
+            <label for="password">
+                <span class="lang-en">Password *</span>
+                <span class="lang-es">Contraseña *</span>
+            </label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <br>
 
-    <label>Phone Number | Número de teléfono *</label>
-    <input type="tel" name="parent_phone" required>
+        <!-- Preferred Language -->
+        <div>
+            <label>
+                <span class="lang-en">Preferred Language *</span>
+                <span class="lang-es">Idioma Preferido *</span>
+            </label>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="preferred_language" value="en" required>
+                    <span class="lang-en">English</span>
+                    <span class="lang-es">Inglés</span>
+                </label>
+                <label>
+                    <input type="radio" name="preferred_language" value="es" required>
+                    <span class="lang-en">Spanish</span>
+                    <span class="lang-es">Español</span>
+                </label>
+            </div>
+        </div>
 
-    <label>Parent Email Address | Correo electrónico de los padres *</label>
-    <input type="email" name="parent_email" required>
+        <hr>
 
-    <!-- Participant Info -->
-    <label>Participant Name | Nombre de Participante *</label>
-    <input type="text" name="participant_name" required>
+        <!-- Program Details -->
+        <h2>
+            <span class="lang-en">Program Details</span>
+            <span class="lang-es">Detalles del Programa</span>
+        </h2>
 
-    <label>Child's Date of Birth | Fecha de Nacimiento de su Hija *</label>
-    <input type="date" name="dob" required>
+        <p>
+            <span class="lang-en">
+                Ella Rises provides a safe, supportive environment for our participants to engage in enriching activities.
+                By signing this form, you grant permission for your child to participate in our programs and activities,
+                including field trips, workshops, and other planned events.
+            </span>
+            <span class="lang-es">
+                Ella Rises ofrece un entorno seguro y de apoyo para que las participantes participen en actividades enriquecedoras.
+                Al firmar este formulario, usted otorga permiso para que su hija participe en todas las actividades del programa,
+                incluyendo excursiones, talleres y otros eventos planificados.
+            </span>
+        </p>
 
-    <label>Date *</label>
-    <input type="date" name="form_date" required>
+        <hr>
 
-    <label>Grade | Año Escolar *</label>
-    <input type="text" name="grade" required>
-
-    <label>What school does the student attend? | ¿A qué escuela asiste su hija? *</label>
-    <input type="text" name="school" required>
-
-    <hr>
-
-    <!-- Program Selection -->
-    <label>
-        Which program(s) are you interested in participating in? *
-        <br>¿En cuál(es) programas desea participar?
-        <br><small>*University tours and other educational initiatives are automatically shared with all participants.</small>
-        <br><small>Visitas universitarias y otras iniciativas educativas se comparten automáticamente con todas nuestras participantes.</small>
-    </label>
-
-    <div class="checkbox-group">
-        <label><input type="checkbox" name="programs[]" value="Mariachi" required> Mariachi (waitlist)</label>
-        <label><input type="checkbox" name="programs[]" value="Ballet Folklorico"> Ballet Folklórico</label>
-        <label><input type="checkbox" name="programs[]" value="Art"> Art | Arte</label>
-        <label><input type="checkbox" name="programs[]" value="STEM"> STEM (Science, Technology, Engineering, Math)</label>
-        <label><input type="checkbox" name="programs[]" value="Summer Camps"> Summer Day Camps | Campamentos de Verano</label>
-    </div>
-
-    <hr>
-
-    <!-- Mariachi Instrument -->
-    <label>
-        Regarding mariachi: which instrument is your daughter interested in? *
-        <br>Con respecto al mariachi: ¿Cuál instrumento desea su hija aprender?
-    </label>
-
-    <select name="mariachi_instrument" required>
-        <option value="">-- Select / Seleccione --</option>
-        <option value="Violin">Violin</option>
-        <option value="Guitar">Guitar | Guitarra</option>
-        <option value="Trumpet">Trumpet | Trompeta</option>
-        <option value="Guitarron">Guitarron</option>
-        <option value="Vihuela">Vihuela</option>
-    </select>
-
-    <label>
-        If your daughter already plays an instrument, what does she play and for how long? *
-        <br>Si su hija ya toca un instrumento, ¿cuál toca y cuánto tiempo lleva tocándolo?
-    </label>
-    <input type="text" name="instrument_experience" required>
-
-    <hr>
-
-    <!-- Registration Fee -->
-    <label>
-        Registration Fee (Annual $45) | Cuota de inscripción anual ($45) *
-        <br>Scholarships available for families in need | Becas disponibles
-    </label>
-
-    <div class="radio-group">
-        <label><input type="radio" name="registration_fee" value="Can pay" required> Yes, we can pay the registration fee. | Sí</label>
-        <label><input type="radio" name="registration_fee" value="Apply scholarship"> I would like to apply for a scholarship. | Quiero aplicar para una beca.</label>
-    </div>
-
-    <hr>
-
-    <!-- Monthly Tuition -->
-    <label>
-        Beginning May 1, 2026: monthly tuition $35 per student *
-        <br>A partir del 1 de mayo de 2026: matrícula mensual de $35 por estudiante
-    </label>
-
-    <div class="radio-group">
-        <label><input type="radio" name="monthly_tuition_ack" value="Yes" required> I understand. | Entiendo.</label>
-    </div>
-
-    <hr>
-
-    <!-- Language Preference -->
-    <label>Language preference for reminders | Preferencia de idioma *</label>
-
-    <select name="language_preference" required>
-        <option value="">-- Select / Seleccione --</option>
-        <option value="English">English | Inglés</option>
-        <option value="Spanish">Spanish | Español</option>
-        <option value="No preference">No preference | No tengo preferencia</option>
-        <option value="Other">Other Language | Otro idioma</option>
-    </select>
-
-    <hr>
-
-    <!-- Emergency Medical Consent -->
-    <label>Emergency Medical Consent | Consentimiento de emergencias médicas *</label>
-
-    <div class="radio-group">
+        <!-- Parent / Guardian Info -->
         <label>
-            <input type="radio" name="medical_consent" value="Yes" required>
-            I authorize Ella Rises Foundation to seek medical attention if necessary.
-            <br>
+            <span class="lang-en">Parent/Guardian Name *</span>
+            <span class="lang-es">Nombre del Padre/Madre/Tutor *</span>
         </label>
-    </div>
+        <input type="text" name="parent_name" required>
 
-    <hr>
+        <label>
+            <span class="lang-en">Phone Number *</span>
+            <span class="lang-es">Número de Teléfono *</span>
+        </label>
+        <input type="tel" name="parent_phone" required>
 
-    <!-- Photo & Video Consent -->
-    <label>Photo & Video Consent | Consentimiento de fotos y videos *</label>
+        <label>
+            <span class="lang-en">Parent Email Address *</span>
+            <span class="lang-es">Correo Electrónico de los Padres *</span>
+        </label>
+        <input type="email" name="parent_email" required>
 
-    <div class="radio-group">
-        <label><input type="radio" name="photo_consent" value="Yes" required> Yes, I give permission. | Sí, doy permiso.</label>
-        <label><input type="radio" name="photo_consent" value="No"> No, I do not give permission. | No, no doy permiso.</label>
-    </div>
+        <!-- Participant Info -->
+        <label>
+            <span class="lang-en">Participant Name *</span>
+            <span class="lang-es">Nombre de Participante *</span>
+        </label>
+        <input type="text" name="participant_name" required>
 
-    <hr>
+        <label>
+            <span class="lang-en">Child's Date of Birth *</span>
+            <span class="lang-es">Fecha de Nacimiento de su Hija *</span>
+        </label>
+        <input type="date" name="dob" required>
 
-    <!-- Agreement Paragraph -->
-    <p>
-        "I, the undersigned, hereby give permission for my child to participate in the Ella Rises Foundation After-School Program...
-        <br><br>
-    </p>
+        <label>
+            <span class="lang-en">Date *</span>
+            <span class="lang-es">Fecha *</span>
+        </label>
+        <input type="date" name="form_date" required>
 
-    <label>I agree. Estoy de acuerdo. *</label>
-    <div class="radio-group">
-        <label><input type="radio" name="agreement" value="Agree" required> I agree. | Estoy de acuerdo.</label>
-    </div>
+        <label>
+            <span class="lang-en">Grade *</span>
+            <span class="lang-es">Año Escolar *</span>
+        </label>
+        <input type="text" name="grade" required>
 
-    <label>Parent/Guardian Signature (type your name) | Firma del Padre/Madre/Tutor *</label>
-    <input type="text" name="signature" required>
+        <label>
+            <span class="lang-en">What school does the student attend? *</span>
+            <span class="lang-es">¿A qué escuela asiste su hija? *</span>
+        </label>
+        <input type="text" name="school" required>
 
-    <label>Date | Fecha *</label>
-    <input type="date" name="signature_date" required>
+        <hr>
 
-    <div>
-        <button type="submit">Create Account</button>
-    </div>
-</form>
+        <!-- Program Selection -->
+        <label>
+            <span class="lang-en">Which program(s) are you interested in participating in? *</span>
+            <span class="lang-es">¿En cuál(es) programas desea participar? *</span>
+        </label>
+        <small>
+            <span class="lang-en">*University tours and other educational initiatives are automatically shared with all participants.</span>
+            <span class="lang-es">*Visitas universitarias y otras iniciativas educativas se comparten automáticamente con todas nuestras participantes.</span>
+        </small>
+
+        <div class="checkbox-group">
+            <label><input type="checkbox" name="programs[]" value="Mariachi" required> <span class="lang-en">Mariachi (waitlist)</span> <span class="lang-es">Mariachi (lista de espera)</span></label>
+            <label><input type="checkbox" name="programs[]" value="Ballet Folklorico"> <span class="lang-en">Ballet Folklórico</span> <span class="lang-es">Ballet Folklórico</span></label>
+            <label><input type="checkbox" name="programs[]" value="Art"> <span class="lang-en">Art</span> <span class="lang-es">Arte</span></label>
+            <label><input type="checkbox" name="programs[]" value="STEM"> <span class="lang-en">STEM (Science, Technology, Engineering, Math)</span> <span class="lang-es">STEM (Ciencia, Tecnología, Ingeniería, Matemáticas)</span></label>
+            <label><input type="checkbox" name="programs[]" value="Summer Camps"> <span class="lang-en">Summer Day Camps</span> <span class="lang-es">Campamentos de Verano</span></label>
+        </div>
+
+        <hr>
+
+        <!-- Mariachi Instrument -->
+        <label>
+            <span class="lang-en">Regarding mariachi: which instrument is your daughter interested in? *</span>
+            <span class="lang-es">Con respecto al mariachi: ¿Cuál instrumento desea su hija aprender? *</span>
+        </label>
+
+        <select name="mariachi_instrument" required>
+            <option value="">
+                <span class="lang-en">-- Select --</span>
+                <span class="lang-es">-- Seleccione --</span>
+            </option>
+            <option value="Violin">
+                <span class="lang-en">Violin</span>
+                <span class="lang-es">Violín</span>
+            </option>
+            <option value="Guitar">
+                <span class="lang-en">Guitar</span>
+                <span class="lang-es">Guitarra</span>
+            </option>
+            <option value="Trumpet">
+                <span class="lang-en">Trumpet</span>
+                <span class="lang-es">Trompeta</span>
+            </option>
+            <option value="Guitarron">
+                <span class="lang-en">Guitarron</span>
+                <span class="lang-es">Guitarrón</span>
+            </option>
+            <option value="Vihuela">
+                <span class="lang-en">Vihuela</span>
+                <span class="lang-es">Vihuela</span>
+            </option>
+        </select>
+
+        <label>
+            <span class="lang-en">If your daughter already plays an instrument, what does she play and for how long? *</span>
+            <span class="lang-es">Si su hija ya toca un instrumento, ¿cuál toca y cuánto tiempo lleva tocándolo? *</span>
+        </label>
+        <input type="text" name="instrument_experience" required>
+
+        <hr>
+
+        <!-- Registration Fee -->
+        <label>
+            <span class="lang-en">Registration Fee (Annual $45) *</span>
+            <span class="lang-es">Cuota de inscripción anual ($45) *</span>
+        </label>
+        <small>
+            <span class="lang-en">Scholarships available for families in need</span>
+            <span class="lang-es">Becas disponibles</span>
+        </small>
+
+        <div class="radio-group">
+            <label><input type="radio" name="registration_fee" value="Can pay" required> <span class="lang-en">Yes, we can pay the registration fee.</span> <span class="lang-es">Sí, podemos pagar la cuota de inscripción.</span></label>
+            <label><input type="radio" name="registration_fee" value="Apply scholarship"> <span class="lang-en">I would like to apply for a scholarship.</span> <span class="lang-es">Quiero aplicar para una beca.</span></label>
+        </div>
+
+        <hr>
+
+        <!-- Submit Button -->
+        <div>
+            <button type="submit"><span class="lang-en">Create Account</span><span class="lang-es">Crear Cuenta</span></button>
+        </div>
+
+    </form>
+</div>
 
 <%- include('partials/footer') %>
