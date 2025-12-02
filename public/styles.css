@@ -241,12 +241,12 @@ h1, h2, h3 {
 .lang-en, .lang-es { display: none; }
 
 /* When English is active */
-.lang-en-active .lang-en { display: block; }
+.lang-en-active .lang-en { display: inline; }
 .lang-en-active .lang-es { display: none; }
 
 /* When Spanish is active */
 .lang-es-active .lang-en { display: none; }
-.lang-es-active .lang-es { display: block; }
+.lang-es-active .lang-es { display: inline; }
 
 .footer-icons a {
     color: #ffffff;        /* default icon color */
