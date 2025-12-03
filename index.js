@@ -224,6 +224,34 @@ app.get("/dashboard", (req, res) => {
   res.render("admin/dashboard");
 });
 
+app.get("/manageusers", async (req, res) => {
+  try {
+    // 1. Get all managers
+    const managers = await knex.select().from("managers").orderBy("managerlastname");;
+
+    const participants = await knex("participants as p")
+      .join("parents as pr", "p.parentid", "pr.parentid")
+      .select(
+        "p.participantid",
+        "p.participantfirstname",
+        "p.participantlastname",
+        "pr.parentfirstname",
+        "pr.parentlastname"
+      )
+      .orderBy("p.participantlastname");
+
+    res.render("admin/manageusers", {
+      managers,
+      participants,
+      title: "Manage Users"
+    });
+
+  } catch (err) {
+    console.error("Error loading people:", err);
+    res.send("Error loading people");
+  }
+});
+
 // -------------------------
 // SERVER START
 // -------------------------

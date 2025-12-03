@@ -11,10 +11,9 @@
             <span class="lang-en">Add Event</span>
             <span class="lang-es">Agregar Evento</span>
         </a></li>
-        <li><a href="/admin/manageusers">
-            <span class="lang-en">Manage Users</span>
-            <span class="lang-es">Administrar Usuarios</span>
-        </a></li>
+        <form action="/manageusers" method="GET">
+            <button type="submit"><%= lang === 'en' ? 'Manage Users' : 'Administrar Usuarios' %></button>
+        </form>
         <!-- Add more admin tools here -->
     </ul>
 </div>

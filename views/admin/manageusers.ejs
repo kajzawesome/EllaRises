@@ -1,0 +1,45 @@
+<%- include('../partials/header', { title: 'Manage Users' }) %>
+
+<h1>Users List</h1>
+<form action="/addUser" method="GET">
+    <button type="submit">Add Manager</button>
+</form>
+<br>
+<% if (typeof error_message !== 'undefined' && error_message) { %>
+    <div role="alert">
+        <%= error_message %>
+    </div>
+<% } %>
+<% if (managers.length === 0) { %>
+    <div role="alert">
+        No managers found in the database.
+    </div>
+<% } else { %>
+    <h2>Managers</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for (let iCount = 0; iCount < managers.length; iCount++) { %>
+                <tr>
+                    <td><%= managers[iCount].managerfirstname %></td>
+                    <td><%= managers[iCount].managerlastname %></td>
+                    <td>
+                        <form action="/editUser/<%= managers[iCount].userid %>" method="GET">
+                            <input type="submit" name="Edit" value="Edit" />
+                        </form>
+                        <form action="/deleteUser/<%= managers[iCount].userid %>" method="POST"
+                            onsubmit="return confirm('Are you sure you want to delete <%= managers[iCount].managerfirstname %>?');">
+                            <input type="submit" name="Delete" value="Delete" />
+                        </form>
+                    </td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+<% } %>
