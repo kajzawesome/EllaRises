@@ -37,31 +37,31 @@
             </div>
 
             <!-- PROGRAMS -->
-            <a href="/programs">
-            <%= lang === 'en' ? 'Programs' : 'Programas' %></a>
+            <a href="/programs" class="lang-en">Programs</a>
+            <a href="/programs" class="lang-es">Programas</a>
 
             <!-- EVENTS -->
-            <a href="/events">
-            <%= lang === 'en' ? 'Events' : 'Eventos' %></a>
+            <a href="/events" class="lang-en">Events</a>
+            <a href="/events" class="lang-es">Eventos</a>
 
             <!-- GET INVOLVED -->
-            <a href="/get-involved">
-            <%= lang === 'en' ? 'Get Involved' : 'Involúcrate' %></a>
+            <a href="/get-involved" class="lang-en">Get Involved</a>
+            <a href="/get-involved" class="lang-es">Involúcrate</a>
 
             <!-- PRESS -->
-            <a href="/press">
-            <%= lang === 'en' ? 'Press' : 'Noticias' %></a>
+            <a href="/press" class="lang-en">Press</a>
+            <a href="/press" class="lang-es">Noticias</a>
 
             <!-- CONTACT -->
-            <a href="/contact">
-            <%= lang === 'en' ? 'Contact Us' : 'Contáctanos' %></a>
+            <a href="/contact" class="lang-en">Contact Us</a>
+            <a href="/contact" class="lang-es">Contáctanos</a>
 
             <% if (!user) { %>
 
                 <!-- Show Login/Register if NOT logged in -->
                 <form action="/login" method="GET" class="nav-button">
-                    <button type="submit" class="nav-button">
-                    <%= lang === 'en' ? 'Login/Register' : 'Iniciar/Registrar' %></a>
+                    <button type="submit" class="nav-button lang-en">Login/Register</button>
+                    <button type="submit" class="nav-button lang-es">Iniciar/Registrar</button>
                 </form>
 
             <% } else { %>
@@ -90,13 +90,13 @@
             <% } %>
 
             <!-- DONATE -->
-            <a class="nav-donate lang-en" href="/donate">
-            <%= lang === 'en' ? 'Donate' : 'Donar' %></a>
+            <a class="nav-donate lang-en" href="/donate">Donate</a>
+            <a class="nav-donate lang-es" href="/donate">Donar</a>
         </div>
 
         <!-- LANGUAGE TOGGLE -->
         <div class="lang-toggle">
-            <a href="/set-lang/en">English</a>
-            <a href="/set-lang/es">Español</a>
+            <button onclick="setLang('en')">English</button>
+            <button onclick="setLang('es')">Espanol</button>
         </div>
     </nav>
