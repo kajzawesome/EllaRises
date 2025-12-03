@@ -27,8 +27,21 @@ app.use(
   })
 );
 
+app.use((req, res, next) => {
+  res.locals.lang = req.session.language || "en";
+  res.locals.user = req.session.user || null;
+  next();
+});
+
+app.get("/set-lang/:lang", (req, res) => {
+  const lang = req.params.lang;
+  req.session.language = lang;
+  const backURL = req.header("Referer") || "/"; //Finds the page the button was clicked on
+  res.redirect(backURL);  // go back to the previous page
+});
+
 app.get("/", (req, res) => {
-  res.render("index");
+  res.render("index", { title: "Ella Rises" });
 });
 
 // -------------------------
@@ -39,43 +52,67 @@ app.get("/login", (req, res) => {
   res.render("login", { error_message: "", context });
 });
 
-app.post("/login", (req, res) => {
-  // Get data from the form (HTML input names: username, password)
-  let sName = req.body.username;
-  let sPassword = req.body.password;
+app.post("/login", async (req, res) => {
+  try {
+    const sName = req.body.username;
+    const sPassword = req.body.password;
 
-  // Query the users table for a matching username & password
-  knex
-    .select("username", "password", "level")
-    .from("logins")
-    .where("username", sName)
-    .andWhere("password", sPassword)
-    .then(users => {
-      // If a user is found, log them in
-      if (users.length > 0) {
-        // Store login state and username in the session
-        req.session.isLoggedIn = true;
-        req.session.user = {
-          username: users[0].username,
-          level: users[0].level
-        };
-        // Redirect to home page
-        res.redirect("/", {});
-      } else {
-        // Invalid credentials — show error
-        res.render("login", { error_message: "Invalid login" });
+    // Step 1: Validate user login
+    const users = await knex("logins")
+      .select("userid", "username", "password", "level")
+      .where("username", sName)
+      .andWhere("password", sPassword);
+    
+    if (users.length === 0) {
+      return res.render("login", { error_message: "Invalid login" });
+    }
+
+    const user = users[0];
+    let fullName = "";
+
+    // Step 2: Get full name based on level
+    if (user.level === "M") {
+      const mgr = await knex("managers")
+        .select("managerfirstname", "managerlastname")
+        .where("userid", user.userid)
+        .first();
+
+      if (mgr) {
+        fullName = `${mgr.managerfirstname} ${mgr.managerlastname}`;
       }
-    })
-    .catch(err => {
-      // If something goes wrong with the database
-      console.error("Login error:", err);
-      res.render("login", { error_message: "Invalid login" });
-    });
+
+    } else {
+      const parent = await knex("parents")
+        .select("parentfirstname", "parentlastname")
+        .where("userid", user.userid)
+        .first();
+
+      if (parent) {
+        fullName = `${parent.parentfirstname} ${parent.parentlastname}`;
+      }
+    }
+
+    // Step 3: Save user in session
+    req.session.isLoggedIn = true;
+    req.session.user = {
+      username: user.username,
+      level: user.level,
+      name: fullName
+    };
+
+    // Step 4: Redirect home
+    res.redirect("/");
+
+  } catch (err) {
+    console.error("Login error:", err);
+    res.render("login", { error_message: "Invalid login" });
+  }
 });
 
 // logout
 app.get("/logout", (req, res) => {
   req.session.destroy(() => {
+    req.session.isLoggedIn = false;
     res.redirect("/");
   });
 });
