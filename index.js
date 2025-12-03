@@ -240,6 +240,12 @@ app.get("/manageusers", async (req, res) => {
         "p.participantid",
         "p.participantfirstname",
         "p.participantlastname",
+        "p.participantemail",
+        "p.participantdob",
+        "p.participantphone",
+        "p.participantcity",
+        "p.participantstate",
+        "p.participantfieldofinterest",
         "pr.parentfirstname",
         "pr.parentlastname"
       )
