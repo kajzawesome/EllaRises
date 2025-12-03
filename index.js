@@ -222,44 +222,77 @@ app.get("/programs/register", async (req, res) => {
 
 // Admin dashboard
 app.get("/admin/dashboard", async (req, res) => {
-    const items = await knex("events")
-        .where("date", ">=", new Date())
-        .orderBy("date", "asc");
+    const upcomingItems = await knex("eventoccurrences as eo")
+    .join("events as e", "eo.eventid", "e.eventid")
+    .select(
+      "eo.eventoccurrenceid",
+      "e.eventname",
+      "e.eventtype",
+      "eo.eventdatestart",
+      "eo.eventtimestart",
+      "eo.eventlocation"
+    )
+    .where("eo.eventdatestart", ">=", knex.fn.now())
+    .orderBy("eo.eventdatestart");
 
-    res.render("admin/dashboard", { items });
+    res.render("admin/dashboard", { upcomingItems, title: "Admin Dashboard" });
 });
 
-app.get("/manageusers", async (req, res) => {
+app.get("/admin/manageusers", async (req, res) => {
   try {
-    // 1. Get all managers
-    const managers = await knex.select().from("managers").orderBy("managerlastname");;
+    // Get all managers
+    const managers = await knex("managers")
+      .select("userid", "managerfirstname", "managerlastname")
+      .orderBy("managerlastname");
 
-    const participants = await knex("participants as p")
-      .join("parents as pr", "p.parentid", "pr.parentid")
+    // Get all parents
+    const parents = await knex("parents")
       .select(
-        "p.participantid",
-        "p.participantfirstname",
-        "p.participantlastname",
-        "p.participantemail",
-        "p.participantdob",
-        "p.participantphone",
-        "p.participantcity",
-        "p.participantstate",
-        "p.participantfieldofinterest",
-        "pr.parentfirstname",
-        "pr.parentlastname"
+        "userid",
+        "parentid",
+        "parentfirstname",
+        "parentlastname",
+        "parentemail",
+        "preferredlanguage"
       )
-      .orderBy("p.participantlastname");
+      .orderBy("parentlastname");
+
+    // Get participants and link by parentid
+    const participants = await knex("participants")
+      .select(
+        "participantid",
+        "participantfirstname",
+        "participantlastname",
+        "participantemail",
+        "participantdob",
+        "participantphone",
+        "participantcity",
+        "participantstate",
+        "participantfieldofinterest",
+        "parentid"
+      );
+
+    // Attach children to each parent
+    parents.forEach(parent => {
+      parent.children = participants.filter(p => p.parentid === parent.parentid);
+    });
 
     res.render("admin/manageusers", {
+      title: "Manage Users",
       managers,
-      participants,
-      title: "Manage Users"
+      parents,
+      error_message: ""
     });
 
   } catch (err) {
-    console.error("Error loading people:", err);
-    res.send("Error loading people");
+    console.error("Manage Users Error:", err);
+
+    res.render("admin/manageusers", {
+      title: "Manage Users",
+      managers: [],
+      parents: [],
+      error_message: "Database error: " + err.message
+    });
   }
 });
 

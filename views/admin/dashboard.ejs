@@ -1,8 +1,4 @@
-<%- include('partials/header', { 
-    title: title,
-    user: user,
-    lang: lang
-}) %>
+<%- include('../partials/header', { title: 'Dashboard' }) %>
 
 <title><%= title || "Dashboard" %></title>
 
@@ -10,30 +6,19 @@
 
     <!-- Sidebar -->
     <aside class="admin-sidebar">
-
-        <ul class="admin-links">
-            <li>
-                <a href="/admin">
-                    <span class="lang-en">Dashboard</span>
-                    <span class="lang-es">Panel</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="/admin/add-event">
-                    <span class="lang-en">Add Event / Program</span>
-                    <span class="lang-es">Agregar Evento / Programa</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="/admin/manage-users">
-                    <span class="lang-en">Manage Users</span>
-                    <span class="lang-es">Administrar Usuarios</span>
-                </a>
-            </li>
-        </ul>
-
+        <div class="admin-links">
+            <a href="/admin">
+                <span class="lang-en">Dashboard</span>
+                <span class="lang-es">Panel</span>
+            </a>
+            <a href="/admin/add-event">
+                <span class="lang-en">Add Event / Program</span>
+                <span class="lang-es">Agregar Evento / Programa</span>
+            </a>
+            <a href="/admin/manageusers">
+                <span class="lang-en">Manage Users</span>
+                <span class="lang-es">Administrar Usuarios</span>
+            </a>
     </aside>
 
     <!-- Main Content -->
@@ -56,24 +41,47 @@
             </div>
         </section>
 
-        <!-- Upcoming Programs / Events -->
+        <!-- Upcoming Events & Occurrences -->
         <section class="upcoming-items">
             <h2>
                 <span class="lang-en">Upcoming Programs & Events</span>
                 <span class="lang-es">Próximos Programas y Eventos</span>
             </h2>
 
-            <% if (items && items.length > 0) { %>
+            <% if (upcomingItems && upcomingItems.length > 0) { %>
 
-                <% items.forEach(item => { %>
+                <% upcomingItems.forEach(item => { %>
                     <div class="admin-item-card">
-                        <div>
-                            <h3><%= item.name %></h3>
-                            <p><strong>Date:</strong> <%= item.date %></p>
-                            <p><strong>Type:</strong> <%= item.type %></p>
+                        
+                        <!-- Event Info -->
+                        <div class="admin-item-details">
+                            <h3><%= item.eventname %></h3>
+
+                            <p>
+                                <strong><span class="lang-en">Type:</span>
+                                        <span class="lang-es">Tipo:</span>
+                                </strong> 
+                                <%= item.eventtype %>
+                            </p>
+
+                            <p>
+                                <strong><span class="lang-en">Date:</span>
+                                        <span class="lang-es">Fecha:</span>
+                                </strong>
+                                <%= new Date(item.eventdatestart).toLocaleDateString() %>
+                                @ <%= item.eventtimestart %>
+                            </p>
+
+                            <p>
+                                <strong><span class="lang-en">Location:</span>
+                                        <span class="lang-es">Ubicación:</span>
+                                </strong> 
+                                <%= item.eventlocation %>
+                            </p>
                         </div>
 
-                        <a href="/admin/edit/<%= item.id %>" class="edit-btn">
+                        <!-- Edit -->
+                        <a href="/admin/edit-event/<%= item.eventoccurrenceid %>" class="edit-btn">
                             <span class="lang-en">Edit</span>
                             <span class="lang-es">Editar</span>
                         </a>
@@ -93,4 +101,4 @@
 
 </div>
 
-<%- include('partials/footer') %>
+<%- include('../partials/footer') %>

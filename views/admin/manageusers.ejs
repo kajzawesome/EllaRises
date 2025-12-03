@@ -1,8 +1,4 @@
-<%- include('partials/header', { 
-    title: title,
-    user: user,
-    lang: lang
-}) %>
+<%- include('../partials/header', { title: 'Manage Users' }) %>
 
 <title><%= title || "Manage Users" %></title>
 
@@ -69,48 +65,87 @@
 
     <!-- ============ PARENT ACCOUNTS ============ -->
     <section>
-        <h2>Parent Accounts</h2>
+    <h2>Parent Accounts</h2>
 
-        <% if (parents.length === 0) { %>
-            <div class="alert info">No parent accounts found.</div>
-        <% } else { %>
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Preferred Language</th>
-                        <th>Options</th>
-                    </tr>
-                </thead>
+    <% if (parents.length === 0) { %>
 
-                <tbody>
-                    <% parents.forEach(p => { %>
-                        <tr>
-                            <td><%= p.parentfirstname %> <%= p.parentlastname %></td>
-                            <td><%= p.parentemail %></td>
-                            <td><%= p.preferredlanguage %></td>
+        <div class="alert info">No parent accounts found.</div>
 
-                            <td class="row-actions">
-                                <!-- VIEW PROFILE -->
-                                <a class="view-btn" href="/admin/user/<%= p.userid %>">
-                                    View Details
-                                </a>
+    <% } else { %>
 
-                                <!-- DELETE -->
-                                <form 
-                                    action="/deleteUser/<%= p.userid %>" 
-                                    method="POST"
-                                    onsubmit="return confirm('Delete this parent account?');">
-                                    <button class="delete-btn" type="submit">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        <% } %>
+        <% parents.forEach(p => { %>
+
+            <div class="parent-card">
+
+                <div class="parent-header">
+
+                    <!-- Parent name links to their profile -->
+                    <div class="parent-name">
+                        <a href="/admin/user/<%= p.userid %>">
+                            <%= p.parentfirstname %> <%= p.parentlastname %>
+                        </a>
+                    </div>
+
+                    <!-- Toggle button -->
+                    <% if (p.children && p.children.length > 0) { %>
+                        <button
+                            id="child-<%= p.parentid %>-toggle"
+                            class="child-toggle"
+                            onclick="toggleChildren('child-<%= p.parentid %>')">
+                            Show Children ▼
+                        </button>
+                    <% } %>
+
+                </div>
+
+                <% if (p.children && p.children.length > 0) { %>
+
+                    <ul class="child-list" id="child-<%= p.parentid %>">
+
+                        <% p.children.forEach(c => { %>
+
+                            <li class="child-card">
+                                <strong><%= c.participantfirstname %> <%= c.participantlastname %></strong>
+                                <br>
+                                <span><strong>Interest:</strong> <%= c.participantfieldofinterest %></span>
+                                <br>
+                                <span><strong>City:</strong> <%= c.participantcity %></span>
+                                <br>
+                                <span><strong>Email:</strong> <%= c.participantemail %></span>
+                            </li>
+
+                        <% }) %>
+
+                    </ul>
+
+                <% } else { %>
+                    <p style="margin-top: 10px; color: #888;">No participants linked.</p>
+                <% } %>
+
+            </div>
+
+        <% }) %>
+
+    <% } %>
     </section>
 </div>
 
-<%- include('partials/footer') %>
+<script>
+function toggleChildren(id) {
+    const list = document.getElementById(id);
+    const btn = document.getElementById(id + "-toggle");
+
+    // read ACTUAL CSS display state
+    const isHidden = window.getComputedStyle(list).display === "none";
+
+    if (isHidden) {
+        list.style.display = "block";
+        btn.innerHTML = "Hide Children ▲";
+    } else {
+        list.style.display = "none";
+        btn.innerHTML = "Show Children ▼";
+    }
+}
+</script>
+
+<%- include('../partials/footer') %>
