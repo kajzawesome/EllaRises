@@ -1,4 +1,4 @@
-<%- include('partials/header', { title: "Donate" , user: user, lang: lang }) %>
+<%- include('../partials/header', { title: title , user: user, lang: lang }) %>
 
   <div class="donation-container">
     <h1>
@@ -23,7 +23,7 @@
           </div>
           <% } %>
 
-            <form action="/donate" method="POST" class="donation-form">
+            <form action="/pages/donations" method="POST" class="donation-form">
 
               <!-- Donor Info -->
               <h2>
@@ -35,16 +35,13 @@
                 <span class="lang-en">Full Name</span>
                 <span class="lang-es">Nombre Completo</span>
               </label>
-              <input type="text" id="name" name="name" placeholder="<%= lang === 'es' ? 'Tu Nombre' : 'Your Name' %>"
-                value="<%= (form && form.name) || '' %>" required />
+              <input type="text" id="name" name="name" autofocus required />
 
               <label for="email">
                 <span class="lang-en">Email Address</span>
                 <span class="lang-es">Correo Electrónico</span>
               </label>
-              <input type="email" id="email" name="email"
-                placeholder="<%= lang === 'es' ? 'tu@ejemplo.com' : 'you@example.com' %>"
-                value="<%= (form && form.email) || '' %>" required />
+              <input type="email" id="email" name="email" required />
 
               <!-- Donation Amount -->
               <h2>
@@ -54,38 +51,36 @@
 
               <div class="amount-options" role="radiogroup" aria-label="Donation amounts">
                 <label>
-                  <input type="radio" name="amount" value="10" <%=(form && form.amount=='10' ) ? 'checked' : '' %> />
+                  <input type="radio" name="amount" value="10">
                   $10
                 </label>
-
+              
                 <label>
-                  <input type="radio" name="amount" value="25" <%=(form && form.amount=='25' ) ? 'checked' : '' %> />
+                  <input type="radio" name="amount" value="25">
                   $25
                 </label>
-
+              
                 <label>
-                  <input type="radio" name="amount" value="50" <%=(form && form.amount=='50' ) ? 'checked' : '' %> />
+                  <input type="radio" name="amount" value="50">
                   $50
                 </label>
-
+              
                 <label>
-                  <input type="radio" name="amount" value="100" <%=(form && form.amount=='100' ) ? 'checked' : '' %> />
+                  <input type="radio" name="amount" value="100">
                   $100
                 </label>
-
+              
                 <label>
-                  <input type="radio" name="amount" value="250" <%=(form && form.amount=='250' ) ? 'checked' : '' %> />
+                  <input type="radio" name="amount" value="250">
                   $250
                 </label>
-
-                <div class="custom-amount" style="display:block; margin-top:10px;">
+              
+                <div class="custom-amount">
                   <label for="customAmount">
                     <span class="lang-en">Custom Amount ($)</span>
                     <span class="lang-es">Cantidad Personalizada ($)</span>
                   </label>
-                  <input type="number" id="customAmount" name="customAmount" min="1"
-                    placeholder="<%= lang === 'es' ? 'Ingrese cantidad' : 'Enter amount' %>"
-                    value="<%= (form && form.customAmount) || '' %>" />
+                  <input type="number" id="customAmount" name="customAmount" min="10">
                 </div>
               </div>
 
@@ -94,8 +89,8 @@
                 <span class="lang-en">Message (Optional)</span>
                 <span class="lang-es">Mensaje (Opcional)</span>
               </h2>
-              <textarea name="message" rows="4"
-                placeholder="<%= lang === 'es' ? 'Escribe una nota u orden especial (opcional)' : 'Add a note or special instructions (optional)' %>"><%= (form && form.message) || '' %></textarea>
+              <textarea class="lang-en" name="message" rows="4">
+              </textarea>
 
               <button type="submit" class="donate-button">
                 <span class="lang-en">Donate Now</span>
@@ -104,4 +99,4 @@
             </form>
   </div>
 
-  <%- include('partials/footer') %>
+  <%- include('../partials/footer') %>

@@ -325,24 +325,29 @@ app.get("/admin/add-event", requireManager, (req, res) => {
 });
 
 app.get("/pages/donations", (req, res) => {
-  res.render("donations", { user: req.session.user });
+  res.render("pages/donations", { title: "Donations", error_message: "", success_message: "", user: req.session.user });
 });
 
 app.post("/pages/donations", (req, res) => {
   const { name, email, amount, customAmount, message } = req.body;
 
-  const finalAmount = customAmount && customAmount > 0 ? customAmount : amount;
+  const customAmountNum = Number(customAmount);
+  const finalAmount = customAmountNum > 0 ? customAmountNum : Number(amount);
 
   if (!finalAmount) {
-    return res.render("donations", {
+    return res.render("pages/donations", {
+      title: "Donations",
       error_message: "Please select or enter a donation amount.",
+      success_message: "",
       user: req.session.user
     });
   }
 
   // TODO: send to Stripe, PayPal, email, insert into DB, etc.
 
-  res.render("donations", {
+  res.render("pages/donations", {
+    title: "Donations",
+    error_message: "",
     success_message: `Thank you for your donation of $${finalAmount}!`,
     user: req.session.user
   });
