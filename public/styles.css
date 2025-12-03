@@ -148,20 +148,53 @@ h1, h2, h3 {
    HERO SECTION
 ------------------------------------------------------ */
 
-.hero {
+.hero-content {
+    text-align: center;
+    padding: 70px 40px;
     background-color: #FFD8D1;
-    padding: 100px 20px 70px;
+}
+
+.hero-content h1 {
+    font-size: 42px;
+    color: #3A3F3B;
+    margin-bottom: 20px;
 }
 
 .hero-text {
     font-size: 18px;
     max-width: 650px;
-    margin: 0 auto 40px;
+    margin: 0 auto 30px;
     color: #3A3F3B;
 }
 
 .hero-button {
     margin-top: 20px;
+}
+
+.hero-image {
+    width: 100%;
+    height: 380px;
+    /* adjust height here */
+    background-image: url('/images/825D53BB-2464-458F-8163-81095033AE6C.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Dark overlay for readability */
+.hero-image::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    /* adjust opacity */
+    z-index: 1;
 }
 
 /* -----------------------------------------------------
@@ -549,4 +582,98 @@ h1, h2, h3 {
     padding: 12px;
     margin-bottom: 10px;
     border-left: 4px solid #ff69b4;
+}
+
+.donation-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.donation-container h1 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.donation-form h2 {
+    margin-top: 25px;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.donation-form label {
+    display: block;
+    margin-top: 12px;
+    font-weight: 600;
+}
+
+.donation-form input[type="text"],
+.donation-form input[type="email"],
+.donation-form input[type="number"],
+.donation-form textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 6px;
+    font-size: 1rem;
+}
+
+.amount-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.amount-options label {
+    background: #f9f0f4;
+    /* subtle light pink */
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid #f0dbe3;
+}
+
+.amount-options input[type="radio"] {
+    margin-right: 6px;
+}
+
+.custom-amount {
+    flex-basis: 100%;
+    margin-top: 10px;
+}
+
+.donate-button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 25px;
+    background: #e6397a;
+    color: #fff;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.donate-button:hover {
+    background: #d42e6c;
+}
+
+.error {
+    background: #ffdddd;
+    padding: 10px;
+    border-left: 4px solid #d8000c;
+    margin-bottom: 10px;
+}
+
+.success {
+    background: #ddffdd;
+    padding: 10px;
+    border-left: 4px solid #2e8b57;
+    margin-bottom: 10px;
 }
