@@ -320,7 +320,7 @@ app.get("/admin/manageusers",requireManager, async (req, res) => {
   }
 });
 
-app.get("/admin/add-event", (req, res) => {
+app.get("/admin/add-event", requireManager, (req, res) => {
   res.render("admin/addEvent", { title: "Add Event", error_message: "" });
 });
 
