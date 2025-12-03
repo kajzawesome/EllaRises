@@ -21,16 +21,16 @@
             <!-- ABOUT -->
             <!-- About with dropdown -->
             <div class="dropdown lang-en">
-                <a href="#">About</a>
+                <a href="#"><%= lang === 'en' ? 'About' : 'Sobre' %></a>
                 <div class="dropdown-content">
-                    <a href="/our-mission"><span class="lang-en">Our Mission</span>
-                        <span class="lang-es">Nuestra Misión</span></a>
+                    <a href="/our-mission"><span class="lang-en">
+                        <%= lang === 'en' ? 'Our Mission' : 'Nuestra Misión' %></span></a>
 
-                    <a href="/our-team"><span class="lang-en">Our Team</span>
-                        <span class="lang-es">Nuestro Equipo</span></a>
+                    <a href="/our-team"><span class="lang-en">
+                        <%= lang === 'en' ? 'Our Team' : 'Nuestro Equipo' %></span></a>
 
-                    <a href="/board-of-directors"><span class="lang-en">Board of Directors</span>
-                        <span class="lang-es">Junta Directiva</span></a>
+                    <a href="/board-of-directors"><span class="lang-en">
+                        <%= lang === 'en' ? 'Board of Directors' : 'Junta Directiva' %></span></a>
                 </div>
             </div>
 
@@ -65,10 +65,25 @@
             <% } else { %>
 
                 <!-- Show User Icon when logged in -->
-                <div class="user-icon-container">
+                <div class="user-icon-container dropdown">
                     <a href="/profile">
                         <i class="fa-solid fa-user"></i> <%= user.name %>
                     </a>
+                    <% if (user.level === "M") { %>
+                        <div class="dropdown-content">
+                        <a href="/dashboard"><span class="lang-en">
+                            <%= lang === 'en' ? 'Dashboard' : 'El Tablero de Control' %></span></a>
+
+                        <a href="/logout"><span class="lang-en">
+                            <%= lang === 'en' ? 'Logout' : 'Desconectar' %></span></a>
+                        </div>
+                    <% } %>
+                    <% if (user.level === "U") { %>
+                        <div class="dropdown-content">
+                        <a href="/logout"><span class="lang-en">
+                            <%= lang === 'en' ? 'Logout' : 'Desconectar' %></span></a>
+                        </div>
+                    <% } %>
                 </div>
 
             <% } %>

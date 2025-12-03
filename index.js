@@ -112,7 +112,6 @@ app.post("/login", async (req, res) => {
 // logout
 app.get("/logout", (req, res) => {
   req.session.destroy(() => {
-    req.session.isLoggedIn = false;
     res.redirect("/");
   });
 });
@@ -219,6 +218,10 @@ app.get("/programs/register", async (req, res) => {
     currentPrograms,
     sortedPrograms
   });
+});
+
+app.get("/dashboard", (req, res) => {
+  res.render("admin/dashboard");
 });
 
 // -------------------------
