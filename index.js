@@ -27,6 +27,30 @@ app.use(
   })
 );
 
+// helper functions
+function requireLogin(req, res, next) {
+  if (!req.session || !req.session.user) {
+    return res.redirect("/login?error=Please+log+in+first");
+  }
+  next();
+}
+
+function requireManager(req, res, next) {
+  if (!req.session || !req.session.user) {
+    return res.redirect("/login?error=Please+log+in+first");
+  }
+
+  if (req.session.user.role !== "manager") {
+    return res.status(403).render("error", {
+      message: "Access denied. Managers only."
+    });
+    // OR: res.redirect("/") if you prefer silent redirect
+  }
+
+  next();
+}
+// -------------------------
+
 app.use((req, res, next) => {
   res.locals.lang = req.session.language || "en";
   res.locals.user = req.session.user || null;
@@ -138,7 +162,7 @@ app.post("/addUser", async (req, res) => {
 // -------------------------
 // EVENTS ROUTES
 // -------------------------
-app.get("/events/register", async (req, res) => {
+app.get("/events/register",requireLogin, async (req, res) => {
   const user = req.session.user || null;
 
   // fetch all events
@@ -182,7 +206,7 @@ function addMonths(date, months) {
   return d;
 }
 
-app.get("/programs/register", async (req, res) => {
+app.get("/programs/register",requireLogin, async (req, res) => {
   const user = req.session.user || null;
 
   // fetch all programs
@@ -221,7 +245,7 @@ app.get("/programs/register", async (req, res) => {
 });
 
 // Admin dashboard
-app.get("/admin/dashboard", async (req, res) => {
+app.get("/admin/dashboard",requireManager, async (req, res) => {
     const upcomingItems = await knex("eventoccurrences as eo")
     .join("events as e", "eo.eventid", "e.eventid")
     .select(
@@ -238,7 +262,7 @@ app.get("/admin/dashboard", async (req, res) => {
     res.render("admin/dashboard", { upcomingItems, title: "Admin Dashboard" });
 });
 
-app.get("/admin/manageusers", async (req, res) => {
+app.get("/admin/manageusers",requireManager, async (req, res) => {
   try {
     // Get all managers
     const managers = await knex("managers")
@@ -322,7 +346,7 @@ app.post("/donate", (req, res) => {
 
 
 // Add event page
-app.get("/admin/add-event", (req, res) => {
+app.get("/admin/add-event",requireManager, (req, res) => {
     res.render("admin/addevent");
 });
 

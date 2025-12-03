@@ -9,6 +9,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script src="/js/lang.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".navbar .dropdown > a").forEach(toggle => {
+                toggle.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const dropdown = toggle.parentElement;
+                    dropdown.classList.toggle("open");
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener("click", (e) => {
+                document.querySelectorAll(".navbar .dropdown").forEach(drop => {
+                    if (!drop.contains(e.target)) {
+                        drop.classList.remove("open");
+                    }
+                });
+            });
+        });
+    </script>
 </head>
 
 <body>
