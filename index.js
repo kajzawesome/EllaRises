@@ -348,13 +348,41 @@ app.post("/pages/donations", (req, res) => {
   });
 });
 
-app.get("/admin/donations",requireManager, (req, res) => {
+app.get("/admin/donations", requireManager, (req, res) => {
   res.render("admin/donations", { title: "View Donations" });
 });
 
 // Add event page
-app.get("/admin/add-event",requireManager, (req, res) => {
+app.get("/admin/add-event", requireManager, (req, res) => {
     res.render("admin/addevent");
+});
+
+app.post("/admin/add-event", requireManager, (req, res) => {
+    const {
+        eventname,
+        eventtype,
+        eventdescription,
+        recurrencepattern,
+        eventdefaultcapacity
+    } = req.body;
+
+    const newEvent = {
+        eventname,
+        eventtype,
+        eventdescription,
+        recurrencepattern,
+        eventdefaultcapacity
+    };
+
+    knex("events")
+        .insert(newEvent)
+        .then(() => {
+            res.redirect("dashboard");
+        })
+        .catch((dbErr) => {
+            console.error("Error inserting event:", dbErr.message);
+            res.status(500).render("admin/addEvent", { error_message: "Unable to save event. Please try again." });
+        });
 });
 
 // -------------------------
