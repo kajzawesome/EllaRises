@@ -1,4 +1,10 @@
-<%- include('partials/header', { title: 'Add Event' }) %>
+<%- include('partials/header', { 
+    title: title,
+    user: user,
+    lang: lang
+}) %>
+
+<title><%= title || "Add Event" %></title>
 
 <div class="container">
     <h1>

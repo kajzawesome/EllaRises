@@ -1,4 +1,9 @@
-<%- include('../partials/header', { title: 'Manage Users' }) %>
+<%- include('partials/header', { 
+    title: title,
+    user: user,
+    lang: lang
+}) %>
+<title><%= title || "Manage Users" %></title>
 
 <h1>Users List</h1>
 <form action="/addUser" method="GET">

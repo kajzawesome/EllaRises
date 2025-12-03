@@ -1,4 +1,9 @@
-<%- include('partials/header', { title: 'Create Account' }) %>
+<%- include('partials/header', { 
+    title: title,
+    user: user,
+    lang: lang
+}) %>
+<title><%= title || "Create Account" %></title>
 
     <div>
         <h1 class="lang-en">Create Account</h1>
