@@ -320,6 +320,10 @@ app.get("/admin/manageusers",requireManager, async (req, res) => {
   }
 });
 
+app.get("/admin/add-event", (req, res) => {
+  res.render("admin/addEvent", { title: "Add Event", error_message: "" });
+});
+
 app.get("/donate", (req, res) => {
   res.render("donations", { user: req.session.user });
 });
