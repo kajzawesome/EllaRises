@@ -296,6 +296,10 @@ app.get("/admin/manageusers", async (req, res) => {
   }
 });
 
+app.get("/admin/add-event", (req, res) => {
+  res.render("admin/addEvent", { title: "Add Event", error_message: "" });
+});
+
 app.post("/donate", (req, res) => {
   const { name, email, amount, customAmount, message } = req.body;
 
