@@ -148,20 +148,53 @@ h1, h2, h3 {
    HERO SECTION
 ------------------------------------------------------ */
 
-.hero {
+.hero-content {
+    text-align: center;
+    padding: 70px 40px;
     background-color: #FFD8D1;
-    padding: 100px 20px 70px;
+}
+
+.hero-content h1 {
+    font-size: 42px;
+    color: #3A3F3B;
+    margin-bottom: 20px;
 }
 
 .hero-text {
     font-size: 18px;
     max-width: 650px;
-    margin: 0 auto 40px;
+    margin: 0 auto 30px;
     color: #3A3F3B;
 }
 
 .hero-button {
     margin-top: 20px;
+}
+
+.hero-image {
+    width: 100%;
+    height: 380px;
+    /* adjust height here */
+    background-image: url('/images/825D53BB-2464-458F-8163-81095033AE6C.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Dark overlay for readability */
+.hero-image::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    /* adjust opacity */
+    z-index: 1;
 }
 
 /* -----------------------------------------------------
