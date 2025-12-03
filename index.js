@@ -320,6 +320,10 @@ app.get("/admin/manageusers",requireManager, async (req, res) => {
   }
 });
 
+app.get("/donate", (req, res) => {
+  res.render("donations", { user: req.session.user });
+});
+
 app.post("/donate", (req, res) => {
   const { name, email, amount, customAmount, message } = req.body;
 
