@@ -296,6 +296,27 @@ app.get("/admin/manageusers", async (req, res) => {
   }
 });
 
+app.post("/donate", (req, res) => {
+  const { name, email, amount, customAmount, message } = req.body;
+
+  const finalAmount = customAmount && customAmount > 0 ? customAmount : amount;
+
+  if (!finalAmount) {
+    return res.render("donations", {
+      error_message: "Please select or enter a donation amount.",
+      user: req.session.user
+    });
+  }
+
+  // TODO: send to Stripe, PayPal, email, insert into DB, etc.
+
+  res.render("donations", {
+    success_message: `Thank you for your donation of $${finalAmount}!`,
+    user: req.session.user
+  });
+});
+
+
 // Add event page
 app.get("/admin/add-event", (req, res) => {
     res.render("admin/addevent");
