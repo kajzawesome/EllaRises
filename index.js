@@ -324,11 +324,11 @@ app.get("/admin/add-event", requireManager, (req, res) => {
   res.render("admin/addEvent", { title: "Add Event", error_message: "" });
 });
 
-app.get("/donate", (req, res) => {
+app.get("/pages/donations", (req, res) => {
   res.render("donations", { user: req.session.user });
 });
 
-app.post("/donate", (req, res) => {
+app.post("/pages/donations", (req, res) => {
   const { name, email, amount, customAmount, message } = req.body;
 
   const finalAmount = customAmount && customAmount > 0 ? customAmount : amount;
@@ -348,6 +348,9 @@ app.post("/donate", (req, res) => {
   });
 });
 
+app.get("/admin/donations",requireManager, (req, res) => {
+  res.render("admin/donations", { title: "View Donations" });
+});
 
 // Add event page
 app.get("/admin/add-event",requireManager, (req, res) => {
