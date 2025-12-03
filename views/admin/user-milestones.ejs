@@ -1,0 +1,43 @@
+<%- include('../partials/header', { title: 'User Milestones', user: user, lang: lang }) %>
+
+<div class="admin-container">
+  <aside class="admin-sidebar">
+    <h3><span class="lang-en">Admin Tools</span><span class="lang-es">Herramientas Admin</span></h3>
+    <a class="admin-btn" href="/admin/manage-users"><span class="lang-en">Back</span><span class="lang-es">Atrás</span></a>
+  </aside>
+
+  <main class="admin-main">
+    <section>
+      <h2><%= parent.parentfirstname %> <%= parent.parentlastname %></h2>
+      <p><strong><span class="lang-en">Email:</span><span class="lang-es">Correo:</span></strong> <%= parent.parentemail %></p>
+
+      <h3><span class="lang-en">Participants</span><span class="lang-es">Participantes</span></h3>
+      <% if (parent.participants && parent.participants.length) { %>
+        <% parent.participants.forEach(p => { %>
+          <div class="program-card" style="margin-bottom:12px;">
+            <h4><%= p.participantfirstname %> <%= p.participantlastname %></h4>
+            <p><strong><span class="lang-en">DOB:</span><span class="lang-es">FN:</span></strong> <%= p.participantDOB %></p>
+            <p><strong><span class="lang-en">Grade:</span><span class="lang-es">Grado:</span></strong> <%= p.participantgrade || '—' %></p>
+
+            <div style="margin-top:10px;">
+              <h5><span class="lang-en">Milestones</span><span class="lang-es">Hitos</span></h5>
+              <% if (p.milestones && p.milestones.length) { %>
+                <ul>
+                  <% p.milestones.forEach(m => { %>
+                    <li><strong><%= m.title %></strong> — <%= m.date %> — <%= m.notes || '' %></li>
+                  <% }) %>
+                </ul>
+              <% } else { %>
+                <p><span class="lang-en">No milestones recorded.</span><span class="lang-es">No hay hitos registrados.</span></p>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p><span class="lang-en">No participants.</span><span class="lang-es">No hay participantes.</span></p>
+      <% } %>
+    </section>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

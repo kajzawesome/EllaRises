@@ -1,0 +1,48 @@
+<%- include('../partials/header', { title: 'Donations', user: user, lang: lang }) %>
+
+<div class="admin-container">
+  <aside class="admin-sidebar">
+    <h3><span class="lang-en">Admin Tools</span><span class="lang-es">Herramientas Admin</span></h3>
+    <a class="admin-btn" href="/admin"> <span class="lang-en">Dashboard</span><span class="lang-es">Panel</span></a>
+  </aside>
+
+  <main class="admin-main">
+    <section>
+      <h2><span class="lang-en">Donations</span><span class="lang-es">Donaciones</span></h2>
+
+      <div style="margin-bottom:16px;">
+        <a class="button" href="/admin/donations/export-csv"><span class="lang-en">Export CSV</span><span class="lang-es">Exportar CSV</span></a>
+        <span style="margin-left:16px; font-weight:700;"><span class="lang-en">Total:</span><span class="lang-es">Total:</span> $<%= total || '0.00' %></span>
+      </div>
+
+      <% if (donations && donations.length) { %>
+        <table style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f2f2f2; text-align:left;">
+              <th>ID</th>
+              <th><span class="lang-en">Donor</span><span class="lang-es">Donante</span></th>
+              <th><span class="lang-en">Amount</span><span class="lang-es">Cantidad</span></th>
+              <th><span class="lang-en">Date</span><span class="lang-es">Fecha</span></th>
+              <th><span class="lang-en">Notes</span><span class="lang-es">Notas</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% donations.forEach(d => { %>
+              <tr>
+                <td><%= d.id %></td>
+                <td><%= d.donor_name || 'Anonymous' %></td>
+                <td>$<%= d.amount %></td>
+                <td><%= d.date %></td>
+                <td><%= d.notes || '—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p><span class="lang-en">No donations recorded yet.</span><span class="lang-es">No hay donaciones registradas.</span></p>
+      <% } %>
+    </section>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

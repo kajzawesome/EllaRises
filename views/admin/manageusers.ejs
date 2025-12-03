@@ -3,50 +3,113 @@
     user: user,
     lang: lang
 }) %>
+
 <title><%= title || "Manage Users" %></title>
 
-<h1>Users List</h1>
-<form action="/addUser" method="GET">
-    <button type="submit">Add Manager</button>
-</form>
-<br>
-<% if (typeof error_message !== 'undefined' && error_message) { %>
-    <div role="alert">
-        <%= error_message %>
-    </div>
-<% } %>
-<% if (managers.length === 0) { %>
-    <div role="alert">
-        No managers found in the database.
-    </div>
-<% } else { %>
-    <h2>Managers</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Options</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% for (let iCount = 0; iCount < managers.length; iCount++) { %>
-                <tr>
-                    <td><%= managers[iCount].managerfirstname %></td>
-                    <td><%= managers[iCount].managerlastname %></td>
-                    <td>
-                        <form action="/editUser/<%= managers[iCount].userid %>" method="GET">
-                            <input type="submit" name="Edit" value="Edit" />
-                        </form>
-                        <form action="/deleteUser/<%= managers[iCount].userid %>" method="POST"
-                            onsubmit="return confirm('Are you sure you want to delete <%= managers[iCount].managerfirstname %>?');">
-                            <input type="submit" name="Delete" value="Delete" />
-                        </form>
-                    </td>
-                </tr>
-            <% } %>
-        </tbody>
-    </table>
-<% } %>
+<div class="admin-page">
+    <h1 class="page-title">Manage Users</h1>
 
-<%- include('../partials/footer') %>
+    <!-- Add Manager Button -->
+    <form action="/addUser" method="GET" class="top-action">
+        <button type="submit" class="admin-btn">Add Manager</button>
+    </form>
+
+    <!-- Error Message -->
+    <% if (error_message) { %>
+        <div class="alert error"><%= error_message %></div>
+    <% } %>
+
+    <!-- ============ MANAGERS ============ -->
+    <section>
+        <h2>Managers</h2>
+
+        <% if (managers.length === 0) { %>
+            <div class="alert info">No managers found in the database.</div>
+        <% } else { %>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>First</th>
+                        <th>Last</th>
+                        <th>Options</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <% managers.forEach(m => { %>
+                        <tr>
+                            <td><%= m.managerfirstname %></td>
+                            <td><%= m.managerlastname %></td>
+                            <td class="row-actions">
+                                <!-- VIEW DETAILS -->
+                                <a class="view-btn" href="/admin/user/<%= m.userid %>">
+                                    View Details
+                                </a>
+
+                                <!-- EDIT MANAGER -->
+                                <form action="/editUser/<%= m.userid %>" method="GET">
+                                    <button type="submit" class="edit-btn">Edit</button>
+                                </form>
+
+                                <!-- DELETE MANAGER -->
+                                <form 
+                                    action="/deleteUser/<%= m.userid %>" 
+                                    method="POST"
+                                    onsubmit="return confirm('Delete <%= m.managerfirstname %>?');">
+                                    <button type="submit" class="delete-btn">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </section>
+
+    <!-- ============ PARENT ACCOUNTS ============ -->
+    <section>
+        <h2>Parent Accounts</h2>
+
+        <% if (parents.length === 0) { %>
+            <div class="alert info">No parent accounts found.</div>
+        <% } else { %>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Preferred Language</th>
+                        <th>Options</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <% parents.forEach(p => { %>
+                        <tr>
+                            <td><%= p.parentfirstname %> <%= p.parentlastname %></td>
+                            <td><%= p.parentemail %></td>
+                            <td><%= p.preferredlanguage %></td>
+
+                            <td class="row-actions">
+                                <!-- VIEW PROFILE -->
+                                <a class="view-btn" href="/admin/user/<%= p.userid %>">
+                                    View Details
+                                </a>
+
+                                <!-- DELETE -->
+                                <form 
+                                    action="/deleteUser/<%= p.userid %>" 
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this parent account?');">
+                                    <button class="delete-btn" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </section>
+</div>
+
+<%- include('partials/footer') %>

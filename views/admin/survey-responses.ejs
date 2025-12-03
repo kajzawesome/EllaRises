@@ -1,0 +1,66 @@
+<%- include('../partials/header', { title: 'Survey Responses', user: user, lang: lang }) %>
+
+<div class="admin-container">
+  <aside class="admin-sidebar">
+    <h3><span class="lang-en">Admin Tools</span><span class="lang-es">Herramientas Admin</span></h3>
+    <a class="admin-btn" href="/admin"> <span class="lang-en">Dashboard</span><span class="lang-es">Panel</span></a>
+    <a class="admin-btn" href="/admin/manage-events"> <span class="lang-en">Manage Events</span><span class="lang-es">Administrar Eventos</span></a>
+  </aside>
+
+  <main class="admin-main">
+    <section>
+      <h2><span class="lang-en">Survey Responses</span><span class="lang-es">Respuestas de Encuesta</span></h2>
+
+      <div style="margin-bottom:18px;">
+        <form method="GET" action="/admin/surveys">
+          <select name="filter">
+            <option value="all"><span class="lang-en">All</span><span class="lang-es">Todas</span></option>
+            <% if (filterOptions) { filterOptions.forEach(f => { %>
+              <option value="<%= f.id %>" <%= filterBy==f.id ? 'selected' : '' %>><%= f.label %></option>
+            <% }) } %>
+          </select>
+          <button class="button" type="submit"><span class="lang-en">Filter</span><span class="lang-es">Filtrar</span></button>
+        </form>
+      </div>
+
+      <% if (responses && responses.length) { %>
+        <table style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr style="text-align:left; background:#f2f2f2;">
+              <th>ID</th>
+              <th><span class="lang-en">Item</span><span class="lang-es">Elemento</span></th>
+              <th><span class="lang-en">User</span><span class="lang-es">Usuario</span></th>
+              <th><span class="lang-en">Scores</span><span class="lang-es">Puntajes</span></th>
+              <th><span class="lang-en">NPS</span><span class="lang-es">NPS</span></th>
+              <th><span class="lang-en">Comments</span><span class="lang-es">Comentarios</span></th>
+              <th><span class="lang-en">Submitted</span><span class="lang-es">Enviada</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% responses.forEach(r => { %>
+              <tr>
+                <td><%= r.id %></td>
+                <td><%= r.item_name %></td>
+                <td><%= r.user_label %></td>
+                <td>
+                  <%= r.SurveySatisfactionScore %> /
+                  <%= r.SurveyUsefulnessScore %> /
+                  <%= r.SurveyInstructorScore %> /
+                  <%= r.SurveyRecommendationScore %> /
+                  <%= r.SurveyOverallScore %>
+                </td>
+                <td><%= r.SurveyNPSBucket %></td>
+                <td><%= r.SurveyComments || '—' %></td>
+                <td><%= r.SurveySubmissionDate %> <%= r.SurveySubmissionTime %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p><span class="lang-en">No survey responses yet.</span><span class="lang-es">No hay respuestas aún.</span></p>
+      <% } %>
+    </section>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>
