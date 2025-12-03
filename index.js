@@ -362,32 +362,116 @@ app.get("/admin/add-event", requireManager, (req, res) => {
     res.render("admin/addevent");
 });
 
-app.post("/admin/add-event", requireManager, (req, res) => {
+app.post("/admin/add-event", requireManager, async (req, res) => {
     const {
         eventname,
         eventtype,
         eventdescription,
         recurrencepattern,
-        eventdefaultcapacity
+        eventdefaultcapacity,
+
+        // First occurrence schedule
+        occurrencestartdate,
+        occurrencestarttime,
+        occurrenceenddate,
+        occurrenceendtime,
+
+        // Recurrence range
+        repeatenddate,
+
+        // Other info
+        eventlocation,
+        registrationdaysbefore
     } = req.body;
 
-    const newEvent = {
-        eventname,
-        eventtype,
-        eventdescription,
-        recurrencepattern,
-        eventdefaultcapacity
-    };
+    try {
+        // Insert main event
+        const [eventID] = await knex("events")
+            .insert({
+                eventname,
+                eventtype,
+                eventdescription,
+                recurrencepattern,
+                eventdefaultcapacity
+            })
+            .returning("eventid");
 
-    knex("events")
-        .insert(newEvent)
-        .then(() => {
-            res.redirect("dashboard");
-        })
-        .catch((dbErr) => {
-            console.error("Error inserting event:", dbErr.message);
-            res.status(500).render("admin/addEvent", { error_message: "Unable to save event. Please try again." });
+        const EventID = eventID.eventid ?? eventID;
+
+        // Convert to JS Dates
+        let start = new Date(occurrencestartdate);
+        let end   = new Date(occurrenceenddate);
+
+        const final = new Date(repeatenddate);
+
+        // Store occurrences here
+        let occurrences = [];
+
+        // Helper to add a single occurrence
+        const addOccurrence = (startDate, endDate) => {
+            // Dynamic registration deadline: X days prior
+            const deadline = new Date(startDate);
+            deadline.setDate(deadline.getDate() - Number(registrationdaysbefore));
+
+            occurrences.push({
+                eventid: EventID,
+                
+                eventdatestart: startDate.toISOString().split("T")[0],
+                eventtimestart: occurrencestarttime,
+
+                eventdateend: endDate.toISOString().split("T")[0],
+                eventtimeend: occurrenceendtime,
+
+                eventlocation,
+                eventcapacity: eventdefaultcapacity,
+
+                eventregistrationdeadlinedate: deadline.toISOString().split("T")[0],
+                eventregistrationdeadlinetime: "23:59"
+            });
+        };
+
+        // Add first occurrence
+        addOccurrence(start, end);
+
+        // Generate recurring events
+        while (true) {
+            let nextStart = new Date(start);
+            let nextEnd   = new Date(end);
+
+            if (recurrencepattern === "Daily") {
+                nextStart.setDate(nextStart.getDate() + 1);
+                nextEnd.setDate(nextEnd.getDate() + 1);
+            }
+            else if (recurrencepattern === "Weekly") {
+                nextStart.setDate(nextStart.getDate() + 7);
+                nextEnd.setDate(nextEnd.getDate() + 7);
+            }
+            else if (recurrencepattern === "Monthly") {
+                nextStart.setMonth(nextStart.getMonth() + 1);
+                nextEnd.setMonth(nextEnd.getMonth() + 1);
+            }
+            else {
+                break; // No recurrence
+            }
+
+            if (nextStart > final) break;
+
+            addOccurrence(nextStart, nextEnd);
+            start = nextStart;
+            end = nextEnd;
+        }
+
+        // Insert all occurrences
+        await knex("eventoccurrences").insert(occurrences);
+
+        res.redirect("/admin/dashboard");
+
+    } catch (err) {
+        console.error("Error adding event:", err.message);
+        res.status(500).render("admin/addEvent", {
+            error_message: "Unable to save event. Please try again."
         });
+    }
 });
 
 // -------------------------
