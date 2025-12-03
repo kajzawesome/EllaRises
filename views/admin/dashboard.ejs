@@ -1,22 +1,60 @@
-<%- include('../partials/header', { title: 'Manager Dashboard' }) %>
+<%- include('partials/header', { 
+    title: title,
+    user: user,
+    lang: lang
+}) %>
 
-<div class="admin-dashboard">
-    <h1>
-        <span class="lang-en">Manager Dashboard</span>
-        <span class="lang-es">Panel de Administración</span>
-    </h1>
+    <div class="admin-container">
 
-    <ul class="admin-links">
-        <li><a href="/admin/addevent">
-            <span class="lang-en">Add Event</span>
-            <span class="lang-es">Agregar Evento</span>
-        </a></li>
-        <li><a href="/admin/manageusers">
-            <span class="lang-en">Manage Users</span>
-            <span class="lang-es">Administrar Usuarios</span>
-        </a></li>
-        <!-- Add more admin tools here -->
-    </ul>
-</div>
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <h3>Admin Tools</h3>
 
-<%- include('../partials/footer') %>
+            <a href="/admin/dashboard" class="admin-btn">Dashboard</a>
+            <a href="/admin/add-event" class="admin-btn">Add Event / Program</a>
+            <a href="/admin/manage-users" class="admin-btn">Manage Users</a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+
+            <!-- Tableau Section -->
+            <section class="tableau-section">
+                <h2>Program & Event Analytics</h2>
+                <div class="tableau-container">
+                    <!-- Your Tableau embed -->
+                    <iframe 
+                        src="YOUR_TABLEAU_EMBED_URL"
+                        width="100%" 
+                        height="600px" 
+                        frameborder="0">
+                    </iframe>
+                </div>
+            </section>
+
+            <!-- Upcoming Items Section -->
+            <section class="upcoming-items">
+                <h2>Upcoming Programs & Events</h2>
+
+                <% if (items && items.length > 0) { %>
+                    <% items.forEach(item => { %>
+                        <div class="admin-item-card">
+                            <div>
+                                <h3><%= item.name %></h3>
+                                <p><strong>Date:</strong> <%= item.date %></p>
+                                <p><strong>Type:</strong> <%= item.type %></p>
+                            </div>
+
+                            <a href="/admin/edit/<%= item.id %>" class="edit-btn">Edit</a>
+                        </div>
+                    <% }) %>
+
+                <% } else { %>
+                    <p>No upcoming programs or events.</p>
+                <% } %>
+            </section>
+
+        </main>
+    </div>
+
+    <% include ../partials/footer %>

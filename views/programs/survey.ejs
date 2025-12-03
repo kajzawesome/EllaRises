@@ -1,5 +1,8 @@
-<%- include('../partials/header', { title: 'Survey' }) %>
-
+<%- include('partials/header', { 
+    title: title,
+    user: user,
+    lang: lang
+}) %>
     <div class="form-container">
         <h1>
             <span class="lang-en">Survey for <%= item.name %></span>

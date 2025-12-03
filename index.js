@@ -220,9 +220,32 @@ app.get("/programs/register", async (req, res) => {
   });
 });
 
-app.get("/dashboard", (req, res) => {
-  res.render("admin/dashboard");
+// Admin dashboard
+app.get("/admin/dashboard", async (req, res) => {
+    const items = await knex("events")
+        .where("date", ">=", new Date())
+        .orderBy("date", "asc");
+
+    res.render("admin/dashboard", { items });
 });
+
+// Add event page
+app.get("/admin/add-event", (req, res) => {
+    res.render("admin/addevent");
+});
+
+// Manage users page
+app.get("/admin/manage-users", async (req, res) => {
+    const users = await knex("users").select();
+    res.render("admin/manageusers", { users });
+});
+
+// Edit (event/program)
+app.get("/admin/edit/:id", async (req, res) => {
+    const event = await knex("events").where("id", req.params.id).first();
+    res.render("admin/edit-event", { event });
+});
+
 
 // -------------------------
 // SERVER START
