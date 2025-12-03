@@ -40,9 +40,9 @@ function requireManager(req, res, next) {
     return res.redirect("/login?error=Please+log+in+first");
   }
 
-  if (req.session.user.role !== "manager") {
-    return res.status(403).render("error", {
-      message: "Access denied. Managers only."
+  if (req.session.user.level !== "M") {
+    return res.status(403).render("login", {
+      error_message: "Please log in to access this page"
     });
     // OR: res.redirect("/") if you prefer silent redirect
   }
