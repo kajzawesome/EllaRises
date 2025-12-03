@@ -66,15 +66,19 @@ h1, h2, h3 {
 }
 
 /* Dropdown */
+/* Dropdown Container */
 .navbar .dropdown {
     position: relative;
     display: inline-block;
 }
 
-.navbar .dropdown > a {
+/* Dropdown Toggle (Login / About links) */
+.navbar .dropdown>a {
     padding: 6px 8px;
+    cursor: pointer;
 }
 
+/* Hidden by default */
 .navbar .dropdown-content {
     display: none;
     position: absolute;
@@ -83,8 +87,7 @@ h1, h2, h3 {
     background-color: #fff;
     min-width: 180px;
     border-radius: 6px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 20;
 }
 
@@ -99,7 +102,8 @@ h1, h2, h3 {
     background-color: #f7f7f7;
 }
 
-.navbar .dropdown:hover .dropdown-content {
+/* When toggled open */
+.dropdown.open .dropdown-content {
     display: block;
 }
 
