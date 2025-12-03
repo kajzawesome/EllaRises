@@ -229,23 +229,38 @@ app.get("/admin/dashboard", async (req, res) => {
     res.render("admin/dashboard", { items });
 });
 
+app.get("/manageusers", async (req, res) => {
+  try {
+    // 1. Get all managers
+    const managers = await knex.select().from("managers").orderBy("managerlastname");;
+
+    const participants = await knex("participants as p")
+      .join("parents as pr", "p.parentid", "pr.parentid")
+      .select(
+        "p.participantid",
+        "p.participantfirstname",
+        "p.participantlastname",
+        "pr.parentfirstname",
+        "pr.parentlastname"
+      )
+      .orderBy("p.participantlastname");
+
+    res.render("admin/manageusers", {
+      managers,
+      participants,
+      title: "Manage Users"
+    });
+
+  } catch (err) {
+    console.error("Error loading people:", err);
+    res.send("Error loading people");
+  }
+});
+
 // Add event page
 app.get("/admin/add-event", (req, res) => {
     res.render("admin/addevent");
 });
-
-// Manage users page
-app.get("/admin/manage-users", async (req, res) => {
-    const users = await knex("users").select();
-    res.render("admin/manageusers", { users });
-});
-
-// Edit (event/program)
-app.get("/admin/edit/:id", async (req, res) => {
-    const event = await knex("events").where("id", req.params.id).first();
-    res.render("admin/edit-event", { event });
-});
-
 
 // -------------------------
 // SERVER START

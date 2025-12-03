@@ -4,57 +4,91 @@
     lang: lang
 }) %>
 
-    <div class="admin-container">
+<div class="admin-container">
 
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <h3>Admin Tools</h3>
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
 
-            <a href="/admin/dashboard" class="admin-btn">Dashboard</a>
-            <a href="/admin/add-event" class="admin-btn">Add Event / Program</a>
-            <a href="/admin/manage-users" class="admin-btn">Manage Users</a>
-        </aside>
+        <ul class="admin-links">
+            <li>
+                <a href="/admin">
+                    <span class="lang-en">Dashboard</span>
+                    <span class="lang-es">Panel</span>
+                </a>
+            </li>
 
-        <!-- Main Content -->
-        <main class="admin-main">
+            <li>
+                <a href="/admin/add-event">
+                    <span class="lang-en">Add Event / Program</span>
+                    <span class="lang-es">Agregar Evento / Programa</span>
+                </a>
+            </li>
 
-            <!-- Tableau Section -->
-            <section class="tableau-section">
-                <h2>Program & Event Analytics</h2>
-                <div class="tableau-container">
-                    <!-- Your Tableau embed -->
-                    <iframe 
-                        src="YOUR_TABLEAU_EMBED_URL"
-                        width="100%" 
-                        height="600px" 
-                        frameborder="0">
-                    </iframe>
-                </div>
-            </section>
+            <li>
+                <a href="/admin/manage-users">
+                    <span class="lang-en">Manage Users</span>
+                    <span class="lang-es">Administrar Usuarios</span>
+                </a>
+            </li>
+        </ul>
 
-            <!-- Upcoming Items Section -->
-            <section class="upcoming-items">
-                <h2>Upcoming Programs & Events</h2>
+    </aside>
 
-                <% if (items && items.length > 0) { %>
-                    <% items.forEach(item => { %>
-                        <div class="admin-item-card">
-                            <div>
-                                <h3><%= item.name %></h3>
-                                <p><strong>Date:</strong> <%= item.date %></p>
-                                <p><strong>Type:</strong> <%= item.type %></p>
-                            </div>
+    <!-- Main Content -->
+    <main class="admin-main">
 
-                            <a href="/admin/edit/<%= item.id %>" class="edit-btn">Edit</a>
+        <!-- Tableau Section -->
+        <section class="tableau-section">
+            <h2>
+                <span class="lang-en">Program & Event Analytics</span>
+                <span class="lang-es">Analítica de Programas y Eventos</span>
+            </h2>
+
+            <div class="tableau-container">
+                <iframe 
+                    src="YOUR_TABLEAU_EMBED_URL"
+                    width="100%" 
+                    height="600px" 
+                    frameborder="0">
+                </iframe>
+            </div>
+        </section>
+
+        <!-- Upcoming Programs / Events -->
+        <section class="upcoming-items">
+            <h2>
+                <span class="lang-en">Upcoming Programs & Events</span>
+                <span class="lang-es">Próximos Programas y Eventos</span>
+            </h2>
+
+            <% if (items && items.length > 0) { %>
+
+                <% items.forEach(item => { %>
+                    <div class="admin-item-card">
+                        <div>
+                            <h3><%= item.name %></h3>
+                            <p><strong>Date:</strong> <%= item.date %></p>
+                            <p><strong>Type:</strong> <%= item.type %></p>
                         </div>
-                    <% }) %>
 
-                <% } else { %>
-                    <p>No upcoming programs or events.</p>
-                <% } %>
-            </section>
+                        <a href="/admin/edit/<%= item.id %>" class="edit-btn">
+                            <span class="lang-en">Edit</span>
+                            <span class="lang-es">Editar</span>
+                        </a>
+                    </div>
+                <% }) %>
 
-        </main>
-    </div>
+            <% } else { %>
+                <p>
+                    <span class="lang-en">No upcoming programs or events.</span>
+                    <span class="lang-es">No hay próximos programas o eventos.</span>
+                </p>
+            <% } %>
 
-    <% include ../partials/footer %>
+        </section>
+
+    </main>
+
+</div>
+
+<%- include('partials/footer') %>
