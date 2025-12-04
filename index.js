@@ -170,7 +170,7 @@ app.get("/logout", (req, res) => {
   });
 });
 
-app.get("/account", requireLogin, async (req, res) => {
+app.get("/account/:userid", requireLogin, async (req, res) => {
   try {
     const user = req.session.user;
 
@@ -387,18 +387,135 @@ app.post("/account/milestone/:milestoneId/delete", requireLogin, async (req, res
 // -------------------------
 app.get("/addUser", (req, res) => {
   const context = req.query.context || "enroll"; 
-  res.render("createAccount", { context });
+  res.render("createAccount", { context, title: "Create Account" });
 });
 
 app.post("/addUser", async (req, res) => {
-  try {
-    const { username, password, preferred_language } = req.body;
-    await knex("users").insert({ username, password, preferred_language });
-    res.redirect("/login");
-  } catch (err) {
-    console.error(err);
-    res.send("Error creating account.");
-  }
+    try {
+        const {
+            username,
+            password,
+
+            // Parent fields
+            parentfirstname,
+            parentlastname,
+            parentphone,
+            parentemail,
+            parentcity,
+            parentstate,
+            parentzip,
+            parentcollege,
+            languagepreference,
+            medicalconsent,
+            photoconsent,
+            tuitionagreement,
+            agreementdate,
+            scholarshipinterest,
+
+            // Participant fields
+            participantfirstname,
+            participantlastname,
+            participantemail,
+            participantdob,
+            participantgrade,
+            participantschooloremployer,
+            mariachiinstrumentinterest,
+            instrumentexperience,
+
+            // NEW: programs from checkboxes
+            programs
+        } = req.body;
+
+        if (!username || !password) {
+            return res.render("createAccount", {
+                error_message: "Username and Password are required.",
+                title: "Create Account"
+            });
+        }
+
+        if (!parentfirstname || !parentlastname || !parentemail) {
+            return res.render("createAccount", {
+                error_message: "Parent name and email are required.",
+                title: "Create Account"
+            });
+        }
+
+        if (!participantfirstname || !participantlastname || !participantemail) {
+            return res.render("createAccount", {
+                error_message: "Participant name and email are required.",
+                title: "Create Account"
+            });
+        }
+
+        const programList = Array.isArray(programs) ? programs.join(", ") : "";
+
+        const [loginRow] = await knex("logins")
+            .insert({
+                username,
+                password,
+                level: "U"
+            })
+            .returning("userid");
+
+        const newUserID = loginRow.userid || loginRow;
+
+        const boolTuition = tuitionagreement === "true";
+        const boolMedical = medicalconsent === "true";
+        const boolPhoto = photoconsent === "true";
+        const boolScholarship = scholarshipinterest === "true";
+
+        const [parentRow] = await knex("parents")
+            .insert({
+                userid: newUserID,
+                parentfirstname,
+                parentlastname,
+                parentphone,
+                parentemail,
+                parentcity,
+                parentstate,
+                parentzip,
+                parentcollege,
+                languagepreference,
+                medicalconsent: boolMedical,
+                photoconsent: boolPhoto,
+                tuitionagreement: boolTuition,
+                scholarshipinterest: boolScholarship,
+                agreementdate
+            })
+            .returning("parentid");
+
+        const newParentID = parentRow.parentid || parentRow;
+
+        await knex("participants")
+            .insert({
+                parentid: newParentID,
+                participantfirstname,
+                participantlastname,
+                participantemail,
+                participantdob,
+                participantgrade,
+                participantschooloremployer,
+                participantfieldofinterest: programList,
+                mariachiinstrumentinterest,
+                instrumentexperience,
+                graduationstatus: "enrolled"
+            });
+
+        req.session.isLoggedIn = true;
+        req.session.userid = newUserID;
+        req.session.userlevel = "u";
+        req.session.parentid = newParentID;
+
+        return res.redirect(`/account/${newUserID}`);
+
+    } catch (err) {
+        console.error("Error creating user:", err);
+
+        return res.render("createAccount", {
+            error_message: "There was an error creating your account. Please try again.",
+            title: "Create Account"
+        });
+    }
 });
 
 // -------------------------
