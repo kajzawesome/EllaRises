@@ -1,0 +1,42 @@
+<%- include('../partials/header', { title: 'Add Milestone' , user: user, lang: lang }) %>
+
+    <div class="section">
+        <div class="section-content" style="flex-direction:column; align-items:flex-start;">
+            <h1><span class="lang-en">Add Milestone</span><span class="lang-es">Agregar Hito</span></h1>
+
+            <form action="/account/participant/<%= participantId %>/milestones/add" method="POST"
+                style="max-width:600px; margin-top:20px;">
+
+                <label>
+                    <span class="lang-en">Title</span><span class="lang-es">Título</span>
+                    <input type="text" name="title" required>
+                </label>
+
+                <label>
+                    <span class="lang-en">Date</span><span class="lang-es">Fecha</span>
+                    <input type="date" name="date" required>
+                </label>
+
+                <label>
+                    <span class="lang-en">Status</span><span class="lang-es">Estado</span>
+                    <select name="status" required>
+                        <option value="Not Started"><span class="lang-en">Not Started</span><span class="lang-es">No
+                                Iniciado</span></option>
+                        <option value="In Progress"><span class="lang-en">In Progress</span><span class="lang-es">En
+                                Progreso</span></option>
+                        <option value="Completed"><span class="lang-en">Completed</span><span
+                                class="lang-es">Completado</span></option>
+                        <option value="Deferred"><span class="lang-en">Deferred</span><span
+                                class="lang-es">Pospuesto</span></option>
+                    </select>
+                </label>
+
+                <button type="submit" class="button" style="margin-top:12px;">
+                    <span class="lang-en">Add Milestone</span><span class="lang-es">Agregar Hito</span>
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>

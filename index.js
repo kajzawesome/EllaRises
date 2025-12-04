@@ -219,34 +219,6 @@ app.get("/account", requireLogin, async (req, res) => {
   }
 });
 
-// Add Participant
-app.get("/account/participant/add", requireLogin, (req, res) => {
-  res.render("pages/add-child", { user: req.session.user });
-});
-
-app.post("/account/participant/add", requireLogin, async (req, res) => {
-  const parentUser = req.session.user;
-  const { firstname, lastname, dob, grade, participantfieldofinterest, participantemail, participantcity } = req.body;
-
-  try {
-    await knex('participants').insert({
-      parentid: parentUser.userid,
-      participantfirstname: firstname,
-      participantlastname: lastname,
-      participantdob: dob || null,
-      participantgrade: grade || null,
-      participantfieldofinterest: participantfieldofinterest || null,
-      participantemail: participantemail || null,
-      participantcity: participantcity || null
-    });
-
-    res.redirect("/pages/account");
-  } catch (err) {
-    console.error("Error adding child:", err);
-    res.status(500).send("Error adding child");
-  }
-});
-
 // Register Participant for Event - GET
 app.get("/pages/participant/:participantId/register-event", requireLogin, async (req, res) => {
   const participantId = req.params.participantId;
@@ -305,36 +277,35 @@ app.post("/pages/participant/:participantId/register-event", requireLogin, async
   }
 });
 
-// Delete Milestone
-app.post("/account/milestone/:milestoneId/delete", requireLogin, async (req, res) => {
-  const milestoneId = req.params.milestoneId;
+// --- Add Child Routes ---
+app.get("/account/participant/add", requireLogin, (req, res) => {
+  res.render("pages/add-child", { title: "Add Child", user: req.session.user, lang: req.session.lang || "en" });
+});
+
+app.post("/account/participant/add", requireLogin, async (req, res) => {
+  const parentUser = req.session.user;
+  const { firstname, lastname, dob, grade, participantfieldofinterest, participantemail, participantcity } = req.body;
 
   try {
-    await knex('milestones').where({ milestoneid: milestoneId }).del();
+    await knex('participants').insert({
+      parentid: parentUser.userid,
+      participantfirstname: firstname,
+      participantlastname: lastname,
+      participantdob: dob || null,
+      participantgrade: grade || null,
+      participantfieldofinterest: participantfieldofinterest || null,
+      participantemail: participantemail || null,
+      participantcity: participantcity || null
+    });
+
     res.redirect("/pages/account");
   } catch (err) {
-    console.error("Error deleting milestone:", err);
-    res.status(500).send("Error deleting milestone");
+    console.error("Error adding child:", err);
+    res.status(500).send("Error adding child");
   }
 });
 
-// Update Milestone
-app.post("/account/milestone/:milestoneId/update", requireLogin, async (req, res) => {
-  const milestoneId = req.params.milestoneId;
-  const { milestonestatus } = req.body;
-
-  try {
-    await knex('milestones')
-      .where({ milestoneid: milestoneId })
-      .update({ milestonestatus });
-    res.redirect("/pages/account");
-  } catch (err) {
-    console.error("Error updating milestone:", err);
-    res.status(500).send("Error updating milestone");
-  }
-});
-
-// Update Participant Status
+// --- Update Child Progress (editable fields on account.ejs) ---
 app.post("/account/child/:childId/update", requireLogin, async (req, res) => {
   const childId = req.params.childId;
   const { fieldofinterest, graduationstatus } = req.body;
@@ -351,6 +322,63 @@ app.post("/account/child/:childId/update", requireLogin, async (req, res) => {
   } catch (err) {
     console.error("Error updating child progress:", err);
     res.status(500).send("Error updating progress");
+  }
+});
+
+// --- Add Milestone for Child ---
+app.get("/account/participant/:participantId/milestones/add", requireLogin, async (req, res) => {
+  const participantId = req.params.participantId;
+  res.render("pages/add-milestone", { title: "Add Milestone", participantId, user: req.session.user, lang: req.session.lang || "en" });
+});
+
+app.post("/account/participant/:participantId/milestones/add", requireLogin, async (req, res) => {
+  const participantId = req.params.participantId;
+  const { title, date, status } = req.body;
+
+  try {
+    await knex('milestones').insert({
+      participantid: participantId,
+      title,
+      date: date || null,
+      milestonestatus: status || 'Not Started'
+    });
+    res.redirect("/pages/account");
+  } catch (err) {
+    console.error("Error adding milestone:", err);
+    res.status(500).send("Error adding milestone");
+  }
+});
+
+// --- Update Milestone Status ---
+app.post("/account/milestone/:milestoneId/update", requireLogin, async (req, res) => {
+  const milestoneId = req.params.milestoneId;
+  const { milestonestatus } = req.body;
+
+  try {
+    await knex('milestones')
+      .where({ milestoneid: milestoneId })
+      .update({ milestonestatus });
+
+    res.redirect("/pages/account");
+  } catch (err) {
+    console.error("Error updating milestone:", err);
+    res.status(500).send("Error updating milestone");
+  }
+});
+
+// --- Delete Milestone ---
+app.post("/account/milestone/:milestoneId/delete", requireLogin, async (req, res) => {
+  const milestoneId = req.params.milestoneId;
+
+  try {
+    await knex('milestones')
+      .where({ milestoneid: milestoneId })
+      .del();
+
+    res.redirect("/pages/account");
+  } catch (err) {
+    console.error("Error deleting milestone:", err);
+    res.status(500).send("Error deleting milestone");
   }
 });
 

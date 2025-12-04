@@ -1,0 +1,51 @@
+<%- include('../partials/header', { title: title , user: user, lang: lang }) %>
+
+    <div class="section">
+        <div class="section-content" style="flex-direction:column; align-items:flex-start;">
+            <h1><span class="lang-en">Add Child</span><span class="lang-es">Agregar Hija</span></h1>
+
+            <form action="/account/participant/add" method="POST" style="max-width:600px; margin-top:20px;">
+                <label>
+                    <span class="lang-en">First Name</span><span class="lang-es">Nombre</span>
+                    <input type="text" name="firstname" required>
+                </label>
+                <br>
+                <label>
+                    <span class="lang-en">Last Name</span><span class="lang-es">Apellido</span>
+                    <input type="text" name="lastname" required>
+                </label>
+                <br>
+                <label>
+                    <span class="lang-en">Date of Birth</span><span class="lang-es">Fecha de Nacimiento</span>
+                    <input type="date" name="dob">
+                </label>
+                <br>
+                <label>
+                    <span class="lang-en">Grade</span><span class="lang-es">Grado</span>
+                    <input type="text" name="grade">
+                </label>
+                <br>
+                <label>
+                    <span class="lang-en">Field of Interest</span><span class="lang-es">Área de Interés</span>
+                    <input type="text" name="participantfieldofinterest">
+                </label>
+                <br>
+                <label>
+                    <span class="lang-en">Email</span><span class="lang-es">Correo</span>
+                    <input type="email" name="participantemail">
+                </label>
+                <br>
+                <label>
+                    <span class="lang-en">City</span><span class="lang-es">Ciudad</span>
+                    <input type="text" name="participantcity">
+                </label>
+                <br>
+                <button type="submit" class="button" style="margin-top:12px;">
+                    <span class="lang-en">Add Child</span><span class="lang-es">Agregar Hija</span>
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
