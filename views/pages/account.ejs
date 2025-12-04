@@ -12,7 +12,7 @@
         <p><strong><span class="lang-en">Phone:</span><span class="lang-es">Teléfono:</span></strong> <%= parent.parentphone %></p>
         <p><strong><span class="lang-en">Preferred Language:</span><span class="lang-es">Idioma:</span></strong> <%= parent.preferredlanguage %></p>
         <p><strong><span class="lang-en">Photo/Video Consent:</span><span class="lang-es">Consentimiento Foto/Video:</span></strong> <%= parent.photovideoconsent %></p>
-        <a class="button" href="/account/edit"><span class="lang-en">Edit Profile</span><span class="lang-es">Editar Perfil</span></a>
+        <a class="button" href="/account/<%= parent.parentid %>/edit"><span class="lang-en">Edit Profile</span><span class="lang-es">Editar Perfil</span></a>
       </div>
 
       <h3 style="margin-top:24px;"><span class="lang-en">My Children</span><span class="lang-es">Mis Hijas</span></h3>
