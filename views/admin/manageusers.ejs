@@ -16,128 +16,68 @@
         <a class="admin-btn" href="/admin/managedonations"> <span class="lang-en">Manage Donations</span><span class="lang-es">Administrar Donaciones</span></a>
     </aside>
 
-    <!-- Add Manager Button: for now managers will be added in the sql directly since there are so few
-    <form action="/addUser" method="GET" class="top-action">
-        <button type="submit" class="admin-btn">Add Manager</button>
-    </form>
-    -->
-
     <!-- Error Message -->
     <% if (error_message) { %>
         <div class="alert error"><%= error_message %></div>
     <% } %> 
 
-    <!-- ============ MANAGERS ============ -->
-    <section>
-        <h2>Managers</h2>
-
-        <% if (managers.length === 0) { %>
-            <div class="alert info">No managers found in the database.</div>
-        <% } else { %>
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>First</th>
-                        <th>Last</th>
-                        <th>Options</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <% managers.forEach(m => { %>
-                        <tr>
-                            <td><%= m.managerfirstname %></td>
-                            <td><%= m.managerlastname %></td>
-                            <td class="row-actions">
-                                <!-- VIEW DETAILS -->
-                                <a class="view-btn" href="/admin/user/<%= m.userid %>">
-                                    View Details
-                                </a>
-
-                                <!-- EDIT MANAGER -->
-                                <form action="/editUser/<%= m.userid %>" method="GET">
-                                    <button type="submit" class="edit-btn">Edit</button>
-                                </form>
-
-                                <!-- DELETE MANAGER -->
-                                <form 
-                                    action="/deleteUser/<%= m.userid %>" 
-                                    method="POST"
-                                    onsubmit="return confirm('Delete <%= m.managerfirstname %>?');">
-                                    <button type="submit" class="delete-btn">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        <% } %>
-    </section>
-
     <!-- ============ PARENT ACCOUNTS ============ -->
     <section>
-    <h2>Parent Accounts</h2>
+        <h2>Parent Accounts</h2>
 
-    <% if (parents.length === 0) { %>
+        <% if (parents.length === 0) { %>
+            <div class="alert info">No parent accounts found.</div>
+        <% } else { %>
+            <% parents.forEach(p => { %>
+                <div class="parent-card">
 
-        <div class="alert info">No parent accounts found.</div>
+                    <div class="parent-header">
+                        <!-- Parent name links to their profile -->
+                        <div class="parent-name">
+                            <a href="/admin/user/<%= p.userid %>">
+                                <%= p.parentfirstname %> <%= p.parentlastname %>
+                            </a>
+                        </div>
 
-    <% } else { %>
-
-        <% parents.forEach(p => { %>
-
-            <div class="parent-card">
-
-                <div class="parent-header">
-
-                    <!-- Parent name links to their profile -->
-                    <div class="parent-name">
-                        <a href="/admin/user/<%= p.userid %>">
-                            <%= p.parentfirstname %> <%= p.parentlastname %>
-                        </a>
+                        <!-- Toggle button -->
+                        <% if (p.children && p.children.length > 0) { %>
+                            <button
+                                id="child-<%= p.parentid %>-toggle"
+                                class="child-toggle"
+                                onclick="toggleChildren('child-<%= p.parentid %>')">
+                                Show Children ▼
+                            </button>
+                        <% } %>
                     </div>
 
-                    <!-- Toggle button -->
                     <% if (p.children && p.children.length > 0) { %>
-                        <button
-                            id="child-<%= p.parentid %>-toggle"
-                            class="child-toggle"
-                            onclick="toggleChildren('child-<%= p.parentid %>')">
-                            Show Children ▼
-                        </button>
+                        <ul class="child-list" id="child-<%= p.parentid %>">
+
+                            <% p.children.forEach(c => { %>
+                                <li class="child-card">
+                                    <strong><%= c.participantfirstname %> <%= c.participantlastname %></strong>
+                                    <br>
+                                    <span><strong>Interest:</strong> <%= c.participantfieldofinterest %></span>
+                                    <br>
+                                    <span><strong>City:</strong> <%= c.participantcity %></span>
+                                    <br>
+                                    <span><strong>Email:</strong> <%= c.participantemail %></span>
+                                    <br>
+                                    <!-- Link to milestones -->
+                                    <form method="POST" action="/admin/user/<%= p.userid %>/participant/<%= c.participantid %>/milestones" style="display:inline;">
+                                        <button type="submit" class="button">View Milestones</button>
+                                    </form>
+                                </li>
+                            <% }) %>
+
+                        </ul>
+                    <% } else { %>
+                        <p style="margin-top: 10px; color: #888;">No participants linked.</p>
                     <% } %>
 
                 </div>
-
-                <% if (p.children && p.children.length > 0) { %>
-
-                    <ul class="child-list" id="child-<%= p.parentid %>">
-
-                        <% p.children.forEach(c => { %>
-
-                            <li class="child-card">
-                                <strong><%= c.participantfirstname %> <%= c.participantlastname %></strong>
-                                <br>
-                                <span><strong>Interest:</strong> <%= c.participantfieldofinterest %></span>
-                                <br>
-                                <span><strong>City:</strong> <%= c.participantcity %></span>
-                                <br>
-                                <span><strong>Email:</strong> <%= c.participantemail %></span>
-                            </li>
-
-                        <% }) %>
-
-                    </ul>
-
-                <% } else { %>
-                    <p style="margin-top: 10px; color: #888;">No participants linked.</p>
-                <% } %>
-
-            </div>
-
-        <% }) %>
-
-    <% } %>
+            <% }) %>
+        <% } %>
     </section>
 </div>
 
@@ -159,4 +99,4 @@ function toggleChildren(id) {
 }
 </script>
 
-<%- include('../partials/footer') %>
+<%- include('../partials/footer') %>    
