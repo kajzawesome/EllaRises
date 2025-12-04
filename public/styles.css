@@ -774,3 +774,19 @@ h1, h2, h3 {
     gap: 12px;
     flex-wrap: wrap;
 }
+.amount-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.custom-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.custom-input {
+  width: 120px;
+  padding: 6px 10px;
+}

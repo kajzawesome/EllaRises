@@ -29,6 +29,14 @@
             });
         });
     </script>
+    <script>
+        const customInput = document.getElementById('customAmount');
+        const customRadio = document.querySelector('input[value="custom"]');
+
+        customInput.addEventListener('focus', () => {
+            customRadio.checked = true;
+        });
+    </script>
 </head>
 
 <body>
