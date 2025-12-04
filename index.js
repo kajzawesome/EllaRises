@@ -285,47 +285,97 @@ app.post("/pages/participant/:participantId/register-event", requireLogin, async
 });
 
 // --- Add Child Routes ---
-app.get("/account/participant/add", requireLogin, (req, res) => {
-  res.render("pages/add-child", { title: "Add Child", user: req.session.user, lang: req.session.lang || "en" });
+app.get("/account/:parentid/participant/add", requireLogin, async (req, res) => {
+    const parentid = Number(req.params.parentid);
+    const sessionUser = req.session.user;
+
+    try {
+        // Find the parent associated with this parentid
+        const parent = await knex("parents")
+            .where({ parentid })
+            .first();
+
+        if (!parent) {
+            return res.status(404).send("Parent not found.");
+        }
+
+        // Permission rules:
+        const isManager = sessionUser.level === "M";
+        const isOwner = sessionUser.userid === parent.userid;
+
+        if (!isManager && !isOwner) {
+            return res.status(403).send("You are not authorized to add a participant for this account.");
+        }
+
+        // Render: ONLY pass what the page actually needs
+        return res.render("pages/add-child", {
+            title: "Add Child",
+            parent,     // so EJS knows which parent the child belongs to
+            parentid    // explicit id for the POST route
+        });
+
+    } catch (err) {
+        console.error("Error loading Add Child page:", err);
+        return res.status(500).send("Server error loading Add Child page.");
+    }
 });
 
-app.post("/account/participant/add", requireLogin, async (req, res) => {
-  const parentUser = req.session.user;
-  const parentid = parentUser.parentid || null;
+app.post("/account/:parentid/participant/add", requireLogin, async (req, res) => {
+    const parentid = Number(req.params.parentid);
+    const sessionUser = req.session.user;
 
-  const {
-    participantfirstname,
-    participantlastname,
-    participantemail,
-    participantdob,
-    participantgrade,
-    participantschooloremployer,
-    participantfieldofinterest,
-    mariachiinstrumentinterest,
-    instrumentexperience
-  } = req.body;
+    const {
+        participantfirstname,
+        participantlastname,
+        participantemail,
+        participantdob,
+        participantgrade,
+        participantschooloremployer,
+        participantfieldofinterest,
+        mariachiinstrumentinterest,
+        instrumentexperience
+    } = req.body;
 
-  try {
-    await knex("participants").insert({
-      parentid: parentid,
-      participantfirstname,
-      participantlastname,
-      participantemail,
-      participantdob: participantdob || null,
-      participantgrade: participantgrade || null,
-      participantschooloremployer: participantschooloremployer || null,
-      participantfieldofinterest: participantfieldofinterest || null,
-      mariachiinstrumentinterest: mariachiinstrumentinterest || null,
-      instrumentexperience: instrumentexperience || null,
-      graduationstatus: "enrolled"
-    });
+    try {
+        // 1. Load the parent record to verify permissions + get parent.userid
+        const parent = await knex("parents")
+            .where({ parentid })
+            .first();
 
-    res.redirect(`/account/${parentUser.userid}`);
+        if (!parent) {
+            return res.status(404).send("Parent not found.");
+        }
 
-  } catch (err) {
-    console.error("Error adding child:", err);
-    res.status(500).send("Error adding child");
-  }
+        // 2. Permission check
+        const isManager = sessionUser.level === "M";
+        const isOwner = sessionUser.userid === parent.userid;
+
+        if (!isManager && !isOwner) {
+            return res.status(403).send("Not authorized to add participant for this parent.");
+        }
+
+        // 3. Insert the new participant
+        await knex("participants").insert({
+            parentid: parentid,
+            participantfirstname,
+            participantlastname,
+            participantemail,
+            participantdob: participantdob || null,
+            participantgrade: participantgrade || null,
+            participantschooloremployer: participantschooloremployer || null,
+            participantfieldofinterest: participantfieldofinterest || null,
+            mariachiinstrumentinterest: mariachiinstrumentinterest || null,
+            instrumentexperience: instrumentexperience || null,
+            graduationstatus: "enrolled"
+        });
+
+        // 4. Redirect back to the correct account page using the parent's *userid*
+        return res.redirect(`/account/${parent.userid}`);
+
+    } catch (err) {
+        console.error("Error adding child:", err);
+        return res.status(500).send("Error adding child");
+    }
 });
 
 // --- Update Child Progress (editable fields on account.ejs) ---
