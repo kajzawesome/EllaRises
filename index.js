@@ -172,49 +172,46 @@ app.get("/logout", (req, res) => {
 
 app.get("/account/:userid", requireLogin, async (req, res) => {
   try {
-    const user = req.session.user;
+    const requestedUserId = Number(req.params.userid);
+    const loggedInUser = req.session.user;
 
-    // Get parent info
+    // 🔒 If parent tries to view someone else's account → block
+    if (loggedInUser.level === "U" && loggedInUser.userid !== requestedUserId) {
+      return res.status(403).send("You are not authorized to view this account.");
+    }
+
+    // Load parent account based on URL user ID
     const parent = await knex("parents")
-      .select("*")
-      .where({ userid: user.userid })
+      .where({ userid: requestedUserId })
       .first();
 
     if (!parent) {
       return res.status(404).send("Parent not found");
     }
 
-    // Get participants
+    // Load children
     const participants = await knex("participants")
-      .select("*")
       .where({ parentid: parent.parentid });
 
-    // Get milestones for each participant
+    // Load milestones per participant
     for (let p of participants) {
       const milestones = await knex("milestones")
-        .select(
-          "milestonetitle as title",
-          "milestonedate as date",
-          "milestonestatus"
-        )
         .where({ participantemail: p.participantemail })
         .orderBy("milestonedate", "asc");
-      p.milestones = milestones;
 
-      // Map participant columns for EJS
-      p.participantID = p.participantid;
-      p.participantDOB = p.participantdob;
-      p.participantgrade = p.participantgrade;
-      p.participantfieldofinterest = p.participantfieldofinterest;
+      p.milestones = milestones;
     }
 
-    // Attach participants to parent
     parent.participants = participants;
 
-    res.render("pages/account", { parent, user, lang: req.session.lang || "en" });
+    res.render("pages/account", {
+      parent,
+      user: loggedInUser,
+      lang: req.session.lang || "en"
+    });
 
   } catch (err) {
-    console.error("Error loading account page:", err);
+    console.error("Account page error:", err);
     res.status(500).send("Error loading account page");
   }
 });
@@ -502,11 +499,16 @@ app.post("/addUser", async (req, res) => {
             });
 
         req.session.isLoggedIn = true;
-        req.session.userid = newUserID;
-        req.session.userlevel = "u";
-        req.session.parentid = newParentID;
+        req.session.user = {
+            userid: newUserID,
+            parentid: newParentID,
+            level: "U",
+            username: username,
+            name: `${parentfirstname} ${parentlastname}`
+        };
 
-        return res.redirect(`/account/${newUserID}`);
+
+        res.redirect(`/account/${newUserID}`);
 
     } catch (err) {
         console.error("Error creating user:", err);
@@ -881,16 +883,73 @@ app.get("/admin/dashboard", requireManager, async (req, res) => {
 });
 
 // Manage users
-app.get("/admin/manageusers",requireManager, async (req, res) => {
+app.get("/admin/manageusers", requireManager, async (req, res) => {
   try {
-    const managers = await knex("managers").select("userid", "managerfirstname", "managerlastname").orderBy("managerlastname");
-    const parents = await knex("parents").select("userid","parentid","parentfirstname","parentlastname","parentemail","preferredlanguage").orderBy("parentlastname");
-    const participants = await knex("participants").select("participantid","participantfirstname","participantlastname","participantemail","participantdob","participantphone","participantcity","participantstate","participantfieldofinterest","parentid");
-    parents.forEach(parent => parent.children = participants.filter(p => p.parentid === parent.parentid));
-    res.render("admin/manageusers", { title: "Manage Users", managers, parents, error_message: "" });
+    // --- MANAGERS ---
+    const managers = await knex("managers")
+      .select("userid", "managerfirstname", "managerlastname")
+      .orderBy("managerlastname");
+
+    // --- PARENTS (all NEW columns) ---
+    const parents = await knex("parents")
+      .select(
+        "userid",
+        "parentid",
+        "parentfirstname",
+        "parentlastname",
+        "parentemail",
+        "parentphone",
+        "parentcity",
+        "parentstate",
+        "parentzip",
+        "parentcollege",
+        "languagepreference",
+        "medicalconsent",
+        "photoconsent",
+        "tuitionagreement",
+        "scholarshipinterest",
+        "agreementdate"
+      )
+      .orderBy("parentlastname");
+
+    // --- PARTICIPANTS (all NEW columns) ---
+    const participants = await knex("participants")
+      .select(
+        "participantid",
+        "parentid",
+        "participantfirstname",
+        "participantlastname",
+        "participantemail",
+        "participantdob",
+        "participantgrade",
+        "participantschooloremployer",
+        "participantfieldofinterest",
+        "mariachiinstrumentinterest",
+        "instrumentexperience",
+        "graduationstatus"
+      );
+
+    // Attach children to parent
+    parents.forEach(parent => {
+      parent.children = participants.filter(p => p.parentid === parent.parentid);
+    });
+
+    res.render("admin/manageusers", {
+      title: "Manage Users",
+      managers,
+      parents,
+      error_message: ""
+    });
+
   } catch (err) {
     console.error("Manage Users Error:", err);
-    res.render("admin/manageusers", { title: "Manage Users", managers: [], parents: [], error_message: "Database error: " + err.message });
+
+    res.render("admin/manageusers", {
+      title: "Manage Users",
+      managers: [],
+      parents: [],
+      error_message: "Database error: " + err.message
+    });
   }
 });
 
