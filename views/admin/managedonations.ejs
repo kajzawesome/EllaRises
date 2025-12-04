@@ -22,29 +22,30 @@
                     <table style="width:100%; border-collapse:collapse;">
                         <thead>
                             <tr style="background:#f2f2f2; text-align:left;">
-                                <th>ID</th>
                                 <th><span class="lang-en">Donor</span><span class="lang-es">Donante</span></th>
+                                <th><span class="lang-en">Donor Email</span><span class="lang-es">Correo Electrónico</span></th>
                                 <th><span class="lang-en">Amount</span><span class="lang-es">Cantidad</span></th>
-                                <th><span class="lang-en">Date</span><span class="lang-es">Fecha</span></th>
-                                <th><span class="lang-en">Notes</span><span class="lang-es">Notas</span></th>
+                                <th><span class="lang-en">Donation Date</span><span class="lang-es">Fecha</span></th>
+                                <th><span class="lang-en">Message</span><span class="lang-es">Mensaje</span></th>
                             </tr>
                         </thead>
                         <tbody>
                             <% donations.forEach(d=> { %>
                                 <tr>
                                     <td>
-                                        <%= d.id %>
-                                    </td>
-                                    <td>
                                         <%= d.donor_name || 'Anonymous' %>
                                     </td>
-                                    <td>$<%= d.amount %>
+                                    <td>
+                                        <%= d.donor_email %>
                                     </td>
                                     <td>
-                                        <%= d.date %>
+                                        $<%= d.amount %>
                                     </td>
                                     <td>
-                                        <%= d.notes || '—' %>
+                                        <%= d.donationdate %>
+                                    </td>
+                                    <td>
+                                        <%= d.message || '—' %>
                                     </td>
                                 </tr>
                                 <% }) %>

@@ -6,7 +6,7 @@ const knex = require("knex")({
   connection: {
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "12345",
+    password: process.env.DB_PASSWORD || "admin",
     database: process.env.DB_NAME || "ellarises",
     port: process.env.DB_PORT || "5432"
   }
@@ -160,6 +160,71 @@ app.post("/addUser", async (req, res) => {
 });
 
 // -------------------------
+// DONATION ROUTES
+// -------------------------
+app.get("/pages/donations", (req, res) => {
+  res.render("pages/donations", {
+    title: "Donations",
+    error_message: "",
+    success_message: "",
+    user: req.session.user
+  }); 
+});
+
+app.post("/pages/donations", async (req, res) => {
+  const { name, email, amount, customAmount, message } = req.body;
+
+  let finalAmount;
+
+  if (amount === "custom") {
+    finalAmount = Number(customAmount);
+  } else {
+    finalAmount = Number(amount);
+  }
+
+  // Validate
+  if (!finalAmount || finalAmount <= 0) {
+    return res.render("pages/donations", {
+      title: "Donations",
+      error_message: "Please select or enter a valid donation amount.",
+      success_message: "",
+      user: req.session.user
+    });
+  }
+
+  try {
+    const today = new Date();
+    const Date = today.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+    await knex("donations").insert({
+      donorname: name || null,
+      donoremail: email,
+      message: message || null,
+      donationdate: Date,
+      amount: finalAmount
+    });
+
+
+    return res.render("pages/donations", {
+      title: "Donations",
+      error_message: "",
+      success_message: `Thank you for your donation of $${finalAmount}!`,
+      user: req.session.user
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    return res.render("pages/donations", {
+      title: "Donations",
+      error_message: "There was an error processing your donation.",
+      success_message: "",
+      user: req.session.user
+    });
+  }
+});
+
+// -------------------------
 // EVENTS ROUTES
 // -------------------------
 app.get("/events/register",requireLogin, async (req, res) => {
@@ -244,7 +309,9 @@ app.get("/programs/register",requireLogin, async (req, res) => {
   });
 });
 
-// Admin dashboard
+// -------------------------
+// ADMIN ROUTES
+// -------------------------
 app.get("/admin/dashboard",requireManager, async (req, res) => {
     const upcomingItems = await knex("eventoccurrences as eo")
     .join("events as e", "eo.eventid", "e.eventid")
@@ -262,6 +329,7 @@ app.get("/admin/dashboard",requireManager, async (req, res) => {
     res.render("admin/dashboard", { upcomingItems, title: "Admin Dashboard" });
 });
 
+// Manage users page
 app.get("/admin/manageusers",requireManager, async (req, res) => {
   try {
     // Get all managers
@@ -320,70 +388,46 @@ app.get("/admin/manageusers",requireManager, async (req, res) => {
   }
 });
 
+// Add event page
 app.get("/admin/add-event", requireManager, (req, res) => {
   res.render("admin/addEvent", { title: "Add Event", error_message: "" });
 });
 
-app.get("/pages/donations", (req, res) => {
-  res.render("pages/donations", {
-    title: "Donations",
-    error_message: "",
-    success_message: "",
-    user: req.session.user
-  }); 
-});
-
-app.post("/pages/donations", async (req, res) => {
-  const { name, email, amount, customAmount, message } = req.body;
-
-  let finalAmount;
-
-  if (amount === "custom") {
-    finalAmount = Number(customAmount);
-  } else {
-    finalAmount = Number(amount);
-  }
-
-  // Validate
-  if (!finalAmount || finalAmount <= 0) {
-    return res.render("pages/donations", {
-      title: "Donations",
-      error_message: "Please select or enter a valid donation amount.",
-      success_message: "",
-      user: req.session.user
-    });
-  }
-
+// Manage donations page
+app.get("/admin/managedonations", requireManager, async (req, res) => {
   try {
-    await knex("donations").insert({
-      donorname: name || null,
-      donoremail: email,
-      message: message || null,
-      donationdate: new Date(),
-      amount: finalAmount
-    });
+    // Fetch all donations
+    const donations = await knex("donations")
+      .select("*")
+      .orderBy("donationdate", "desc")
+      .orderBy("amount", "desc");
 
-    return res.render("pages/donations", {
-      title: "Donations",
-      error_message: "",
-      success_message: `Thank you for your donation of $${finalAmount}!`,
-      user: req.session.user
+    // Map for EJS
+    const mapped = donations.map(d => ({
+      donor_name: d.donorname,
+      donor_email: d.donoremail,
+      amount: d.amount,
+      date: d.donationdate
+        ? new Date(d.donationdate).toISOString().split("T")[0]
+        : '—',
+      notes: d.message ?? '—'
+    }));
+
+    // Calculate total
+    const total = mapped.reduce((sum, d) => sum + Number(d.amount || 0), 0);
+
+    res.render("admin/managedonations", {
+      title: "View Donations",
+      donations: mapped,
+      total: total.toFixed(2),
+      user: req.session.user,
+      lang: req.session.lang || "en"
     });
 
   } catch (err) {
-    console.error(err);
-
-    return res.render("pages/donations", {
-      title: "Donations",
-      error_message: "There was an error processing your donation.",
-      success_message: "",
-      user: req.session.user
-    });
+    console.error("Error fetching donations:", err);
+    res.status(500).send("Error loading donations");
   }
-});
-
-app.get("/admin/donations", requireManager, (req, res) => {
-  res.render("admin/donations", { title: "View Donations" });
 });
 
 // Add event page
