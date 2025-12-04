@@ -1,7 +1,6 @@
-<%- include('partials/header', { 
+<%- include('../partials/header', { 
     title: title,
     user: user,
-    lang: lang
 }) %>
 <title><%= title || "Ella Rises - Get Invloved" %></title>
 
@@ -18,13 +17,13 @@
             <span class="lang-en">Enroll</span>
             <span class="lang-es">Inscribirse</span>
         </a>
-
+        <br>
         <!-- Volunteer -->
         <a href="/addUser?context=volunteer" class="option-card">
             <span class="lang-en">Volunteer</span>
             <span class="lang-es">Voluntariado</span>
         </a>
-
+        <br>
         <!-- Donate -->
         <a href="/donate" class="option-card">
             <span class="lang-en">Donate</span>
@@ -34,4 +33,4 @@
     </div>
 </div>
 
-<%- include('partials/footer') %>
+<%- include('../partials/footer') %>
