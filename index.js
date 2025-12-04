@@ -52,16 +52,8 @@ function requireManager(req, res, next) {
 // -------------------------
 
 app.use((req, res, next) => {
-  res.locals.lang = req.session.language || "en";
   res.locals.user = req.session.user || null;
   next();
-});
-
-app.get("/set-lang/:lang", (req, res) => {
-  const lang = req.params.lang;
-  req.session.language = lang;
-  const backURL = req.header("Referer") || "/"; //Finds the page the button was clicked on
-  res.redirect(backURL);  // go back to the previous page
 });
 
 app.get("/", (req, res) => {
@@ -312,21 +304,23 @@ app.get("/programs/register",requireLogin, async (req, res) => {
 // -------------------------
 // ADMIN ROUTES
 // -------------------------
-app.get("/admin/dashboard",requireManager, async (req, res) => {
-    const upcomingItems = await knex("eventoccurrences as eo")
-    .join("events as e", "eo.eventid", "e.eventid")
-    .select(
-      "eo.eventoccurrenceid",
-      "e.eventname",
-      "e.eventtype",
-      "eo.eventdatestart",
-      "eo.eventtimestart",
-      "eo.eventlocation"
-    )
-    .where("eo.eventdatestart", ">=", knex.fn.now())
-    .orderBy("eo.eventdatestart");
+app.get("/admin/dashboard", requireManager, async (req, res) => {
+    const events = await knex("events as e")
+        .leftJoin("eventoccurrences as eo", function () {
+            this.on("eo.eventid", "=", "e.eventid")
+                .andOn("eo.eventdatestart", ">=", knex.fn.now());
+        })
+        .select(
+            "e.eventid",
+            "e.eventname",
+            "e.eventtype",
+            knex.raw("MIN(eo.eventdatestart) as nextdate"),
+            "eo.eventlocation"
+        )
+        .groupBy("e.eventid", "e.eventname", "e.eventtype", "eo.eventlocation")
+        .orderBy("nextdate");
 
-    res.render("admin/dashboard", { upcomingItems, title: "Admin Dashboard" });
+    res.render("admin/dashboard", { events, title: "Admin Dashboard" });
 });
 
 // Manage users page
@@ -488,7 +482,7 @@ app.post("/admin/add-event", requireManager, async (req, res) => {
 
             occurrences.push({
                 eventid: EventID,
-                
+
                 eventdatestart: startDate.toISOString().split("T")[0],
                 eventtimestart: occurrencestarttime,
 
@@ -547,7 +541,74 @@ app.post("/admin/add-event", requireManager, async (req, res) => {
     }
 });
 
-// -------------------------
-// SERVER START
-// -------------------------
+app.get("/admin/edit-event/:eventID", requireManager, async (req, res) => {
+    const eventID = req.params.eventID;
+
+    // Get the event itself
+    const event = await knex("events")
+        .where({ eventid: eventID })
+        .first();
+
+    if (!event) {
+        return res.status(404).send("Event not found.");
+    }
+
+    // Get its occurrences
+    const occurrences = await knex("eventoccurrences")
+        .where({ eventid: eventID })
+        .orderBy("eventdatestart");
+
+    // Render page with ONE event
+    res.render("admin/manageevents", {
+      event: { 
+        ...event,
+        occurrences
+      },
+      title: "Manage Event"
+    });
+});
+
+app.get("/admin/event/:eventid/new-occurrence", requireManager, (req, res) => {
+  const id = req.params.eventid;
+  res.render("admin/addOccurrence", { eventid: id , title: "Add Occurrence" });
+});
+
+app.post("/admin/event/:eventid/new-occurrence", requireManager, async (req, res) => {
+    const { eventid } = req.params;
+
+    const {
+        eventdatestart,
+        eventtimestart,
+        eventdateend,
+        eventtimeend,
+        eventlocation,
+        eventcapacity
+    } = req.body;
+
+    // Build new occurrence object
+    const newOccurrence = {
+        eventid,
+        eventdatestart,
+        eventtimestart,
+        eventdateend,
+        eventtimeend,
+        eventlocation,
+        eventcapacity
+    };
+
+    try {
+        await knex("eventoccurrences").insert(newOccurrence);
+
+        // Redirect back to the Edit Event page
+        res.redirect(`/admin/edit-event/${eventid}`);
+
+    } catch (err) {
+        console.error("Error adding occurrence:", err.message);
+        res.status(500).render("admin/addOccurrence", { 
+            event: { eventid }, 
+            error_message: "Unable to add occurrence. Please try again." 
+        });
+    }
+});
+
 app.listen(PORT, () => console.log("Website started"));
