@@ -84,9 +84,10 @@ app.get("/", async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching upcoming events:", err);
+
     res.render("index", {
       title: "Ella Rises",
-      flashMessage,
+      flashMessage: null,
       upcomingEvents: []
     });
   }
