@@ -6,7 +6,7 @@ const knex = require("knex")({
   connection: {
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "12345",
+    password: process.env.DB_PASSWORD || "admin",
     database: process.env.DB_NAME || "ellarises",
     port: process.env.DB_PORT || "5432"
   }
@@ -216,6 +216,107 @@ app.get("/account", requireLogin, async (req, res) => {
   } catch (err) {
     console.error("Error loading account page:", err);
     res.status(500).send("Error loading account page");
+  }
+});
+
+// Add Participant
+app.get("/account/participant/add", requireLogin, (req, res) => {
+  // render a simple add-child form (create view if you want)
+  res.render("pages/add-child", { user: req.session.user });
+});
+
+app.post("/account/participant/add", requireLogin, async (req, res) => {
+  const parentUser = req.session.user;
+  // adjust param names from your add-child form
+  const { firstname, lastname, dob, grade, participantfieldofinterest, participantemail, participantcity } = req.body;
+
+  try {
+    await pool.query(
+      `INSERT INTO participants
+       (parentid, participantfirstname, participantlastname, participantdob, participantgrade, participantfieldofinterest, participantemail, participantcity)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [parentUser.userid, firstname, lastname, dob || null, grade || null, participantfieldofinterest || null, participantemail || null, participantcity || null]
+    );
+    res.redirect("/account");
+  } catch (err) {
+    console.error("Error adding child:", err);
+    res.status(500).send("Error adding child");
+  }
+});
+
+// Register Participant for Program
+app.post("/account/participant/:participantId/register", requireLogin, async (req, res) => {
+  const participantId = req.params.participantId;
+  const { programid } = req.body; // from a form/select
+
+  try {
+    await pool.query(
+      `INSERT INTO program_enrollments (participantid, programid, createdat)
+       VALUES ($1,$2, NOW())`,
+      [participantId, programid]
+    );
+    res.redirect("/account");
+  } catch (err) {
+    console.error("Error registering child:", err);
+    res.status(500).send("Error registering child");
+  }
+});
+
+// Delete Milestone
+app.post("/account/milestone/:milestoneId/delete", requireLogin, async (req, res) => {
+  const milestoneId = req.params.milestoneId;
+
+  try {
+    await pool.query(
+      `DELETE FROM milestones WHERE milestoneid = $1`,
+      [milestoneId]
+    );
+
+    res.redirect("/account");
+  } catch (err) {
+    console.error("Error deleting milestone:", err);
+    res.status(500).send("Error deleting milestone");
+  }
+});
+
+// Update Milestone
+app.post("/account/milestone/:milestoneId/update", requireLogin, async (req, res) => {
+  const milestoneId = req.params.milestoneId;
+  const { milestonestatus } = req.body;
+
+  try {
+    await pool.query(
+      `UPDATE milestones 
+             SET milestonestatus = $1
+             WHERE milestoneid = $2`,
+      [milestonestatus, milestoneId]
+    );
+
+    res.redirect("/account");
+  } catch (err) {
+    console.error("Error updating milestone:", err);
+    res.status(500).send("Error updating milestone");
+  }
+});
+
+// Update Participant Status
+app.post("/account/child/:childId/update", requireLogin, async (req, res) => {
+  const childId = req.params.childId;
+  const { fieldofinterest, graduationstatus } = req.body;
+
+  try {
+    await pool.query(
+      `UPDATE participants 
+             SET participantfieldofinterest = $1,
+                 participantgraduationstatus = $2
+             WHERE participantid = $3`,
+      [fieldofinterest, graduationstatus, childId]
+    );
+
+    res.redirect("/account");
+  } catch (err) {
+    console.error("Error updating child progress:", err);
+    res.status(500).send("Error updating progress");
   }
 });
 

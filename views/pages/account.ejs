@@ -1,54 +1,133 @@
-<%- include('../partials/header', { title: 'My Account', user: user, lang: lang }) %>
+<%- include('../partials/header', { title: 'My Account' , user: user, lang: lang }) %>
 
-<div class="section">
-  <div class="section-content" style="flex-direction:column; align-items:flex-start;">
-    <h1><span class="lang-en">My Account</span><span class="lang-es">Mi Cuenta</span></h1>
+  <div class="section">
+    <div class="section-content" style="flex-direction:column; align-items:flex-start;">
+      <h1><span class="lang-en">My Account</span><span class="lang-es">Mi Cuenta</span></h1>
 
-    <div style="width:100%; max-width:900px; margin-top:20px;">
-      <h3><span class="lang-en">Parent Information</span><span class="lang-es">Información del Padre/Madre</span></h3>
-      <div class="program-card">
-        <p><strong><span class="lang-en">Name:</span><span class="lang-es">Nombre:</span></strong> <%= parent.parentfirstname %> <%= parent.parentlastname %></p>
-        <p><strong><span class="lang-en">Email:</span><span class="lang-es">Correo:</span></strong> <%= parent.parentemail %></p>
-        <p><strong><span class="lang-en">Phone:</span><span class="lang-es">Teléfono:</span></strong> <%= parent.parentphone %></p>
-        <p><strong><span class="lang-en">Preferred Language:</span><span class="lang-es">Idioma:</span></strong> <%= parent.preferredlanguage %></p>
-        <p><strong><span class="lang-en">Photo/Video Consent:</span><span class="lang-es">Consentimiento Foto/Video:</span></strong> <%= parent.photovideoconsent %></p>
-        <a class="button" href="/account/edit"><span class="lang-en">Edit Profile</span><span class="lang-es">Editar Perfil</span></a>
-      </div>
+      <div style="width:100%; max-width:900px; margin-top:20px;">
+        <h3><span class="lang-en">Parent Information</span><span class="lang-es">Información del Padre/Madre</span></h3>
+        <div class="program-card" style="margin: 20px auto; max-width: 600px;">
+          <p><strong><span class="lang-en">Name:</span><span class="lang-es">Nombre:</span></strong>
+            <%= parent.parentfirstname %>
+              <%= parent.parentlastname %>
+          </p>
+          <p><strong><span class="lang-en">Email:</span><span class="lang-es">Correo:</span></strong>
+            <%= parent.parentemail %>
+          </p>
+          <p><strong><span class="lang-en">Phone:</span><span class="lang-es">Teléfono:</span></strong>
+            <%= parent.parentphone %>
+          </p>
+          <p><strong><span class="lang-en">Preferred Language:</span><span class="lang-es">Idioma:</span></strong>
+            <%= parent.preferredlanguage %>
+          </p>
+          <p><strong><span class="lang-en">Photo/Video Consent:</span><span class="lang-es">Consentimiento
+                Foto/Video:</span></strong>
+            <%= parent.photovideoconsent %>
+          </p>
+          <a class="button" href="/account/edit"><span class="lang-en">Edit Profile</span><span class="lang-es">Editar
+              Perfil</span></a>
+        </div>
 
-      <h3 style="margin-top:24px;"><span class="lang-en">My Children</span><span class="lang-es">Mis Hijas</span></h3>
+        <a class="button" style="margin-bottom:20px; display:inline-block;" href="/account/participant/add">
+          <span class="lang-en">Add Another Child</span>
+          <span class="lang-es">Agregar Otra Hija</span>
+        </a>
 
-      <% if (parent.participants && parent.participants.length) { %>
-        <% parent.participants.forEach(p => { %>
-          <div class="program-card" style="margin-bottom:12px;">
-            <h4><%= p.participantfirstname %> <%= p.participantlastname %></h4>
-            <p><strong><span class="lang-en">DOB:</span><span class="lang-es">FN:</span></strong> <%= p.participantDOB %></p>
-            <p><strong><span class="lang-en">Grade:</span><span class="lang-es">Grado:</span></strong> <%= p.participantgrade %></p>
-            <p><strong><span class="lang-en">Field of Interest:</span><span class="lang-es">Área de Interés:</span></strong> <%= p.participantfieldofinterest %></p>
+        <h3 style="margin-top:24px;"><span class="lang-en">My Children</span><span class="lang-es">Mis Hijas</span></h3>
 
-            <div style="margin-top:10px;">
-              <h5><span class="lang-en">Milestones</span><span class="lang-es">Hitos</span></h5>
-              <% if (p.milestones && p.milestones.length) { %>
-                <ul>
-                  <% p.milestones.forEach(ms => { %>
-                    <li><strong><%= ms.title %></strong> — <%= ms.date %></li>
-                  <% }) %>
-                </ul>
+        <% if (parent.participants && parent.participants.length) { %>
+          <% parent.participants.forEach(p=> { %>
+            <div class="program-card" style="margin-bottom:12px;">
+              <h4>
+                <%= p.participantfirstname %>
+                  <%= p.participantlastname %>
+              </h4>
+              <p><strong>DOB:</strong>
+                <%= new Date(p.participantDOB).toLocaleDateString('en-US') %>
+              </p>
+              <p><strong>Grade:</strong>
+                <%= p.participantgrade %>
+              </p>
+
+              <!-- Inline Editable Progress Fields -->
+              <form method="POST" action="/account/participant/<%= p.participantID %>/update" style="margin-top:12px;">
+                <label><strong>Graduation Status:</strong></label>
+                <select name="graduationstatus">
+                  <option value="Not Yet" <%=p.graduationstatus==='Not Yet' ? 'selected' : '' %>>Not Yet</option>
+                  <option value="On Track" <%=p.graduationstatus==='On Track' ? 'selected' : '' %>>On Track</option>
+                  <option value="Graduated" <%=p.graduationstatus==='Graduated' ? 'selected' : '' %>>Graduated</option>
+                </select>
+
+                <label style="margin-left:12px;"><strong>Field of Interest:</strong></label>
+                <select name="participantfieldofinterest">
+                  <option value="STEM" <%=p.participantfieldofinterest==='STEM' ? 'selected' : '' %>>STEM</option>
+                  <option value="Arts" <%=p.participantfieldofinterest==='Arts' ? 'selected' : '' %>>Arts</option>
+                  <option value="Both" <%=p.participantfieldofinterest==='Both' ? 'selected' : '' %>>Both</option>
+                </select>
+                <button class="button" type="submit" style="margin-left:12px;">Update Progress</button>
+              </form>
+
+              <div style="margin-top:10px;">
+                <h5><span class="lang-en">Milestones</span><span class="lang-es">Hitos</span></h5>
+
+                <% if (p.milestones && p.milestones.length) { %>
+                  <ul>
+                    <% p.milestones.forEach(ms=> { %>
+                      <li style="margin-bottom:10px;">
+                        <strong>
+                          <%= ms.title %>
+                        </strong> — <%= new Date(ms.date).toLocaleDateString('en-US') %>
+                          (<%= ms.status %>)
+
+                            <!-- Update Milestone Status -->
+                            <form method="POST"
+                              action="/account/participant/<%= p.participantID %>/milestone/<%= ms.milestoneID %>/status"
+                              style="display:inline-block; margin-left:10px;">
+                              <select name="status">
+                                <option value="Not Started" <%=ms.status==='Not Started' ? 'selected' : '' %>>Not
+                                  Started</option>
+                                <option value="In Progress" <%=ms.status==='In Progress' ? 'selected' : '' %>>In
+                                  Progress</option>
+                                <option value="Completed" <%=ms.status==='Completed' ? 'selected' : '' %>>Completed
+                                </option>
+                              </select>
+                              <br>
+                              <button class="button" type="submit">Update</button>
+                            </form>
+
+                            <!-- Delete Milestone -->
+                            <form method="POST"
+                              action="/account/participant/<%= p.participantID %>/milestone/<%= ms.milestoneID %>/delete"
+                              style="display:inline-block; margin-left:10px;">
+                              <button class="button danger-btn" type="submit">Delete</button>
+                            </form>
+                      </li>
+                      <% }) %>
+                  </ul>
+                  <% } else { %>
+                    <p>No milestones yet.</p>
+                    <% } %>
+              </div>
+
+              <!-- Add Milestone Button (shown once per child) -->
+              <a class="button" href="/account/participant/<%= p.participantID %>/milestones/add"
+                style="margin-top:10px; display:inline-block;">Add Milestone</a>
+
+              <!-- Register Button -->
+              <div style="margin-top:12px; display:flex; gap:8px;">
+                <a class="button" href="/programs/register?participant=<%= p.participantID %>">
+                  <span class="lang-en">Register for Program</span>
+                  <span class="lang-es">Inscribir en Programa</span>
+                </a>
+              </div>
+            </div>
+            <% }) %>
               <% } else { %>
-                <p><span class="lang-en">No milestones yet.</span><span class="lang-es">Aún no hay hitos.</span></p>
-              <% } %>
-            </div>
-
-            <div style="margin-top:12px; display:flex; gap:8px;">
-              <a class="button" href="/account/participant/<%= p.participantID %>/edit"><span class="lang-en">Edit</span><span class="lang-es">Editar</span></a>
-              <a class="button" href="/programs/register?participant=<%= p.participantID %>"><span class="lang-en">Register for Program</span><span class="lang-es">Inscribir en Programa</span></a>
-            </div>
-          </div>
-        <% }) %>
-      <% } else { %>
-        <p><span class="lang-en">You have no registered participants yet.</span><span class="lang-es">No tienes participantes registrados.</span></p>
-      <% } %>
+                <p><span class="lang-en">You have no registered participants yet.</span><span class="lang-es">No tienes
+                    participantes registrados.</span></p>
+                <% } %>
+      </div>
     </div>
   </div>
-</div>
 
-<%- include('../partials/footer') %>
+  <%- include('../partials/footer') %>
