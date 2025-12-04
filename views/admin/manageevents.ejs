@@ -65,7 +65,18 @@
         <span class="lang-en">Save Event Details</span>
         <span class="lang-es">Guardar Detalles del Evento</span>
       </button>
+
     </form>
+
+      <!-- DELETE OCCURRENCE BUTTON -->
+      <form action="/admin/event/<%= event.eventid %>/delete"
+            method="POST"
+            onsubmit="return confirm('Delete this event and all its occurrences?');">
+        <button class="admin-btn" type="submit" style="margin-bottom:30px;">
+          <span class="lang-en">Delete Event</span>
+          <span class="lang-es">Eliminar Evento</span>
+        </button>
+      </form>
 
     <!-- ⭐ OCCURRENCES SECTION -->
     <h3 style="margin-top:30px;">
@@ -100,8 +111,6 @@
       <form action="/admin/event-occurrence/<%= occ.eventoccurrenceid %>/edit" 
             method="POST"
             class="occ-edit-card">
-
-        <h4>Occurrence #<%= occ.eventoccurrenceid %></h4>
 
         <label>Start Date</label>
         <input type="date" name="eventdatestart" 
