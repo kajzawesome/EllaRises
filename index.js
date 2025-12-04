@@ -65,11 +65,33 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
-  const flashMessage = req.session.flashMessage || null;
-  req.session.flashMessage = null; // Clear after displaying
-  res.render("index", { title: "Ella Rises", flashMessage });
+app.get("/", async (req, res) => {
+  try {
+    const flashMessage = req.session.flashMessage || null;
+    req.session.flashMessage = null; // Clear after displaying
+
+    // Fetch upcoming events (assuming your "events" table has a "date" field)
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const upcomingEvents = await knex("events")
+      .where("date", ">=", today)
+      .orderBy("date", "asc")
+      .limit(1); // Only need the next upcoming event
+
+    res.render("index", {
+      title: "Ella Rises",
+      flashMessage,
+      upcomingEvents
+    });
+  } catch (err) {
+    console.error("Error fetching upcoming events:", err);
+    res.render("index", {
+      title: "Ella Rises",
+      flashMessage,
+      upcomingEvents: []
+    });
+  }
 });
+
 
 // -------------------------
 // AUTH ROUTES
