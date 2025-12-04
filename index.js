@@ -6,7 +6,7 @@ const knex = require("knex")({
   connection: {
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "admin",
+    password: process.env.DB_PASSWORD || "12345",
     database: process.env.DB_NAME || "ellarises",
     port: process.env.DB_PORT || "5432"
   }
@@ -399,7 +399,7 @@ app.get("/admin/donations", requireManager, (req, res) => {
 
 // Add event page
 app.get("/admin/add-event", requireManager, (req, res) => {
-    res.render("admin/addevent");
+    res.render("admin/addevent", error_message="");
 });
 
 app.post("/admin/add-event", requireManager, async (req, res) => {
@@ -514,8 +514,8 @@ app.post("/admin/add-event", requireManager, async (req, res) => {
     }
 });
 
-app.get("/admin/edit-event/:eventID", requireManager, async (req, res) => {
-    const eventID = req.params.eventID;
+app.get("/admin/event/:eventid/edit", requireManager, async (req, res) => {
+    const eventID = req.params.eventid;
 
     // Get the event itself
     const event = await knex("events")
@@ -537,62 +537,115 @@ app.get("/admin/edit-event/:eventID", requireManager, async (req, res) => {
         ...event,
         occurrences
       },
-      title: "Manage Event"
+      title: "Manage Event",
+      success_message: ""
     });
 });
 
-// POST: Save all edits for an event and all its occurrences
-app.post("/admin/event/:eventid/edit-all", requireManager, async (req, res) => {
+app.post("/admin/event/:eventid/edit", requireManager, async (req, res) => {
     const { eventid } = req.params;
 
-    const {
-        eventname,
-        eventtype,
-        eventdescription,
-        recurrencepattern,
-        occ   // <-- this contains ALL occurrences keyed by eventoccurrenceid
+    const { 
+      eventname,
+      eventtype,
+      eventdescription,
+      recurrencepattern
     } = req.body;
 
     try {
-        await knex.transaction(async trx => {
+        await knex("events")
+            .where({ eventid })
+            .update({
+                eventname,
+                eventtype,
+                eventdescription,
+                recurrencepattern
+            });
 
-            // ✔ Update the event itself
-            await trx("events")
-                .where({ eventid })
-                .update({
-                    eventname,
-                    eventtype,
-                    eventdescription,
-                    recurrencepattern
-                });
+        const event = await knex("events")
+            .where({ eventid })
+            .first();
 
-            // ✔ Update each occurrence
-            if (occ) {
-                for (const occurrenceId in occ) {
-                    const data = occ[occurrenceId];
+        if (!event) {
+            return res.status(404).send("Event not found.");
+        }
 
-                    await trx("eventoccurrences")
-                        .where({ eventoccurrenceid: occurrenceId })
-                        .update({
-                            eventdatestart: data.eventdatestart,
-                            eventtimestart: data.eventtimestart,
-                            eventdateend: data.eventdateend,
-                            eventtimeend: data.eventtimeend,
-                            eventlocation: data.eventlocation,
-                            eventcapacity: data.eventcapacity
-                        });
-                }
-            }
+        const occurrences = await knex("eventoccurrences")
+            .where({ eventid })
+            .orderBy("eventdatestart");
+
+        res.render("admin/manageevents", {
+            title: "Manage Event",
+            event: {
+                ...event,
+                occurrences
+            },
+            success_message: "Event details saved successfully!"
         });
-
-        // ✔ Redirect back to the Manage Event page
-        res.redirect(`/admin/event/${eventid}/edit`);
 
     } catch (err) {
-        console.error("Error updating event & occurrences:", err.message);
-        res.status(500).render("error", { 
-            error_message: "Unable to save event changes." 
+        console.error("Error saving event:", err);
+        res.status(500).send("Error saving event details.");
+    }
+});
+
+
+app.post("/admin/event-occurrence/:occurrenceid/edit", requireManager, async (req, res) => {
+    const { occurrenceid } = req.params;
+
+    const {
+        eventdatestart,
+        eventtimestart,
+        eventdateend,
+        eventtimeend,
+        eventlocation,
+        eventcapacity,
+        eventregistrationdeadlinedate,
+        eventregistrationdeadlinetime
+    } = req.body;
+
+    try {
+        const occ = await knex("eventoccurrences")
+            .where({ eventoccurrenceid: occurrenceid })
+            .first();
+
+        if (!occ) {
+            return res.status(404).send("Occurrence not found.");
+        }
+
+        await knex("eventoccurrences")
+            .where({ eventoccurrenceid: occurrenceid })
+            .update({
+                eventdatestart,
+                eventtimestart,
+                eventdateend,
+                eventtimeend,
+                eventlocation,
+                eventcapacity,
+                eventregistrationdeadlinedate,
+                eventregistrationdeadlinetime
+            });
+
+        const event = await knex("events")
+            .where({ eventid: occ.eventid })
+            .first();
+
+        const occurrences = await knex("eventoccurrences")
+            .where({ eventid: occ.eventid })
+            .orderBy("eventdatestart");
+
+        res.render("admin/manageevents", {
+            event: {
+                ...event,
+                occurrences
+            },
+            title: "Manage Event",
+            success_message: "Occurrence saved successfully!"
         });
+
+    } catch (err) {
+        console.error("Error updating occurrence:", err);
+        res.status(500).send("Error saving occurrence.");
     }
 });
 
@@ -611,7 +664,9 @@ app.post("/admin/event/:eventid/new-occurrence", requireManager, async (req, res
         eventdateend,
         eventtimeend,
         eventlocation,
-        eventcapacity
+        eventcapacity,
+        eventregistrationdeadlinedate,
+        eventregistrationdeadlinetime
     } = req.body;
 
     // Build new occurrence
@@ -622,7 +677,9 @@ app.post("/admin/event/:eventid/new-occurrence", requireManager, async (req, res
         eventdateend,
         eventtimeend,
         eventlocation,
-        eventcapacity
+        eventcapacity,
+        eventregistrationdeadlinedate,
+        eventregistrationdeadlinetime
     };
 
     try {
@@ -630,7 +687,7 @@ app.post("/admin/event/:eventid/new-occurrence", requireManager, async (req, res
         await knex("eventoccurrences").insert(newOccurrence);
 
         // Redirect back to the Event Edit page
-        return res.redirect(`/admin/event/${eventid}/edit`);
+        return res.redirect(`/admin/edit-event/${eventid}`);
 
     } catch (err) {
         console.error("Error inserting new occurrence:", err.message);
@@ -641,6 +698,49 @@ app.post("/admin/event/:eventid/new-occurrence", requireManager, async (req, res
     }
 });
 
+app.post("/admin/event-occurrence/:occurrenceid/delete", requireManager, async (req, res) => {
+    const { occurrenceid } = req.params;
+
+    try {
+        // Get the occurrence so we know which event to reload
+        const occ = await knex("eventoccurrences")
+            .where({ eventoccurrenceid: occurrenceid })
+            .first();
+
+        if (!occ) {
+            return res.status(404).send("Occurrence not found.");
+        }
+
+        // Delete it
+        await knex("eventoccurrences")
+            .where({ eventoccurrenceid: occurrenceid })
+            .del();
+
+        // Fetch event again
+        const event = await knex("events")
+            .where({ eventid: occ.eventid })
+            .first();
+
+        // Fetch updated occurrences list
+        const occurrences = await knex("eventoccurrences")
+            .where({ eventid: occ.eventid })
+            .orderBy("eventdatestart");
+
+        // Render the manage events page with a success message
+        res.render("admin/manageevents", {
+            title: "Manage Event",
+            event: {
+                ...event,
+                occurrences
+            },
+            success_message: "Occurrence deleted successfully!"
+        });
+
+    } catch (err) {
+        console.error("Error deleting occurrence:", err);
+        res.status(500).send("Error deleting occurrence.");
+    }
+});
 
 // -------------------------
 // START SERVER
