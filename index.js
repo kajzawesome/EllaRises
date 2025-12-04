@@ -524,6 +524,62 @@ app.get("/admin/edit-event/:eventID", requireManager, async (req, res) => {
     });
 });
 
+// POST: Save all edits for an event and all its occurrences
+app.post("/admin/event/:eventid/edit-all", requireManager, async (req, res) => {
+    const { eventid } = req.params;
+
+    const {
+        eventname,
+        eventtype,
+        eventdescription,
+        recurrencepattern,
+        occ   // <-- this contains ALL occurrences keyed by eventoccurrenceid
+    } = req.body;
+
+    try {
+        await knex.transaction(async trx => {
+
+            // ✔ Update the event itself
+            await trx("events")
+                .where({ eventid })
+                .update({
+                    eventname,
+                    eventtype,
+                    eventdescription,
+                    recurrencepattern
+                });
+
+            // ✔ Update each occurrence
+            if (occ) {
+                for (const occurrenceId in occ) {
+                    const data = occ[occurrenceId];
+
+                    await trx("eventoccurrences")
+                        .where({ eventoccurrenceid: occurrenceId })
+                        .update({
+                            eventdatestart: data.eventdatestart,
+                            eventtimestart: data.eventtimestart,
+                            eventdateend: data.eventdateend,
+                            eventtimeend: data.eventtimeend,
+                            eventlocation: data.eventlocation,
+                            eventcapacity: data.eventcapacity
+                        });
+                }
+            }
+        });
+
+        // ✔ Redirect back to the Manage Event page
+        res.redirect(`/admin/event/${eventid}/edit`);
+
+    } catch (err) {
+        console.error("Error updating event & occurrences:", err.message);
+        res.status(500).render("error", { 
+            error_message: "Unable to save event changes." 
+        });
+    }
+});
+
+
 app.get("/admin/event/:eventid/new-occurrence", requireManager, (req, res) => {
   const id = req.params.eventid;
   res.render("admin/addOccurrence", { eventid: id , title: "Add Occurrence" });
