@@ -6,7 +6,7 @@ const knex = require("knex")({
   connection: {
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "12345",
+    password: process.env.DB_PASSWORD || "admin",
     database: process.env.DB_NAME || "ellarises",
     port: process.env.DB_PORT || "5432"
   }
@@ -152,7 +152,8 @@ app.post("/login", async (req, res) => {
     req.session.user = {
       username: user.username,
       level: user.level,
-      name: fullName
+      name: fullName,
+      userid: user.userid
     };
 
     res.redirect("/");
@@ -167,6 +168,55 @@ app.get("/logout", (req, res) => {
   req.session.destroy(() => {
     res.redirect("/");
   });
+});
+
+app.get("/account", requireLogin, async (req, res) => {
+  try {
+    const user = req.session.user;
+
+    // Get parent info
+    const parent = await knex("parents")
+      .select("*")
+      .where({ userid: user.userid })
+      .first();
+
+    if (!parent) {
+      return res.status(404).send("Parent not found");
+    }
+
+    // Get participants
+    const participants = await knex("participants")
+      .select("*")
+      .where({ parentid: parent.parentid });
+
+    // Get milestones for each participant
+    for (let p of participants) {
+      const milestones = await knex("milestones")
+        .select(
+          "milestonetitle as title",
+          "milestonedate as date",
+          "milestonestatus"
+        )
+        .where({ participantemail: p.participantemail })
+        .orderBy("milestonedate", "asc");
+      p.milestones = milestones;
+
+      // Map participant columns for EJS
+      p.participantID = p.participantid;
+      p.participantDOB = p.participantdob;
+      p.participantgrade = p.participantgrade;
+      p.participantfieldofinterest = p.participantfieldofinterest;
+    }
+
+    // Attach participants to parent
+    parent.participants = participants;
+
+    res.render("pages/account", { parent, user, lang: req.session.lang || "en" });
+
+  } catch (err) {
+    console.error("Error loading account page:", err);
+    res.status(500).send("Error loading account page");
+  }
 });
 
 // -------------------------
