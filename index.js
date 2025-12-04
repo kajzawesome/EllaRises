@@ -281,6 +281,10 @@ app.get("/programs/register",requireLogin, async (req, res) => {
   });
 });
 
+app.get("/pages/getinvolved", (req, res) => {
+  res.render("pages/getinvolved", { title: "Get Involved", user: req.session.user });
+});
+
 // -------------------------
 // ADMIN ROUTES
 // -------------------------
