@@ -387,12 +387,260 @@ app.post("/admin/managedonations/send-thankyou", requireManager, async (req, res
     });
 
     res.redirect("/admin/managedonations?success=Thank+you+email+sent+to+" + encodeURIComponent(donorEmail));
-
   } catch (err) {
     console.error("Error sending email:", err);
     res.redirect("/admin/managedonations?error=Failed+to+send+email+to+" + encodeURIComponent(donorEmail));
   }
 });
+
+app.get("/admin/donations", requireManager, (req, res) => {
+  res.render("admin/donations", { title: "View Donations" });
+});
+
+// Add event page
+app.get("/admin/add-event", requireManager, (req, res) => {
+    res.render("admin/addevent");
+});
+
+app.post("/admin/add-event", requireManager, async (req, res) => {
+    const {
+        eventname,
+        eventtype,
+        eventdescription,
+        recurrencepattern,
+        eventdefaultcapacity,
+
+        // First occurrence schedule
+        occurrencestartdate,
+        occurrencestarttime,
+        occurrenceenddate,
+        occurrenceendtime,
+
+        // Recurrence range
+        repeatenddate,
+
+        // Other info
+        eventlocation,
+        registrationdaysbefore
+    } = req.body;
+
+    try {
+        // Insert main event
+        const [eventID] = await knex("events")
+            .insert({
+                eventname,
+                eventtype,
+                eventdescription,
+                recurrencepattern,
+                eventdefaultcapacity
+            })
+            .returning("eventid");
+
+        const EventID = eventID.eventid ?? eventID;
+
+        // Convert to JS Dates
+        let start = new Date(occurrencestartdate);
+        let end   = new Date(occurrenceenddate);
+
+        const final = new Date(repeatenddate);
+
+        // Store occurrences here
+        let occurrences = [];
+
+        // Helper to add a single occurrence
+        const addOccurrence = (startDate, endDate) => {
+            // Dynamic registration deadline: X days prior
+            const deadline = new Date(startDate);
+            deadline.setDate(deadline.getDate() - Number(registrationdaysbefore));
+
+            occurrences.push({
+                eventid: EventID,
+
+                eventdatestart: startDate.toISOString().split("T")[0],
+                eventtimestart: occurrencestarttime,
+
+                eventdateend: endDate.toISOString().split("T")[0],
+                eventtimeend: occurrenceendtime,
+
+                eventlocation,
+                eventcapacity: eventdefaultcapacity,
+
+                eventregistrationdeadlinedate: deadline.toISOString().split("T")[0],
+                eventregistrationdeadlinetime: "23:59"
+            });
+        };
+
+        // Add first occurrence
+        addOccurrence(start, end);
+
+        // Generate recurring events
+        while (true) {
+            let nextStart = new Date(start);
+            let nextEnd   = new Date(end);
+
+            if (recurrencepattern === "Daily") {
+                nextStart.setDate(nextStart.getDate() + 1);
+                nextEnd.setDate(nextEnd.getDate() + 1);
+            }
+            else if (recurrencepattern === "Weekly") {
+                nextStart.setDate(nextStart.getDate() + 7);
+                nextEnd.setDate(nextEnd.getDate() + 7);
+            }
+            else if (recurrencepattern === "Monthly") {
+                nextStart.setMonth(nextStart.getMonth() + 1);
+                nextEnd.setMonth(nextEnd.getMonth() + 1);
+            }
+            else {
+                break; // No recurrence
+            }
+
+            if (nextStart > final) break;
+
+            addOccurrence(nextStart, nextEnd);
+            start = nextStart;
+            end = nextEnd;
+        }
+
+        // Insert all occurrences
+        await knex("eventoccurrences").insert(occurrences);
+
+        res.redirect("/admin/dashboard");
+
+    } catch (err) {
+        console.error("Error adding event:", err.message);
+        res.status(500).render("admin/addEvent", {
+            error_message: "Unable to save event. Please try again."
+        });
+    }
+});
+
+app.get("/admin/edit-event/:eventID", requireManager, async (req, res) => {
+    const eventID = req.params.eventID;
+
+    // Get the event itself
+    const event = await knex("events")
+        .where({ eventid: eventID })
+        .first();
+
+    if (!event) {
+        return res.status(404).send("Event not found.");
+    }
+
+    // Get its occurrences
+    const occurrences = await knex("eventoccurrences")
+        .where({ eventid: eventID })
+        .orderBy("eventdatestart");
+
+    // Render page with ONE event
+    res.render("admin/manageevents", {
+      event: { 
+        ...event,
+        occurrences
+      },
+      title: "Manage Event"
+    });
+});
+
+// POST: Save all edits for an event and all its occurrences
+app.post("/admin/event/:eventid/edit-all", requireManager, async (req, res) => {
+    const { eventid } = req.params;
+
+    const {
+        eventname,
+        eventtype,
+        eventdescription,
+        recurrencepattern,
+        occ   // <-- this contains ALL occurrences keyed by eventoccurrenceid
+    } = req.body;
+
+    try {
+        await knex.transaction(async trx => {
+
+            // ✔ Update the event itself
+            await trx("events")
+                .where({ eventid })
+                .update({
+                    eventname,
+                    eventtype,
+                    eventdescription,
+                    recurrencepattern
+                });
+
+            // ✔ Update each occurrence
+            if (occ) {
+                for (const occurrenceId in occ) {
+                    const data = occ[occurrenceId];
+
+                    await trx("eventoccurrences")
+                        .where({ eventoccurrenceid: occurrenceId })
+                        .update({
+                            eventdatestart: data.eventdatestart,
+                            eventtimestart: data.eventtimestart,
+                            eventdateend: data.eventdateend,
+                            eventtimeend: data.eventtimeend,
+                            eventlocation: data.eventlocation,
+                            eventcapacity: data.eventcapacity
+                        });
+                }
+            }
+        });
+
+        // ✔ Redirect back to the Manage Event page
+        res.redirect(`/admin/event/${eventid}/edit`);
+
+    } catch (err) {
+        console.error("Error updating event & occurrences:", err.message);
+        res.status(500).render("error", { 
+            error_message: "Unable to save event changes." 
+        });
+    }
+});
+
+
+app.get("/admin/event/:eventid/new-occurrence", requireManager, (req, res) => {
+  const id = req.params.eventid;
+  res.render("admin/addOccurrence", { eventid: id , title: "Add Occurrence" });
+});
+
+app.post("/admin/event/:eventid/new-occurrence", requireManager, async (req, res) => {
+    const { eventid } = req.params;
+
+    const {
+        eventdatestart,
+        eventtimestart,
+        eventdateend,
+        eventtimeend,
+        eventlocation,
+        eventcapacity
+    } = req.body;
+
+    // Build new occurrence
+    const newOccurrence = {
+        eventid,
+        eventdatestart,
+        eventtimestart,
+        eventdateend,
+        eventtimeend,
+        eventlocation,
+        eventcapacity
+    };
+
+    try {
+        // Insert the new occurrence
+        await knex("eventoccurrences").insert(newOccurrence);
+
+        // Redirect back to the Event Edit page
+        return res.redirect(`/admin/event/${eventid}/edit`);
+
+    } catch (err) {
+        console.error("Error inserting new occurrence:", err.message);
+
+        return res.status(500).render("error", {
+            error_message: "Unable to add new occurrence."
+        });
+    }
+});
+
 
 // -------------------------
 // START SERVER
