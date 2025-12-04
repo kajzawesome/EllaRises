@@ -325,32 +325,61 @@ app.get("/admin/add-event", requireManager, (req, res) => {
 });
 
 app.get("/pages/donations", (req, res) => {
-  res.render("pages/donations", { title: "Donations", error_message: "", success_message: "", user: req.session.user });
+  res.render("pages/donations", {
+    title: "Donations",
+    error_message: "",
+    success_message: "",
+    user: req.session.user
+  }); 
 });
 
-app.post("/pages/donations", (req, res) => {
+app.post("/pages/donations", async (req, res) => {
   const { name, email, amount, customAmount, message } = req.body;
 
-  const customAmountNum = Number(customAmount);
-  const finalAmount = customAmountNum > 0 ? customAmountNum : Number(amount);
+  let finalAmount;
 
-  if (!finalAmount) {
+  if (amount === "custom") {
+    finalAmount = Number(customAmount);
+  } else {
+    finalAmount = Number(amount);
+  }
+
+  // Validate
+  if (!finalAmount || finalAmount <= 0) {
     return res.render("pages/donations", {
       title: "Donations",
-      error_message: "Please select or enter a donation amount.",
+      error_message: "Please select or enter a valid donation amount.",
       success_message: "",
       user: req.session.user
     });
   }
 
-  // TODO: send to Stripe, PayPal, email, insert into DB, etc.
+  try {
+    await knex("donations").insert({
+      DonorName: name || null,
+      DonorEmail: email,
+      Message: message || null,
+      DonationHistoryDate: new Date(),
+      DonationHistoryAmount: finalAmount
+    });
 
-  res.render("pages/donations", {
-    title: "Donations",
-    error_message: "",
-    success_message: `Thank you for your donation of $${finalAmount}!`,
-    user: req.session.user
-  });
+    return res.render("pages/donations", {
+      title: "Donations",
+      error_message: "",
+      success_message: `Thank you for your donation of $${finalAmount}!`,
+      user: req.session.user
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    return res.render("pages/donations", {
+      title: "Donations",
+      error_message: "There was an error processing your donation.",
+      success_message: "",
+      user: req.session.user
+    });
+  }
 });
 
 app.get("/admin/donations", requireManager, (req, res) => {
