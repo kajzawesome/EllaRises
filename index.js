@@ -1437,7 +1437,93 @@ app.post("/admin/event-occurrence/:occurrenceid/delete", requireManager, async (
     }
 });
 
+app.get("/account/:parentid/edit", requireLogin, (req, res) => {
+  const id = req.params.parentid;
 
+  knex("parents")
+    .where({ parentid: id })   // <-- lowercase column
+    .first()
+    .then((parent) => {
+      if (!parent) {
+        return res.status(404).render("pages/editAccount", {
+          parent: {},
+          error_message: "Parent not found.",
+          title: "Edit Account"
+        });
+      }
+
+      res.render("pages/editAccount", {
+        parent,
+        error_message: "",
+        title: "Edit Account"
+      });
+    })
+    .catch((err) => {
+      console.error("Error loading parent:", err.message);
+      res.status(500).render("pages/editAccount", {
+        parent: {},
+        error_message: "Unable to load parent account.",
+        title: "Edit Account Error"
+      });
+    });
+});
+
+app.post("/account/:parentid/edit", requireLogin, (req, res) => {
+  const parentid = req.params.parentid;
+
+  const {
+    parentemail,
+    parentfirstname,
+    parentlastname,
+    parentphone,
+    preferredlanguage,
+    parentcollege,
+    photovideoconsent
+  } = req.body;
+
+  // Basic validation (optional)
+  if (!parentemail || !parentfirstname || !parentlastname || !parentphone) {
+    return res.render("pages/editAccount", {
+      parent: req.body,  // Keep entered values on screen
+      error_message: "Please fill in all required fields.",
+      title: "Edit Account"
+    });
+  }
+
+  knex("parents")
+    .where({ parentid })  // lowercase column matches your schema
+    .update({
+      parentemail,
+      parentfirstname,
+      parentlastname,
+      parentphone,
+      preferredlanguage,
+      parentcollege,
+      photovideoconsent
+    })
+    .then(() => {
+      // Redirect back to account page (or wherever you want)
+      res.redirect("/account");
+    })
+    .catch((err) => {
+      console.error("Error updating parent:", err.message);
+
+      res.render("pages/editAccount", {
+        parent: {
+          parentid,
+          parentemail,
+          parentfirstname,
+          parentlastname,
+          parentphone,
+          preferredlanguage,
+          parentcollege,
+          photovideoconsent
+        },
+        error_message: "Error saving changes. Please try again.",
+        title: "Edit Account"
+      });
+    });
+});
 
 // -------------------------
 // START SERVER
