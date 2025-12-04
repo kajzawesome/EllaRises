@@ -356,11 +356,11 @@ app.post("/pages/donations", async (req, res) => {
 
   try {
     await knex("donations").insert({
-      DonorName: name || null,
-      DonorEmail: email,
-      Message: message || null,
-      DonationHistoryDate: new Date(),
-      DonationHistoryAmount: finalAmount
+      donorname: name || null,
+      donoremail: email,
+      message: message || null,
+      donationdate: new Date(),
+      amount: finalAmount
     });
 
     return res.render("pages/donations", {
