@@ -614,6 +614,177 @@ app.get("/admin/manageusers",requireManager, async (req, res) => {
   }
 });
 
+// Manage Surveys
+app.post("/admin/surveys", requireManager, async (req, res) => {
+  try {
+    const { filterType, filterValue } = req.body; // e.g., filter by eventid or score threshold
+
+    // Base query joining survey -> registration -> eventoccurrences -> events
+    let query = knex("survey")
+      .join("registration", "survey.registrationid", "registration.registrationid")
+      .join("eventoccurrences", "registration.eventoccurrenceid", "eventoccurrences.eventoccurrenceid")
+      .join("events", "eventoccurrences.eventid", "events.eventid")
+      .select(
+        "survey.surveyid as id",
+        "registration.participantemail as user_label",
+        "survey.satisfactionscore as SurveySatisfactionScore",
+        "survey.usefulnessscore as SurveyUsefulnessScore",
+        "survey.instructorscore as SurveyInstructorScore",
+        "survey.recommendationscore as SurveyRecommendationScore",
+        "survey.overallscore as SurveyOverallScore",
+        "survey.comments as SurveyComments",
+        "events.eventname",
+        "events.eventtype",
+        "events.eventdescription",
+        "eventoccurrences.eventlocation",
+        "survey.submissiondate as SurveySubmissionDate",
+        "survey.submissiontime as SurveySubmissionTime"
+      );
+
+    // Apply filters if provided
+    if (filterType && filterValue) {
+      if (filterType === "event") {
+        query = query.where("events.eventid", filterValue);
+      } else if (filterType === "score") {
+        query = query.where("survey.overallscore", ">=", filterValue);
+      } else if (filterType === "participant") {
+        query = query.where("registration.participantemail", filterValue);
+      }
+    }
+
+    const responses = await query.orderBy("survey.submissiondate", "desc");
+
+    // Compute average overall score for filtered set
+    const avgOverall = responses.length
+      ? (responses.reduce((sum, r) => sum + Number(r.SurveyOverallScore), 0) / responses.length).toFixed(2)
+      : null;
+
+    // Optional: populate filter options for dropdown in EJS
+    const filterOptions = await knex("events").select("eventid as id", "eventname as label");
+
+    res.render("admin/survey-responses", {
+      user: req.session.user,
+      responses,
+      filterOptions,
+      filterBy: filterType === "event" ? filterValue : null,
+      avgOverall,
+      lang: req.session.lang || "en"
+    });
+
+  } catch (err) {
+    console.error("Error fetching survey responses:", err);
+    res.status(500).send("Error fetching survey responses");
+  }
+});
+
+app.get("/admin/surveys", requireManager, async (req, res) => {
+  try {
+    const { filterType, filterValue } = req.query; // e.g., /admin/surveys?filterType=event&filterValue=3
+
+    // Base query joining survey -> registration -> eventoccurrences -> events
+    let query = knex("survey")
+      .join("registration", "survey.registrationid", "registration.registrationid")
+      .join("eventoccurrences", "registration.eventoccurrenceid", "eventoccurrences.eventoccurrenceid")
+      .join("events", "eventoccurrences.eventid", "events.eventid")
+      .select(
+        "survey.surveyid as id",
+        "registration.participantemail as user_label",
+        "survey.satisfactionscore as SurveySatisfactionScore",
+        "survey.usefulnessscore as SurveyUsefulnessScore",
+        "survey.instructorscore as SurveyInstructorScore",
+        "survey.recommendationscore as SurveyRecommendationScore",
+        "survey.overallscore as SurveyOverallScore",
+        "survey.comments as SurveyComments",
+        "events.eventname",
+        "events.eventtype",
+        "events.eventdescription",
+        "eventoccurrences.eventlocation",
+        "survey.submissiondate as SurveySubmissionDate",
+        "survey.submissiontime as SurveySubmissionTime"
+      );
+
+    // Apply filters if provided
+    if (filterType && filterValue) {
+      if (filterType === "event") {
+        query = query.where("events.eventid", filterValue);
+      } else if (filterType === "score") {
+        query = query.where("survey.overallscore", ">=", filterValue);
+      } else if (filterType === "participant") {
+        query = query.where("registration.participantemail", filterValue);
+      }
+    }
+
+    const responses = await query.orderBy("survey.submissiondate", "desc");
+
+    // Compute average overall score for filtered set
+    const avgOverall = responses.length
+      ? (responses.reduce((sum, r) => sum + Number(r.SurveyOverallScore), 0) / responses.length).toFixed(2)
+      : null;
+
+    // Populate filter options for dropdown in EJS
+    const filterOptions = await knex("events").select("eventid as id", "eventname as label");
+
+    res.render("admin/survey-responses", {
+      user: req.session.user,
+      responses,
+      filterOptions,
+      filterBy: filterType === "event" ? filterValue : null,
+      avgOverall,
+      lang: req.session.lang || "en"
+    });
+
+  } catch (err) {
+    console.error("Error fetching survey responses:", err);
+    res.status(500).send("Error fetching survey responses");
+  }
+});
+
+// Milestones Management Route
+app.post("/admin/user/:userid/participant/:participantid/milestones", requireLogin, async (req, res) => {
+  try {
+    const { userid, participantid } = req.params;
+
+    // Get parent info
+    const parent = await knex("parents")
+      .select("*")
+      .where({ userid })
+      .first();
+    if (!parent) return res.status(404).send("Parent not found");
+
+    // Get the selected participant
+    const participant = await knex("participants")
+      .select("*")
+      .where({ participantid, parentid: parent.parentid })
+      .first();
+    if (!participant) return res.status(404).send("Participant not found");
+
+    // Get milestones for this participant
+    const milestones = await knex("milestones")
+      .select("milestonetitle as title", "milestonedate as date", "milestonestatus as status")
+      .where({ participantemail: participant.participantemail })
+      .orderBy("milestonedate", "asc");
+
+    participant.milestones = milestones;
+
+    // Map participant columns for EJS
+    participant.participantDOB = participant.participantdob;
+    participant.participantgrade = participant.participantgrade;
+    participant.participantfirstname = participant.participantfirstname;
+    participant.participantlastname = participant.participantlastname;
+
+    res.render("admin/user-milestones", {
+      parent,
+      participant, // pass single participant
+      user: req.session.user,
+      lang: req.session.lang || "en",
+    });
+
+  } catch (err) {
+    console.error("Error loading user milestones:", err);
+    res.status(500).send("Error loading user milestones");
+  }
+});
+
 // -------------------------
 // MANAGE DONATIONS
 // -------------------------
