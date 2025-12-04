@@ -1,5 +1,9 @@
 <%- include('partials/header', { title: title }) %>
 
+<% if (flashMessage) { %>
+  <div class="flash-message"><%= flashMessage %></div>
+<% } %>
+
 <title><%= title || "Ella Rises" %></title>
 
 <!-- HERO IMAGE -->
@@ -13,10 +17,38 @@
         through culturally rooted programs and educational experiences.
     </p>
 
-    <a href="/enroll" class="button hero-button">Click here to enroll!</a>
+    <a href="/login" class="button hero-button">Click here to enroll!</a>
 </section>
 
-
+<!-- Upcoming Events -->
+<section class="section pink-section">
+  <div class="section-content">
+    <% if (upcomingEvents && upcomingEvents.length > 0) { 
+         const event = upcomingEvents[0]; %>
+      <div class="section-text">
+        <h2><%= event.eventname %></h2>
+        <p>
+          <%= event.eventdescription.length > 150 
+                ? event.eventdescription.substring(0, 150) + '...' 
+                : event.eventdescription %>
+        </p>
+        <p>
+          <strong><span class="lang-en">Date:</span><span class="lang-es">Fecha:</span></strong>
+          <%= new Date(event.eventdatestart).toLocaleDateString('en-US') %>
+        </p>
+        <a href="/events/register" class="button">
+          <span class="lang-en">Sign Up</span>
+          <span class="lang-es">Registrarse</span>
+        </a>
+      </div>
+    <% } else { %>
+      <div class="section-text">
+        <h2><span class="lang-en">No Upcoming Events</span><span class="lang-es">No hay eventos próximos</span></h2>
+        <p><span class="lang-en">Check back soon!</span><span class="lang-es">¡Vuelve pronto!</span></p>
+      </div>
+    <% } %>
+  </div>
+</section>
 
 <!-- SECTION 1 -->
 <section class="section white-section">
@@ -25,7 +57,7 @@
         <div class="section-text">
             <h2>Mariachi Program</h2>
             <p>Our mariachi classes help students learn traditional music, build confidence, and express creativity.</p>
-            <a href="/mariachi" class="button">Learn More</a>
+            <a href="/programs/register" class="button">Learn More</a>
         </div>
     </div>
 </section>
@@ -37,7 +69,7 @@
         <div class="section-text">
             <h2>STEAM Workshops</h2>
             <p>We offer hands-on science, tech, engineering, art, and math activities to spark curiosity.</p>
-            <a href="/steam" class="button">Explore STEAM</a>
+            <a href="/programs/register" class="button">Explore STEAM</a>
         </div>
     </div>
 </section>
@@ -49,7 +81,7 @@
         <div class="section-text">
             <h2>Ballet Folklórico</h2>
             <p>Students experience the beauty of traditional dance while developing discipline and cultural pride.</p>
-            <a href="/balletfolklorico" class="button">Learn More</a>
+            <a href="/programs/register" class="button">Learn More</a>
         </div>
     </div>
 </section>
@@ -62,7 +94,7 @@
             <h2>Pathways Program</h2>
             <p>Virtual and in-person STEAM (science, technology, engineering, art, and math) workshops to develop and guide participant
             inquiry, discussion, and critical thinking of STEAM related careers.</p>
-            <a href="/pathways" class="button">Explore Pathways</a>
+            <a href="/programs/register" class="button">Explore Pathways</a>
         </div>
     </div>
 </section>

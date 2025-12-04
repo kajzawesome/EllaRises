@@ -65,8 +65,46 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
-  res.render("index", { title: "Ella Rises" });
+app.get("/", async (req, res) => {
+  try {
+    // Grab flash message if any
+    const flashMessage = req.session.flashMessage || null;
+    req.session.flashMessage = null; // Clear after displaying
+
+    // Get today's date
+    const today = new Date().toISOString().split("T")[0];
+
+    // Query upcoming events
+    const upcomingEvents = await knex("events as e")
+      .join("eventoccurrences as eo", "e.eventid", "eo.eventid")
+      .select(
+        "e.eventid",
+        "e.eventname",
+        "e.eventdescription",
+        "eo.eventdatestart",
+        "eo.eventtimestart",
+        "eo.eventdateend",
+        "eo.eventtimeend",
+        "eo.eventlocation",
+        "eo.eventcapacity"
+      )
+      .where("eo.eventdateend", ">=", today)
+      .orderBy("eo.eventdatestart", "asc")
+      .limit(1); // Only get the next upcoming event
+
+    res.render("index", {
+      title: "Ella Rises",
+      upcomingEvents,
+      flashMessage,   // Pass flashMessage to EJS
+    });
+  } catch (err) {
+    console.error("Error fetching upcoming events:", err);
+    res.render("index", {
+      title: "Ella Rises",
+      upcomingEvents: [],
+      flashMessage: null
+    });
+  }
 });
 
 // -------------------------
@@ -283,6 +321,211 @@ app.get("/programs/register",requireLogin, async (req, res) => {
 
 app.get("/pages/getinvolved", (req, res) => {
   res.render("pages/getinvolved", { title: "Get Involved", user: req.session.user });
+});
+
+// Dummy Press Route
+app.get("/press", (req, res) => {
+  res.status(418).render("pages/press", { title: "Press", message: "This page would be like the current page from ellarises.org." });
+});
+
+// Dummy Contact Route
+app.get("/contact", (req, res) => {
+  res.status(200).send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Contact Us</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          text-align: center;
+          padding: 50px;
+        }
+
+        .flash-message {
+          font-size: 48px;       /* large message */
+          font-weight: bold;
+          color: #d9534f;
+          margin-bottom: 20px;
+        }
+
+        .countdown {
+          font-size: 24px;
+          color: #555;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="flash-message">Coming Soon</div>
+      <div class="countdown">This will be similar to current ellarises.org contact us page. Redirecting in <span id="seconds">10</span> seconds...</div>
+
+      <script>
+        let seconds = 10;
+        const countdownEl = document.getElementById('seconds');
+
+        const interval = setInterval(() => {
+          seconds--;
+          countdownEl.textContent = seconds;
+          if (seconds <= 0) {
+            clearInterval(interval);
+            window.location.href = '/';
+          }
+        }, 1000);
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+// Dummy team Route
+app.get("/team", (req, res) => {
+  res.status(200).send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Team</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          text-align: center;
+          padding: 50px;
+        }
+
+        .flash-message {
+          font-size: 48px;       /* large message */
+          font-weight: bold;
+          color: #d9534f;
+          margin-bottom: 20px;
+        }
+
+        .countdown {
+          font-size: 24px;
+          color: #555;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="flash-message">Coming Soon</div>
+      <div class="countdown">This will be similar to current ellarises.org version of the page. Redirecting in <span id="seconds">10</span> seconds...</div>
+
+      <script>
+        let seconds = 10;
+        const countdownEl = document.getElementById('seconds');
+
+        const interval = setInterval(() => {
+          seconds--;
+          countdownEl.textContent = seconds;
+          if (seconds <= 0) {
+            clearInterval(interval);
+            window.location.href = '/';
+          }
+        }, 1000);
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+// Dummy Board Route
+app.get("/board", (req, res) => {
+  res.status(200).send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Board of Directors</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          text-align: center;
+          padding: 50px;
+        }
+
+        .flash-message {
+          font-size: 48px;       /* large message */
+          font-weight: bold;
+          color: #d9534f;
+          margin-bottom: 20px;
+        }
+
+        .countdown {
+          font-size: 24px;
+          color: #555;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="flash-message">Coming Soon</div>
+      <div class="countdown">This will be similar to current ellarises.org version of the page. Redirecting in <span id="seconds">10</span> seconds...</div>
+
+      <script>
+        let seconds = 10;
+        const countdownEl = document.getElementById('seconds');
+
+        const interval = setInterval(() => {
+          seconds--;
+          countdownEl.textContent = seconds;
+          if (seconds <= 0) {
+            clearInterval(interval);
+            window.location.href = '/';
+          }
+        }, 1000);
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+// Dummy <Mission> Route
+app.get("/mission", (req, res) => {
+  res.status(200).send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Mission</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          text-align: center;
+          padding: 50px;
+        }
+
+        .flash-message {
+          font-size: 48px;       /* large message */
+          font-weight: bold;
+          color: #d9534f;
+          margin-bottom: 20px;
+        }
+
+        .countdown {
+          font-size: 24px;
+          color: #555;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="flash-message">Coming Soon</div>
+      <div class="countdown">This will be similar to current ellarises.org version of the page. Redirecting in <span id="seconds">10</span> seconds...</div>
+
+      <script>
+        let seconds = 10;
+        const countdownEl = document.getElementById('seconds');
+
+        const interval = setInterval(() => {
+          seconds--;
+          countdownEl.textContent = seconds;
+          if (seconds <= 0) {
+            clearInterval(interval);
+            window.location.href = '/';
+          }
+        }, 1000);
+      </script>
+    </body>
+    </html>
+  `);
 });
 
 // -------------------------
