@@ -6,7 +6,7 @@ const knex = require("knex")({
   connection: {
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "admin",
+    password: process.env.DB_PASSWORD || "12345",
     database: process.env.DB_NAME || "ellarises",
     port: process.env.DB_PORT || "5432"
   }
@@ -1186,6 +1186,47 @@ app.post("/admin/event/:eventid/new-occurrence", requireManager, async (req, res
         return res.status(500).render("error", {
             error_message: "Unable to add new occurrence."
         });
+    }
+});
+
+app.post("/admin/event/:eventid/delete", requireManager, async (req, res) => {
+    const { eventid } = req.params;
+
+    try {
+        // Check if the event exists
+        const event = await knex("events")
+            .where({ eventid })
+            .first();
+
+        if (!event) {
+            return res.status(404).send("Event not found.");
+        }
+
+        // Perform delete inside a transaction
+        await knex.transaction(async trx => {
+
+            // Delete occurrences first (foreign key safe)
+            await trx("eventoccurrences")
+                .where({ eventid })
+                .del();
+
+            // Delete the parent event
+            await trx("events")
+                .where({ eventid })
+                .del();
+        });
+
+        // After deletion, reload the manage events page
+        const events = await knex("events").select("*");
+
+        res.render("admin/dashboard", {
+            events,
+            title: "Manage Events"
+        });
+
+    } catch (err) {
+        console.error("Error deleting event:", err);
+        res.status(500).send("Error deleting event.");
     }
 });
 
