@@ -861,6 +861,33 @@ app.get("/admin/donations", requireManager, (req, res) => {
   res.render("admin/donations", { title: "View Donations" });
 });
 
+// MANAGE EVENTS PAGE (Dashboard list)
+app.get("/admin/manageevents", async (req, res) => {
+  try {
+    // Fetch all events + their next occurrence
+    const events = await knex("events as e")
+        .leftJoin("eventoccurrences as eo", function () {
+            this.on("eo.eventid", "=", "e.eventid")
+                .andOn("eo.eventdatestart", ">=", knex.fn.now());
+        })
+        .select(
+            "e.eventid",
+            "e.eventname",
+            "e.eventtype",
+            knex.raw("MIN(eo.eventdatestart) as nextdate"),
+            "eo.eventlocation"
+        )
+        .groupBy("e.eventid", "e.eventname", "e.eventtype", "eo.eventlocation")
+        .orderBy("nextdate");
+
+    res.render("admin/events", { events, title: "Manage Events" });
+
+  } catch (err) {
+    console.error("❌ Error loading events:", err);
+    res.status(500).send("Error loading events");
+  }
+});
+
 // Add event page
 app.get("/admin/add-event", requireManager, (req, res) => {
     res.render("admin/addevent", error_message="");
