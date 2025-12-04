@@ -58,7 +58,17 @@ function requireManager(req, res, next) {
 
   next();
 }
-// -------------------------
+
+function allowParentOrManager(req, ownerUserId) {
+  const user = req.session.user;
+  if (!user) return false;
+
+  // Managers always allowed
+  if (user.level === "M") return true;
+
+  // Parents allowed only if editing their own user record
+  return user.level === "U" && user.userid === ownerUserId;
+}
 
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
@@ -281,21 +291,37 @@ app.get("/account/participant/add", requireLogin, (req, res) => {
 
 app.post("/account/participant/add", requireLogin, async (req, res) => {
   const parentUser = req.session.user;
-  const { firstname, lastname, dob, grade, participantfieldofinterest, participantemail, participantcity } = req.body;
+  const parentid = parentUser.parentid || null;
+
+  const {
+    participantfirstname,
+    participantlastname,
+    participantemail,
+    participantdob,
+    participantgrade,
+    participantschooloremployer,
+    participantfieldofinterest,
+    mariachiinstrumentinterest,
+    instrumentexperience
+  } = req.body;
 
   try {
-    await knex('participants').insert({
-      parentid: parentUser.userid,
-      participantfirstname: firstname,
-      participantlastname: lastname,
-      participantdob: dob || null,
-      participantgrade: grade || null,
+    await knex("participants").insert({
+      parentid: parentid,
+      participantfirstname,
+      participantlastname,
+      participantemail,
+      participantdob: participantdob || null,
+      participantgrade: participantgrade || null,
+      participantschooloremployer: participantschooloremployer || null,
       participantfieldofinterest: participantfieldofinterest || null,
-      participantemail: participantemail || null,
-      participantcity: participantcity || null
+      mariachiinstrumentinterest: mariachiinstrumentinterest || null,
+      instrumentexperience: instrumentexperience || null,
+      graduationstatus: "enrolled"
     });
 
-    res.redirect("/pages/account");
+    res.redirect(`/account/${parentUser.userid}`);
+
   } catch (err) {
     console.error("Error adding child:", err);
     res.status(500).send("Error adding child");
@@ -304,18 +330,40 @@ app.post("/account/participant/add", requireLogin, async (req, res) => {
 
 // --- Update Child Progress (editable fields on account.ejs) ---
 app.post("/account/child/:childId/update", requireLogin, async (req, res) => {
-  const childId = req.params.childId;
+  const childId = Number(req.params.childId);
+  const user = req.session.user;
+
   const { fieldofinterest, graduationstatus } = req.body;
 
   try {
-    await knex('participants')
+    // Load participant
+    const participant = await knex("participants")
+      .where({ participantid: childId })
+      .first();
+
+    if (!participant) return res.status(404).send("Child not found.");
+
+    // Load parent to get ownerUserId
+    const parent = await knex("parents")
+      .where({ parentid: participant.parentid })
+      .first();
+
+    if (!parent) return res.status(404).send("Parent not found.");
+
+    // 🔥 Check permissions
+    if (!allowParentOrManager(req, parent.userid)) {
+      return res.status(403).send("Not authorized to update this child.");
+    }
+
+    await knex("participants")
       .where({ participantid: childId })
       .update({
         participantfieldofinterest: fieldofinterest,
-        participantgraduationstatus: graduationstatus
+        graduationstatus
       });
 
-    res.redirect("/pages/account");
+    res.redirect(`/account/${parent.userid}`);
+
   } catch (err) {
     console.error("Error updating child progress:", err);
     res.status(500).send("Error updating progress");
@@ -348,15 +396,32 @@ app.post("/account/participant/:participantId/milestones/add", requireLogin, asy
 
 // --- Update Milestone Status ---
 app.post("/account/milestone/:milestoneId/update", requireLogin, async (req, res) => {
-  const milestoneId = req.params.milestoneId;
+  const milestoneId = Number(req.params.milestoneId);
   const { milestonestatus } = req.body;
 
   try {
-    await knex('milestones')
+    const milestone = await knex("milestones").where({ milestoneid: milestoneId }).first();
+    if (!milestone) return res.status(404).send("Milestone not found.");
+
+    const participant = await knex("participants")
+      .where({ participantemail: milestone.participantemail })
+      .first();
+
+    const parent = await knex("parents")
+      .where({ parentid: participant.parentid })
+      .first();
+
+    // 🔥 Permission check
+    if (!allowParentOrManager(req, parent.userid)) {
+      return res.status(403).send("Not authorized to update milestone.");
+    }
+
+    await knex("milestones")
       .where({ milestoneid: milestoneId })
       .update({ milestonestatus });
 
-    res.redirect("/pages/account");
+    res.redirect(`/account/${parent.userid}`);
+
   } catch (err) {
     console.error("Error updating milestone:", err);
     res.status(500).send("Error updating milestone");
@@ -1613,92 +1678,121 @@ app.post("/admin/event-occurrence/:occurrenceid/delete", requireManager, async (
     }
 });
 
-app.get("/account/:parentid/edit", requireLogin, (req, res) => {
-  const id = req.params.parentid;
+app.get("/account/:userid/edit", requireLogin, async (req, res) => {
+  const requestedUserId = Number(req.params.userid);
+  const loggedInUser = req.session.user;
 
-  knex("parents")
-    .where({ parentid: id })   // <-- lowercase column
-    .first()
-    .then((parent) => {
-      if (!parent) {
-        return res.status(404).render("pages/editAccount", {
-          parent: {},
-          error_message: "Parent not found.",
-          title: "Edit Account"
-        });
-      }
+  try {
+    let authorized = false;
 
-      res.render("pages/editAccount", {
-        parent,
-        error_message: "",
+    // ⭐ Managers can edit ANY parent
+    if (loggedInUser.level === "M") {
+      authorized = true;
+    }
+
+    // ⭐ Parents can only edit THEIR OWN account
+    if (loggedInUser.level === "U" && loggedInUser.userid === requestedUserId) {
+      authorized = true;
+    }
+
+    if (!authorized) {
+      return res.status(403).send("Not authorized to edit this account.");
+    }
+
+    // Load parent record
+    const parent = await knex("parents")
+      .where({ userid: requestedUserId })
+      .first();
+
+    if (!parent) {
+      return res.status(404).render("pages/editAccount", {
+        parent: {},
+        error_message: "Parent not found.",
         title: "Edit Account"
       });
-    })
-    .catch((err) => {
-      console.error("Error loading parent:", err.message);
-      res.status(500).render("pages/editAccount", {
-        parent: {},
-        error_message: "Unable to load parent account.",
-        title: "Edit Account Error"
-      });
+    }
+
+    res.render("pages/editAccount", {
+      parent,
+      error_message: "",
+      title: "Edit Account"
     });
+
+  } catch (err) {
+    console.error("Error loading parent:", err.message);
+    res.status(500).render("pages/editAccount", {
+      parent: {},
+      error_message: "Unable to load parent account.",
+      title: "Edit Account Error"
+    });
+  }
 });
 
-app.post("/account/:parentid/edit", requireLogin, (req, res) => {
-  const parentid = req.params.parentid;
+app.post("/account/:userid/edit", requireLogin, async (req, res) => {
+  const requestedUserId = Number(req.params.userid);
+  const loggedInUser = req.session.user;
 
   const {
     parentemail,
     parentfirstname,
     parentlastname,
     parentphone,
-    preferredlanguage,
+    languagepreference,
     parentcollege,
-    photovideoconsent
+    photoconsent
   } = req.body;
 
-  // Basic validation (optional)
-  if (!parentemail || !parentfirstname || !parentlastname || !parentphone) {
-    return res.render("pages/editAccount", {
-      parent: req.body,  // Keep entered values on screen
-      error_message: "Please fill in all required fields.",
+  try {
+    let authorized = false;
+
+    // ⭐ Managers can edit ANY parent
+    if (loggedInUser.level === "M") {
+      authorized = true;
+    }
+
+    // ⭐ Parents can edit ONLY their account
+    if (loggedInUser.level === "U" && loggedInUser.userid === requestedUserId) {
+      authorized = true;
+    }
+
+    if (!authorized) {
+      return res.status(403).send("Not authorized to update this account.");
+    }
+
+    // Save update
+    await knex("parents")
+      .where({ userid: requestedUserId })
+      .update({
+        parentemail,
+        parentfirstname,
+        parentlastname,
+        parentphone,
+        languagepreference,
+        parentcollege,
+        photoconsent
+      });
+
+    // Redirect correctly
+    res.redirect(`/account/${requestedUserId}`);
+
+  } catch (err) {
+    console.error("Error updating parent:", err.message);
+
+    res.render("pages/editAccount", {
+      parent: {
+        userid: requestedUserId,
+        parentemail,
+        parentfirstname,
+        parentlastname,
+        parentphone,
+        languagepreference,
+        parentcollege,
+        photoconsent
+      },
+      error_message: "Error saving changes. Please try again.",
       title: "Edit Account"
     });
   }
-
-  knex("parents")
-    .where({ parentid })  // lowercase column matches your schema
-    .update({
-      parentemail,
-      parentfirstname,
-      parentlastname,
-      parentphone,
-      preferredlanguage,
-      parentcollege,
-      photovideoconsent
-    })
-    .then(() => {
-      // Redirect back to account page (or wherever you want)
-      res.redirect("/account");
-    })
-    .catch((err) => {
-      console.error("Error updating parent:", err.message);
-
-      res.render("pages/editAccount", {
-        parent: {
-          parentid,
-          parentemail,
-          parentfirstname,
-          parentlastname,
-          parentphone,
-          preferredlanguage,
-          parentcollege,
-          photovideoconsent
-        },
-        error_message: "Error saving changes. Please try again.",
-        title: "Edit Account"
-      });
-    });
 });
 
 // -------------------------
