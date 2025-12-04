@@ -67,32 +67,45 @@ app.use((req, res, next) => {
 
 app.get("/", async (req, res) => {
   try {
+    // Grab flash message if any
     const flashMessage = req.session.flashMessage || null;
     req.session.flashMessage = null; // Clear after displaying
 
-    // Fetch upcoming events (assuming your "events" table has a "date" field)
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    const upcomingEvents = await knex("events")
-      .where("date", ">=", today)
-      .orderBy("date", "asc")
-      .limit(1); // Only need the next upcoming event
+    // Get today's date
+    const today = new Date().toISOString().split("T")[0];
+
+    // Query upcoming events
+    const upcomingEvents = await knex("events as e")
+      .join("eventoccurrences as eo", "e.eventid", "eo.eventid")
+      .select(
+        "e.eventid",
+        "e.eventname",
+        "e.eventdescription",
+        "eo.eventdatestart",
+        "eo.eventtimestart",
+        "eo.eventdateend",
+        "eo.eventtimeend",
+        "eo.eventlocation",
+        "eo.eventcapacity"
+      )
+      .where("eo.eventdateend", ">=", today)
+      .orderBy("eo.eventdatestart", "asc")
+      .limit(1); // Only get the next upcoming event
 
     res.render("index", {
       title: "Ella Rises",
-      flashMessage,
-      upcomingEvents
+      upcomingEvents,
+      flashMessage,   // Pass flashMessage to EJS
     });
   } catch (err) {
     console.error("Error fetching upcoming events:", err);
-
     res.render("index", {
       title: "Ella Rises",
-      flashMessage: null,
-      upcomingEvents: []
+      upcomingEvents: [],
+      flashMessage: null
     });
   }
 });
-
 
 // -------------------------
 // AUTH ROUTES

@@ -33,10 +33,9 @@
                 : event.eventdescription %>
         </p>
         <p>
-            <strong><span class="lang-en">Date:</span><span class="lang-es">Fecha:</span></strong>
-            <%= new Date(event.date).toLocaleDateString('en-US') %>
+          <strong><span class="lang-en">Date:</span><span class="lang-es">Fecha:</span></strong>
+          <%= new Date(event.eventdatestart).toLocaleDateString('en-US') %>
         </p>
-
         <a href="/events/register" class="button">
           <span class="lang-en">Sign Up</span>
           <span class="lang-es">Registrarse</span>
