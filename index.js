@@ -1274,6 +1274,8 @@ app.post("/admin/event-occurrence/:occurrenceid/delete", requireManager, async (
     }
 });
 
+
+
 // -------------------------
 // START SERVER
 // -------------------------
