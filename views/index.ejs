@@ -1,5 +1,9 @@
 <%- include('partials/header', { title: title }) %>
 
+<% if (flashMessage) { %>
+  <div class="flash-message"><%= flashMessage %></div>
+<% } %>
+
 <title><%= title || "Ella Rises" %></title>
 
 <!-- HERO IMAGE -->
@@ -15,7 +19,6 @@
 
     <a href="/enroll" class="button hero-button">Click here to enroll!</a>
 </section>
-
 
 
 <!-- SECTION 1 -->

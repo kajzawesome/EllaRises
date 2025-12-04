@@ -66,7 +66,9 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  res.render("index", { title: "Ella Rises" });
+  const flashMessage = req.session.flashMessage || null;
+  req.session.flashMessage = null; // Clear after displaying
+  res.render("index", { title: "Ella Rises", flashMessage });
 });
 
 // -------------------------
@@ -283,6 +285,61 @@ app.get("/programs/register",requireLogin, async (req, res) => {
 
 app.get("/pages/getinvolved", (req, res) => {
   res.render("pages/getinvolved", { title: "Get Involved", user: req.session.user });
+});
+
+// Dummy Press Route
+app.get("/press", (req, res) => {
+  res.status(418).render("pages/press", { title: "Press", message: "This page would be like the current page from ellarises.org." });
+});
+
+// Dummy Contact Route
+app.get("/contact", (req, res) => {
+  res.status(200).send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Contact Us</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          text-align: center;
+          padding: 50px;
+        }
+
+        .flash-message {
+          font-size: 48px;       /* large message */
+          font-weight: bold;
+          color: #d9534f;
+          margin-bottom: 20px;
+        }
+
+        .countdown {
+          font-size: 24px;
+          color: #555;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="flash-message">Coming Soon</div>
+      <div class="countdown">This will be similar to current ellarises.org contact us page. Redirecting in <span id="seconds">10</span> seconds...</div>
+
+      <script>
+        let seconds = 10;
+        const countdownEl = document.getElementById('seconds');
+
+        const interval = setInterval(() => {
+          seconds--;
+          countdownEl.textContent = seconds;
+          if (seconds <= 0) {
+            clearInterval(interval);
+            window.location.href = '/';
+          }
+        }, 1000);
+      </script>
+    </body>
+    </html>
+  `);
 });
 
 // -------------------------
