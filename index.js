@@ -6,7 +6,7 @@ const knex = require("knex")({
   connection: {
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "12345",
+    password: process.env.DB_PASSWORD || "admin",
     database: process.env.DB_NAME || "ellarises",
     port: process.env.DB_PORT || "5432"
   }
@@ -216,6 +216,141 @@ app.get("/account", requireLogin, async (req, res) => {
   } catch (err) {
     console.error("Error loading account page:", err);
     res.status(500).send("Error loading account page");
+  }
+});
+
+// Add Participant
+app.get("/account/participant/add", requireLogin, (req, res) => {
+  res.render("pages/add-child", { user: req.session.user });
+});
+
+app.post("/account/participant/add", requireLogin, async (req, res) => {
+  const parentUser = req.session.user;
+  const { firstname, lastname, dob, grade, participantfieldofinterest, participantemail, participantcity } = req.body;
+
+  try {
+    await knex('participants').insert({
+      parentid: parentUser.userid,
+      participantfirstname: firstname,
+      participantlastname: lastname,
+      participantdob: dob || null,
+      participantgrade: grade || null,
+      participantfieldofinterest: participantfieldofinterest || null,
+      participantemail: participantemail || null,
+      participantcity: participantcity || null
+    });
+
+    res.redirect("/pages/account");
+  } catch (err) {
+    console.error("Error adding child:", err);
+    res.status(500).send("Error adding child");
+  }
+});
+
+// Register Participant for Event - GET
+app.get("/pages/participant/:participantId/register-event", requireLogin, async (req, res) => {
+  const participantId = req.params.participantId;
+
+  try {
+    const participant = await knex('participants').where({ participantid: participantId }).first();
+    const participantEmail = participant.participantemail;
+
+    // All event occurrences with event info
+    const allOccurrences = await knex('eventoccurrences as eo')
+      .join('events as e', 'eo.eventid', 'e.eventid')
+      .select('eo.eventoccurrenceid', 'eo.eventdatestart', 'eo.eventtimestart', 'eo.eventlocation', 'e.eventname');
+
+    // Registrations for this participant
+    const registeredRows = await knex('registrations').where({ participantemail: participantEmail });
+    const registeredIds = registeredRows.map(r => r.eventoccurrenceid);
+
+    const availableOccurrences = allOccurrences.filter(eo => !registeredIds.includes(eo.eventoccurrenceid));
+
+    res.render("pages/register-event", {
+      participantId,
+      availableOccurrences,
+      user: req.session.user
+    });
+  } catch (err) {
+    console.error("Error fetching event occurrences:", err);
+    res.status(500).send("Error fetching events");
+  }
+});
+
+// Register Participant for Event - POST
+app.post("/pages/participant/:participantId/register-event", requireLogin, async (req, res) => {
+  const participantId = req.params.participantId;
+  const { eventoccurrenceid } = req.body;
+
+  try {
+    const participant = await knex('participants').where({ participantid: participantId }).first();
+    const participantEmail = participant.participantemail;
+
+    const exists = await knex('registrations')
+      .where({ participantemail: participantEmail, eventoccurrenceid })
+      .first();
+
+    if (!exists) {
+      await knex('registrations').insert({
+        participantemail: participantEmail,
+        eventoccurrenceid,
+        createdat: knex.fn.now()
+      });
+    }
+
+    res.redirect("/pages/account");
+  } catch (err) {
+    console.error("Error registering for event:", err);
+    res.status(500).send("Error registering for event");
+  }
+});
+
+// Delete Milestone
+app.post("/account/milestone/:milestoneId/delete", requireLogin, async (req, res) => {
+  const milestoneId = req.params.milestoneId;
+
+  try {
+    await knex('milestones').where({ milestoneid: milestoneId }).del();
+    res.redirect("/pages/account");
+  } catch (err) {
+    console.error("Error deleting milestone:", err);
+    res.status(500).send("Error deleting milestone");
+  }
+});
+
+// Update Milestone
+app.post("/account/milestone/:milestoneId/update", requireLogin, async (req, res) => {
+  const milestoneId = req.params.milestoneId;
+  const { milestonestatus } = req.body;
+
+  try {
+    await knex('milestones')
+      .where({ milestoneid: milestoneId })
+      .update({ milestonestatus });
+    res.redirect("/pages/account");
+  } catch (err) {
+    console.error("Error updating milestone:", err);
+    res.status(500).send("Error updating milestone");
+  }
+});
+
+// Update Participant Status
+app.post("/account/child/:childId/update", requireLogin, async (req, res) => {
+  const childId = req.params.childId;
+  const { fieldofinterest, graduationstatus } = req.body;
+
+  try {
+    await knex('participants')
+      .where({ participantid: childId })
+      .update({
+        participantfieldofinterest: fieldofinterest,
+        participantgraduationstatus: graduationstatus
+      });
+
+    res.redirect("/pages/account");
+  } catch (err) {
+    console.error("Error updating child progress:", err);
+    res.status(500).send("Error updating progress");
   }
 });
 
