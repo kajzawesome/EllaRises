@@ -1,0 +1,25 @@
+<%- include('../partials/header', { title: 'Register for Event' , user: user }) %>
+
+    <div class="section">
+        <h1>Register for Event</h1>
+
+        <% if (availableOccurrences.length===0) { %>
+            <p>No upcoming events available for registration.</p>
+            <% } else { %>
+                <form action="/account/participant/<%= participantId %>/register-event" method="POST">
+                    <label for="eventoccurrenceid">Select an Event</label>
+                    <select name="eventoccurrenceid" id="eventoccurrenceid" required>
+                        <% availableOccurrences.forEach(occ=> { %>
+                            <option value="<%= occ.eventoccurrenceid %>">
+                                <%= occ.eventname %> — <%= new Date(occ.eventdatestart).toLocaleDateString('en-US') %>
+                                        at <%= occ.eventtimestart %> — <%= occ.eventlocation %>
+                            </option>
+                            <% }) %>
+                    </select>
+
+                    <button type="submit" class="button" style="margin-top:10px;">Register</button>
+                </form>
+                <% } %>
+    </div>
+
+    <%- include('../partials/footer') %>
