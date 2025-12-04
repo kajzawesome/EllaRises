@@ -48,44 +48,50 @@
                 <span class="lang-es">Próximos Programas y Eventos</span>
             </h2>
 
-            <% if (upcomingItems && upcomingItems.length > 0) { %>
+            <% if (events && events.length > 0) { %>
 
-                <% upcomingItems.forEach(item => { %>
+                <% events.forEach(event => { %>
+
                     <div class="admin-item-card">
-                        
-                        <!-- Event Info -->
+
                         <div class="admin-item-details">
-                            <h3><%= item.eventname %></h3>
+                            <h3><%= event.eventname %></h3>
 
                             <p>
                                 <strong><span class="lang-en">Type:</span>
                                         <span class="lang-es">Tipo:</span>
-                                </strong> 
-                                <%= item.eventtype %>
+                                </strong>
+                                <%= event.eventtype %>
                             </p>
 
                             <p>
-                                <strong><span class="lang-en">Date:</span>
-                                        <span class="lang-es">Fecha:</span>
+                                <strong><span class="lang-en">Next Occurrence:</span>
+                                        <span class="lang-es">Próxima Sesión:</span>
                                 </strong>
-                                <%= new Date(item.eventdatestart).toLocaleDateString() %>
-                                @ <%= item.eventtimestart %>
+
+                                <% if (event.nextdate) { %>
+                                    <%= new Date(event.nextdate).toLocaleDateString() %>
+                                <% } else { %>
+                                    <span class="lang-en">No upcoming sessions</span>
+                                    <span class="lang-es">No hay próximas sesiones</span>
+                                <% } %>
                             </p>
 
                             <p>
                                 <strong><span class="lang-en">Location:</span>
                                         <span class="lang-es">Ubicación:</span>
-                                </strong> 
-                                <%= item.eventlocation %>
+                                </strong>
+
+                                <%= event.eventlocation || "" %>
                             </p>
                         </div>
 
-                        <!-- Edit -->
-                        <a href="/admin/edit-event/<%= item.eventoccurrenceid %>" class="edit-btn">
+                        <a href="/admin/edit-event/<%= event.eventid %>" class="edit-btn">
                             <span class="lang-en">Edit</span>
                             <span class="lang-es">Editar</span>
                         </a>
                     </div>
+
                 <% }) %>
 
             <% } else { %>

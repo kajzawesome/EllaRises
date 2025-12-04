@@ -1,0 +1,75 @@
+<%- include('../partials/header', { title: 'Add Occurrence' }) %>
+
+<div class="admin-container">
+
+  <aside class="admin-sidebar">
+    <h3>
+      <span class="lang-en">Admin Tools</span>
+      <span class="lang-es">Herramientas Admin</span>
+    </h3>
+
+    <a class="admin-btn" href="/admin/dashboard">
+      <span class="lang-en">Dashboard</span><span class="lang-es">Panel</span>
+    </a>
+
+    <a class="admin-btn" href="/admin/event/<%= eventid %>">
+      <span class="lang-en">Back to Event</span><span class="lang-es">Volver al Evento</span>
+    </a>
+  </aside>
+
+  <main class="admin-main">
+    
+    <h2>
+      <span class="lang-en">Add Event Occurrence</span>
+      <span class="lang-es">Agregar Fecha del Evento</span>
+    </h2>
+
+    <form action="/admin/event/<%= eventid %>/new-occurrence" method="POST" class="event-edit-form">
+
+      <label>
+        <span class="lang-en">Start Date</span>
+        <span class="lang-es">Fecha Inicio</span>
+      </label>
+      <input type="date" name="eventdatestart" required>
+
+      <label>
+        <span class="lang-en">Start Time</span>
+        <span class="lang-es">Hora Inicio</span>
+      </label>
+      <input type="time" name="eventtimestart" required>
+
+      <label>
+        <span class="lang-en">End Date</span>
+        <span class="lang-es">Fecha Fin</span>
+      </label>
+      <input type="date" name="eventdateend" required>
+
+      <label>
+        <span class="lang-en">End Time</span>
+        <span class="lang-es">Hora Fin</span>
+      </label>
+      <input type="time" name="eventtimeend" required>
+
+      <label>
+        <span class="lang-en">Location</span>
+        <span class="lang-es">Ubicación</span>
+      </label>
+      <input type="text" name="eventlocation" required>
+
+      <label>
+        <span class="lang-en">Capacity</span>
+        <span class="lang-es">Capacidad</span>
+      </label>
+      <input type="number" name="eventcapacity" min="1" required>
+
+      <button type="submit" class="edit-btn" style="margin-top:20px;">
+        <span class="lang-en">Save Occurrence</span>
+        <span class="lang-es">Guardar Fecha</span>
+      </button>
+
+    </form>
+
+  </main>
+</div>
+
+<%- include('../partials/footer') %>
