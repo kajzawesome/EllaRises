@@ -59,17 +59,6 @@ function requireManager(req, res, next) {
   next();
 }
 
-function allowParentOrManager(req, ownerUserId) {
-  const user = req.session.user;
-  if (!user) return false;
-
-  // Managers always allowed
-  if (user.level === "M") return true;
-
-  // Parents allowed only if editing their own user record
-  return user.level === "U" && user.userid === ownerUserId;
-}
-
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   next();
@@ -713,48 +702,6 @@ app.post("/account/:parentid/participant/add", requireLogin, async (req, res) =>
     }
 });
 
-// --- Update Child Progress (editable fields on account.ejs) ---
-app.post("/account/child/:childId/update", requireLogin, async (req, res) => {
-  const childId = Number(req.params.childId);
-  const user = req.session.user;
-
-  const { fieldofinterest, graduationstatus } = req.body;
-
-  try {
-    // Load participant
-    const participant = await knex("participants")
-      .where({ participantid: childId })
-      .first();
-
-    if (!participant) return res.status(404).send("Child not found.");
-
-    // Load parent to get ownerUserId
-    const parent = await knex("parents")
-      .where({ parentid: participant.parentid })
-      .first();
-
-    if (!parent) return res.status(404).send("Parent not found.");
-
-    // 🔥 Check permissions
-    if (!allowParentOrManager(req, parent.userid)) {
-      return res.status(403).send("Not authorized to update this child.");
-    }
-
-    await knex("participants")
-      .where({ participantid: childId })
-      .update({
-        participantfieldofinterest: fieldofinterest,
-        graduationstatus
-      });
-
-    res.redirect(`/account/${parent.userid}`);
-
-  } catch (err) {
-    console.error("Error updating child progress:", err);
-    res.status(500).send("Error updating progress");
-  }
-});
-
 // --- Add Milestone for Child ---
 app.get("/account/participant/:participantId/milestones/add", requireLogin, async (req, res) => {
   const participantId = req.params.participantId;
@@ -776,40 +723,6 @@ app.post("/account/participant/:participantId/milestones/add", requireLogin, asy
   } catch (err) {
     console.error("Error adding milestone:", err);
     res.status(500).send("Error adding milestone");
-  }
-});
-
-// --- Update Milestone Status ---
-app.post("/account/milestone/:milestoneId/update", requireLogin, async (req, res) => {
-  const milestoneId = Number(req.params.milestoneId);
-  const { milestonestatus } = req.body;
-
-  try {
-    const milestone = await knex("milestones").where({ milestoneid: milestoneId }).first();
-    if (!milestone) return res.status(404).send("Milestone not found.");
-
-    const participant = await knex("participants")
-      .where({ participantemail: milestone.participantemail })
-      .first();
-
-    const parent = await knex("parents")
-      .where({ parentid: participant.parentid })
-      .first();
-
-    // 🔥 Permission check
-    if (!allowParentOrManager(req, parent.userid)) {
-      return res.status(403).send("Not authorized to update milestone.");
-    }
-
-    await knex("milestones")
-      .where({ milestoneid: milestoneId })
-      .update({ milestonestatus });
-
-    res.redirect(`/account/${parent.userid}`);
-
-  } catch (err) {
-    console.error("Error updating milestone:", err);
-    res.status(500).send("Error updating milestone");
   }
 });
 
