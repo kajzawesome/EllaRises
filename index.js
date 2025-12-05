@@ -1286,73 +1286,78 @@ app.get("/admin/dashboard", requireManager, async (req, res) => {
 });
 
 // Manage users
-app.get("/admin/manageusers", requireManager, async (req, res) => {
+app.get("/admin/manageusers", requireLogin, async (req, res) => {
   try {
-    // --- MANAGERS ---
-    const managers = await knex("managers")
-      .select("userid", "managerfirstname", "managerlastname")
-      .orderBy("managerlastname");
+    if (req.session.user.level !== "M") {
+      return res.status(403).send("Unauthorized");
+    }
 
-    // --- PARENTS (all NEW columns) ---
-    const parents = await knex("parents")
-      .select(
-        "userid",
-        "parentid",
-        "parentfirstname",
-        "parentlastname",
-        "parentemail",
-        "parentphone",
-        "parentcity",
-        "parentstate",
-        "parentzip",
-        "parentcollege",
-        "languagepreference",
-        "medicalconsent",
-        "photoconsent",
-        "tuitionagreement",
-        "scholarshipinterest",
-        "agreementdate"
-      )
-      .orderBy("parentlastname");
+    const searchQuery = req.query.q ? req.query.q.trim().toLowerCase() : "";
 
-    // --- PARTICIPANTS (all NEW columns) ---
-    const participants = await knex("participants")
+    // Fetch parents + participants
+    let parents = await knex("parents as p")
+      .leftJoin("participants as c", "p.parentid", "c.parentid")
       .select(
-        "participantid",
-        "parentid",
-        "participantfirstname",
-        "participantlastname",
-        "participantemail",
-        "participantdob",
-        "participantgrade",
-        "participantschooloremployer",
-        "participantfieldofinterest",
-        "mariachiinstrumentinterest",
-        "instrumentexperience",
-        "graduationstatus"
+        "p.*",
+        "c.participantid",
+        "c.participantfirstname",
+        "c.participantlastname",
+        "c.participantemail",
+        "c.graduationstatus"
       );
 
-    // Attach children to parent
-    parents.forEach(parent => {
-      parent.children = participants.filter(p => p.parentid === parent.parentid);
+    // Group children under parents
+    const parentMap = {};
+
+    parents.forEach(row => {
+      if (!parentMap[row.parentid]) {
+        parentMap[row.parentid] = {
+          ...row,
+          children: []
+        };
+      }
+      if (row.participantid) {
+        parentMap[row.parentid].children.push({
+          participantid: row.participantid,
+          participantfirstname: row.participantfirstname,
+          participantlastname: row.participantlastname,
+          participantemail: row.participantemail,
+          graduationstatus: row.graduationstatus
+        });
+      }
     });
+
+    let parentList = Object.values(parentMap);
+
+    // ==========================
+    // APPLY SEARCH FILTER
+    // ==========================
+    if (searchQuery.length > 0) {
+      parentList = parentList.filter(p => {
+        const parentString =
+          `${p.parentfirstname} ${p.parentlastname} ${p.parentemail} ${p.parentcity}`
+          .toLowerCase();
+
+        const childString = p.children
+          .map(c => `${c.participantfirstname} ${c.participantlastname}`.toLowerCase())
+          .join(" ");
+
+        return (
+          parentString.includes(searchQuery) ||
+          childString.includes(searchQuery)
+        );
+      });
+    }
 
     res.render("admin/manageusers", {
       title: "Manage Users",
-      managers,
-      parents,
-      error_message: ""
+      parents: parentList,
+      searchQuery
     });
 
   } catch (err) {
     console.error("Manage Users Error:", err);
-
-    res.render("admin/manageusers", {
-      title: "Manage Users",
-      managers: [],
-      parents: [],
-      error_message: "Database error: " + err.message
-    });
+    res.status(500).send("Server Error");
   }
 });
 
