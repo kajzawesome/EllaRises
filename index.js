@@ -714,108 +714,93 @@ app.post("/pages/donations", async (req, res) => {
 // EVENTS ROUTES
 // -------------------------
 app.get("/events/register", requireLogin, async (req, res) => {
-  const user = req.session.user || null;
+  try {
+    const user = req.session.user;
 
-  // Get all EVENTS (not programs)
-  const allEvents = await knex("events")
-    .where({ eventtype: "event" })
-    .select("*");
+    // Parent's ID from session
+    const parentId = user.parentid;
 
-  const registrations = user
-    ? await knex("registration").where({ participantemail: user.participantemail })
-    : [];
+    // Fetch all events
+    const allEvents = await knex("events").select("*");
 
-  let pastEvents = [];
-  let upcomingRegistered = [];
-  let availableEvents = [];
+    // Fetch all children of this parent
+    const children = await knex("participants")
+      .where("parentid", parentId)
+      .select("*");
 
-  const today = new Date();
+    // Fetch all registrations for ANY child of this parent
+    const registrations = await knex("registration")
+      .join("participants", "registration.participantemail", "participants.participantemail")
+      .where("participants.parentid", parentId)
+      .select("registration.*", "participants.participantemail", "participants.firstname", "participants.lastname");
 
-  allEvents.forEach(event => {
-    const reg = registrations.find(r => r.event_id === event.eventid);
-    const eventDate = new Date(event.eventdate);
+    const today = new Date();
+    let pastItems = [];
+    let upcomingRegistered = [];
+    let availableItems = [];
 
-    if (eventDate < today && !reg?.survey_completed) {
-      pastEvents.push({ ...event, surveyCompleted: reg?.survey_completed || false });
-    }
-    else if (reg) {
-      upcomingRegistered.push(event);
-    }
-    else {
-      availableEvents.push(event);
-    }
-  });
+    allEvents.forEach(event => {
+      const eventDate = new Date(event.date);
 
-  res.render("events/register", {
-    user,
-    pastItems: pastEvents,
-    upcomingRegistered,
-    availableItems: availableEvents,
-    type: "Events",
-    type_es: "Eventos",
-    title: "Register for Events",
-    title_es: "Registro de Eventos"
-  });
+      // Registration that matches event occurrence id
+      const reg = registrations.find(r => r.eventoccurrenceid === event.eventoccurrenceid);
+
+      if (reg && eventDate < today) {
+        pastItems.push({
+          ...event,
+          registered: true
+        });
+      }
+      else if (reg) {
+        upcomingRegistered.push(event);
+      }
+      else {
+        availableItems.push(event);
+      }
+    });
+
+    res.render("events/register", {
+      title: "Register for Events",
+      title_es: "Registro de Eventos",
+      type: "Events",
+      type_es: "Eventos",
+      user,
+      lang: req.session.lang || "en",
+      pastItems,
+      upcomingRegistered,
+      availableItems,
+      children
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
+app.post("/events/register/:eventOccurrenceId", requireLogin, async (req, res) => {
+  try {
+    const parentId = req.session.user.parentid;
+    const { child_email } = req.body;      // ✨ IMPORTANT: use child's email
+    const eventOccurrenceId = req.params.eventOccurrenceId;
+
+    await knex("registration").insert({
+      participantemail: child_email,
+      eventoccurrenceid: eventOccurrenceId,
+      registrationstatus: "registered",
+      registrationattendedflag: false,
+      createdatdate: new Date()
+    });
+
+    res.redirect("/events/register");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 });
 
 // -------------------------
-// PROGRAMS ROUTES
-// -------------------------
-function addMonths(date, months) {
-  const d = new Date(date);
-  d.setMonth(d.getMonth() + months);
-  return d;
-}
-
-app.get("/programs/register", requireLogin, async (req, res) => {
-  const user = req.session.user || null;
-
-  // Get all PROGRAMS (not events)
-  const allPrograms = await knex("events")
-    .where({ eventtype: "program" })
-    .select("*");
-
-  const enrollments = user
-    ? await knex("registration").where({ participantemail: user.participantemail })
-    : [];
-
-  const today = new Date();
-  let pastPrograms = [];
-  let currentPrograms = [];
-
-  enrollments.forEach(e => {
-    const program = allPrograms.find(p => p.eventid === e.event_id);
-    if (!program) return;
-
-    const endDate = addMonths(new Date(e.start_date), program.duration_months);
-
-    if (endDate < today && !e.survey_completed) {
-      pastPrograms.push({ ...e, program });
-    }
-    else if (endDate >= today) {
-      currentPrograms.push({ ...e, program });
-    }
-  });
-
-  // Filter out ones already enrolled in
-  const availablePrograms = allPrograms.filter(
-    p => !enrollments.some(e => e.event_id === p.eventid)
-  );
-
-  const preferredLang = user?.preferred_language || "en";
-
-  const sortedPrograms = preferredLang === "es"
-    ? [...availablePrograms].sort((a, b) => a.es_priority - b.es_priority)
-    : [...availablePrograms].sort((a, b) => a.en_priority - b.en_priority);
-
-  res.render("programs/register", {
-    user,
-    pastPrograms,
-    currentPrograms,
-    sortedPrograms
-  });
-});
-
 app.get("/pages/getinvolved", (req, res) => {
   res.render("pages/getinvolved", { title: "Get Involved", user: req.session.user });
 });
