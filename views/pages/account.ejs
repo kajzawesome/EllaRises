@@ -1,133 +1,166 @@
 <%- include('../partials/header', { title: 'My Account' }) %>
 
-  <div class="section">
-    <div class="section-content" style="flex-direction:column; align-items:flex-start;">
-      <h1><span class="lang-en">My Account</span><span class="lang-es">Mi Cuenta</span></h1>
+<div class="section">
+  <div class="section-content" style="flex-direction:column; align-items:flex-start;">
+    <h1><span class="lang-en">My Account</span><span class="lang-es">Mi Cuenta</span></h1>
 
-      <div style="width:100%; max-width:900px; margin-top:20px;">
-        <h3><span class="lang-en">Parent Information</span><span class="lang-es">Información del Padre/Madre</span></h3>
-        <div class="program-card" style="margin: 20px auto; max-width: 600px;">
-          <p><strong><span class="lang-en">Name:</span><span class="lang-es">Nombre:</span></strong>
-            <%= parent.parentfirstname %>
-              <%= parent.parentlastname %>
-          </p>
-          <p><strong><span class="lang-en">Email:</span><span class="lang-es">Correo:</span></strong>
-            <%= parent.parentemail %>
-          </p>
-          <p><strong><span class="lang-en">Phone:</span><span class="lang-es">Teléfono:</span></strong>
-            <%= parent.parentphone %>
-          </p>
-          <p><strong><span class="lang-en">Preferred Language:</span><span class="lang-es">Idioma:</span></strong>
-            <%= parent.preferredlanguage %>
-          </p>
-          <p><strong><span class="lang-en">Photo/Video Consent:</span><span class="lang-es">Consentimiento
-                Foto/Video:</span></strong>
-            <%= parent.photovideoconsent %>
-          </p>
-          <a class="button" href="/account/<%= parent.userid %>/edit"><span class="lang-en">Edit Profile</span><span class="lang-es">Editar
-              Perfil</span></a>
-        </div>
+    <div style="width:100%; max-width:900px; margin-top:20px;">
 
-        <a class="button" style="margin-bottom:20px; display:inline-block;" href="/account/<%= parent.parentid %>/participant/add">
-          <span class="lang-en">Add Another Child</span>
-          <span class="lang-es">Agregar Otra Hija</span>
-        </a>
+      <!-- ============================= -->
+      <!--       PARENT INFORMATION      -->
+      <!-- ============================= -->
+      <h3><span class="lang-en">Parent Information</span><span class="lang-es">Información del Padre/Madre</span></h3>
 
-        <h3 style="margin-top:24px;"><span class="lang-en">My Children</span><span class="lang-es">Mis Hijas</span></h3>
+      <div class="program-card" style="margin: 20px auto; max-width: 600px;">
+        <p><strong>Name: </strong>
+          <%= parent.parentfirstname %> <%= parent.parentlastname %>
+        </p>
 
-        <% if (parent.participants && parent.participants.length) { %>
-          <% parent.participants.forEach(p=> { %>
-            <div class="program-card" style="margin-bottom:12px;">
-              <h4>
-                <%= p.participantfirstname %>
-                  <%= p.participantlastname %>
-              </h4>
-              <p><strong>DOB:</strong>
-                <%= new Date(p.participantDOB).toLocaleDateString('en-US') %>
-              </p>
-              <p><strong>Grade:</strong>
-                <%= p.participantgrade %>
-              </p>
+        <p><strong>Email: </strong> <%= parent.parentemail %></p>
+        <p><strong>Phone: </strong> <%= parent.parentphone %></p>
 
-              <!-- Inline Editable Progress Fields -->
-              <form method="POST" action="/account/participant/<%= p.participantID %>/update" style="margin-top:12px;">
-                <label><strong>Graduation Status:</strong></label>
-                <select name="graduationstatus">
-                  <option value="Not Yet" <%=p.graduationstatus==='Not Yet' ? 'selected' : '' %>>Not Yet</option>
-                  <option value="On Track" <%=p.graduationstatus==='On Track' ? 'selected' : '' %>>On Track</option>
-                  <option value="Graduated" <%=p.graduationstatus==='Graduated' ? 'selected' : '' %>>Graduated</option>
-                </select>
+        <p><strong>City: </strong> <%= parent.parentcity %></p>
+        <p><strong>State: </strong> <%= parent.parentstate %></p>
+        <p><strong>ZIP Code: </strong> <%= parent.parentzip %></p>
 
-                <label style="margin-left:12px;"><strong>Field of Interest:</strong></label>
-                <select name="participantfieldofinterest">
-                  <option value="STEM" <%=p.participantfieldofinterest==='STEM' ? 'selected' : '' %>>STEM</option>
-                  <option value="Arts" <%=p.participantfieldofinterest==='Arts' ? 'selected' : '' %>>Arts</option>
-                  <option value="Both" <%=p.participantfieldofinterest==='Both' ? 'selected' : '' %>>Both</option>
-                </select>
-                <button class="button" type="submit" style="margin-left:12px;">Update Progress</button>
-              </form>
+        <p><strong>College: </strong> <%= parent.parentcollege %></p>
+        <p><strong>Language Preference: </strong> <%= parent.languagepreference %></p>
 
-              <div style="margin-top:10px;">
-                <h5><span class="lang-en">Milestones</span><span class="lang-es">Hitos</span></h5>
+        <p><strong>Scholarship Interest: </strong> <%= parent.scholarshipinterest %></p>
+        <p><strong>Tuition Agreement: </strong> <%= parent.tuitionagreement ? 'Yes' : 'No' %></p>
 
-                <% if (p.milestones && p.milestones.length) { %>
-                  <ul>
-                    <% p.milestones.forEach(ms=> { %>
-                      <li style="margin-bottom:10px;">
-                        <strong>
-                          <%= ms.title %>
-                        </strong> — <%= new Date(ms.date).toLocaleDateString('en-US') %>
-                          (<%= ms.status %>)
+        <p><strong>Medical Consent: </strong> <%= parent.medicalconsent ? 'Yes' : 'No' %></p>
+        <p><strong>Photo/Video Consent: </strong> <%= parent.photoconsent ? 'Yes' : 'No' %></p>
 
-                            <!-- Update Milestone Status -->
-                            <form method="POST"
-                              action="/account/participant/<%= p.participantID %>/milestone/<%= ms.milestoneID %>/status"
-                              style="display:inline-block; margin-left:10px;">
-                              <select name="status">
-                                <option value="Not Started" <%=ms.status==='Not Started' ? 'selected' : '' %>>Not
-                                  Started</option>
-                                <option value="In Progress" <%=ms.status==='In Progress' ? 'selected' : '' %>>In
-                                  Progress</option>
-                                <option value="Completed" <%=ms.status==='Completed' ? 'selected' : '' %>>Completed
-                                </option>
-                              </select>
-                              <br>
-                              <button class="button" type="submit">Update</button>
-                            </form>
+        <p><strong>Agreement Date: </strong>
+          <%= parent.agreementdate ? new Date(parent.agreementdate).toLocaleDateString("en-US") : "—" %>
+        </p>
 
-                            <!-- Delete Milestone -->
-                            <form method="POST"
-                              action="/account/participant/<%= p.participantID %>/milestone/<%= ms.milestoneID %>/delete"
-                              style="display:inline-block; margin-left:10px;">
-                              <button class="button danger-btn" type="submit">Delete</button>
-                            </form>
-                      </li>
-                      <% }) %>
-                  </ul>
-                  <% } else { %>
-                    <p>No milestones yet.</p>
-                    <% } %>
-              </div>
-
-              <!-- Add Milestone Button (shown once per child) -->
-              <a class="button" href="/account/participant/<%= p.participantID %>/milestones/add"
-                style="margin-top:10px; display:inline-block;">Add Milestone</a>
-
-              <!-- Register Button -->
-              <div style="margin-top:12px; display:flex; gap:8px;">
-                <a class="button" href="/pages/participant/<%= p.participantID %>/register-event">
-                  <span class="lang-en">Register for Program</span>
-                  <span class="lang-es">Inscribir en Programa</span>
-                </a>
-              </div>
-            </div>
-            <% }) %>
-              <% } else { %>
-                <p><span class="lang-en">You have no registered participants yet.</span><span class="lang-es">No tienes
-                    participantes registrados.</span></p>
-                <% } %>
+        <a class="button" href="/account/<%= parent.userid %>/edit">Edit Profile</a>
       </div>
+
+      <!-- ADD CHILD BUTTON -->
+      <a class="button" style="margin-bottom:20px; display:inline-block;"
+        href="/account/<%= parent.parentid %>/participant/add">
+        Add Another Child
+      </a>
+
+
+      <!-- ============================= -->
+      <!--        CHILDREN LIST          -->
+      <!-- ============================= -->
+      <h3 style="margin-top:24px;">My Children</h3>
+
+      <% if (parent.participants && parent.participants.length) { %>
+
+        <% parent.participants.forEach(p => { %>
+        <div class="program-card" style="margin-bottom:12px;">
+
+          <h4><%= p.participantfirstname %> <%= p.participantlastname %></h4>
+
+          <p><strong>Email:</strong> <%= p.participantemail %></p>
+
+          <p><strong>Date of Birth:</strong>
+            <%= p.participantdob ? new Date(p.participantdob).toLocaleDateString('en-US') : "—" %>
+          </p>
+
+          <p><strong>Grade:</strong> <%= p.participantgrade || "—" %></p>
+
+          <p><strong>School or Employer:</strong>
+            <%= p.participantschooloremployer || "—" %>
+          </p>
+
+          <p><strong>Field of Interest:</strong>
+            <%= p.participantfieldofinterest || "—" %>
+          </p>
+
+          <p><strong>Mariachi Instrument Interest:</strong>
+            <%= p.mariachiinstrumentinterest || "—" %>
+          </p>
+
+          <p><strong>Instrument Experience:</strong>
+            <%= p.instrumentexperience || "—" %>
+          </p>
+
+          <p><strong>Graduation Status:</strong>
+            <%= p.graduationstatus %>
+          </p>
+
+
+          <!-- ============================= -->
+          <!--    INLINE PROGRESS UPDATE    -->
+          <!-- ============================= -->
+          <form method="POST" action="/account/participant/<%= p.participantid %>/update" style="margin-top:12px;">
+            <label><strong>Graduation Status:</strong></label>
+            <select name="graduationstatus">
+              <option value="not started" <%=p.graduationstatus==='not started'?'selected':''%>>Not Started</option>
+              <option value="in progress" <%=p.graduationstatus==='in progress'?'selected':''%>>In Progress</option>
+              <option value="completed" <%=p.graduationstatus==='completed'?'selected':''%>>Completed</option>
+            </select>
+
+            <label style="margin-left:12px;"><strong>Field of Interest:</strong></label>
+            <input type="text" name="participantfieldofinterest" value="<%= p.participantfieldofinterest %>">
+
+            <button class="button" type="submit" style="margin-left:12px;">Update Progress</button>
+          </form>
+
+
+          <!-- ============================= -->
+          <!--          MILESTONES          -->
+          <!-- ============================= -->
+          <div style="margin-top:10px;">
+            <h5>Milestones</h5>
+
+            <% if (p.milestones && p.milestones.length) { %>
+              <ul>
+                <% p.milestones.forEach(ms => { %>
+                  <li style="margin-bottom:10px;">
+                    <strong><%= ms.milestonetitle %></strong> —
+                    <%= ms.milestonedate ? new Date(ms.milestonedate).toLocaleDateString('en-US') : "—" %>
+                    (<%= ms.milestonestatus %>)
+
+                    <!-- Update Status -->
+                    <form method="POST" action="/account/milestone/<%= ms.milestoneid %>/update"
+                      style="display:inline-block; margin-left:10px;">
+                      <select name="milestonestatus">
+                        <option value="Not Started" <%=ms.milestonestatus==='Not Started'?'selected':''%>>Not Started</option>
+                        <option value="In Progress" <%=ms.milestonestatus==='In Progress'?'selected':''%>>In Progress</option>
+                        <option value="Completed" <%=ms.milestonestatus==='Completed'?'selected':''%>>Completed</option>
+                      </select>
+                      <button class="button" type="submit">Save</button>
+                    </form>
+
+                    <!-- Delete -->
+                    <form method="POST" action="/account/milestone/<%= ms.milestoneid %>/delete"
+                      style="display:inline-block; margin-left:10px;">
+                      <button class="button danger-btn" type="submit">Delete</button>
+                    </form>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } else { %>
+              <p>No milestones yet.</p>
+            <% } %>
+          </div>
+
+          <!-- Add Milestone -->
+          <a class="button" href="/account/participant/<%= p.participantid %>/milestones/add"
+            style="margin-top:10px; display:inline-block;">Add Milestone</a>
+
+          <!-- Register for Event -->
+          <div style="margin-top:12px;">
+            <a class="button" href="/pages/participant/<%= p.participantid %>/register-event">Register for Program</a>
+          </div>
+
+        </div>
+        <% }) %>
+
+      <% } else { %>
+        <p>You have no registered participants yet.</p>
+      <% } %>
+
     </div>
   </div>
+</div>
 
-  <%- include('../partials/footer') %>
+<%- include('../partials/footer') %>
