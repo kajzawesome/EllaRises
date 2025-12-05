@@ -1,6 +1,8 @@
 // imports
 const express = require("express");
 const session = require("express-session");
+const isProd = process.env.NODE_ENV === "production";
+
 const knex = require("knex")({
   client: "pg",
   connection: {
@@ -8,10 +10,12 @@ const knex = require("knex")({
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "12345",
     database: process.env.DB_NAME || "ellarises",
-    port: process.env.DB_PORT || "5432"
+    port: process.env.DB_PORT || "5432",
+    ssl: isProd ? { rejectUnauthorized: false } : false
   }
 });
 
+module.exports = knex;
 const app = express();
 const PORT = process.env.PORT || 3000;
 const nodemailer = require("nodemailer");
