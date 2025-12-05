@@ -1,166 +1,207 @@
-<%- include('../partials/header', { title: 'My Account' , user: user, lang: lang }) %>
+<%- include('../partials/header', { title: 'My Account' }) %>
 
-<div class="section">
-  <div class="section-content" style="flex-direction:column; align-items:flex-start;">
-    <h1><span class="lang-en">My Account</span><span class="lang-es">Mi Cuenta</span></h1>
+<div class="admin-container">
 
-    <div style="width:100%; max-width:900px; margin-top:20px;">
+  <!-- Sidebar (optional – remove if not needed) -->
+  <aside class="admin-sidebar">
+      <h3>Account Tools</h3>
+      <a class="admin-btn" href="/account">My Account</a>
+      <a class="admin-btn" href="/logout">Logout</a>
+  </aside>
 
-      <!-- ============================= -->
-      <!--       PARENT INFORMATION      -->
-      <!-- ============================= -->
-      <h3><span class="lang-en">Parent Information</span><span class="lang-es">Información del Padre/Madre</span></h3>
+  <!-- Main -->
+  <main class="admin-main">
 
-      <div class="program-card" style="margin: 20px auto; max-width: 600px;">
-        <p><strong>Name: </strong>
-          <%= parent.parentfirstname %> <%= parent.parentlastname %>
-        </p>
+    <h2>My Account</h2>
 
-        <p><strong>Email: </strong> <%= parent.parentemail %></p>
-        <p><strong>Phone: </strong> <%= parent.parentphone %></p>
+    <!-- =============================== -->
+    <!--      PARENT INFORMATION         -->
+    <!-- =============================== -->
+    <form action="/account/<%= parent.userid %>/update" method="POST" class="event-card">
 
-        <p><strong>City: </strong> <%= parent.parentcity %></p>
-        <p><strong>State: </strong> <%= parent.parentstate %></p>
-        <p><strong>ZIP Code: </strong> <%= parent.parentzip %></p>
+      <h3>Parent Information</h3>
 
-        <p><strong>College: </strong> <%= parent.parentcollege %></p>
-        <p><strong>Language Preference: </strong> <%= parent.languagepreference %></p>
+      <label>First Name</label>
+      <input type="text" name="parentfirstname" value="<%= parent.parentfirstname %>" required>
 
-        <p><strong>Scholarship Interest: </strong> <%= parent.scholarshipinterest %></p>
-        <p><strong>Tuition Agreement: </strong> <%= parent.tuitionagreement ? 'Yes' : 'No' %></p>
+      <label>Last Name</label>
+      <input type="text" name="parentlastname" value="<%= parent.parentlastname %>" required>
 
-        <p><strong>Medical Consent: </strong> <%= parent.medicalconsent ? 'Yes' : 'No' %></p>
-        <p><strong>Photo/Video Consent: </strong> <%= parent.photoconsent ? 'Yes' : 'No' %></p>
+      <label>Email</label>
+      <input type="email" name="parentemail" value="<%= parent.parentemail %>" required>
 
-        <p><strong>Agreement Date: </strong>
-          <%= parent.agreementdate ? new Date(parent.agreementdate).toLocaleDateString("en-US") : "—" %>
-        </p>
+      <label>Phone</label>
+      <input type="text" name="parentphone" value="<%= parent.parentphone %>">
 
-        <a class="button" href="/account/<%= parent.userid %>/edit">Edit Profile</a>
-      </div>
+      <label>City</label>
+      <input type="text" name="parentcity" value="<%= parent.parentcity %>">
 
-      <!-- ADD CHILD BUTTON -->
-      <a class="button" style="margin-bottom:20px; display:inline-block;"
-        href="/account/<%= parent.parentid %>/participant/add">
-        Add Another Child
-      </a>
+      <label>State</label>
+      <input type="text" name="parentstate" value="<%= parent.parentstate %>">
 
+      <label>ZIP Code</label>
+      <input type="text" name="parentzip" value="<%= parent.parentzip %>">
 
-      <!-- ============================= -->
-      <!--        CHILDREN LIST          -->
-      <!-- ============================= -->
-      <h3 style="margin-top:24px;">My Children</h3>
+      <label>College</label>
+      <input type="text" name="parentcollege" value="<%= parent.parentcollege %>">
 
-      <% if (parent.participants && parent.participants.length) { %>
+      <label>Language Preference</label>
+      <input type="text" name="languagepreference" value="<%= parent.languagepreference %>">
 
-        <% parent.participants.forEach(p => { %>
-        <div class="program-card" style="margin-bottom:12px;">
+      <label>Scholarship Interest</label>
+      <input type="text" name="scholarshipinterest" value="<%= parent.scholarshipinterest %>">
 
-          <h4><%= p.participantfirstname %> <%= p.participantlastname %></h4>
+      <label>Tuition Agreement</label>
+      <select name="tuitionagreement">
+        <option value="true"  <%= parent.tuitionagreement ? "selected" : "" %>>Yes</option>
+        <option value="false" <%= !parent.tuitionagreement ? "selected" : "" %>>No</option>
+      </select>
 
-          <p><strong>Email:</strong> <%= p.participantemail %></p>
+      <label>Medical Consent</label>
+      <select name="medicalconsent">
+        <option value="true"  <%= parent.medicalconsent ? "selected" : "" %>>Yes</option>
+        <option value="false" <%= !parent.medicalconsent ? "selected" : "" %>>No</option>
+      </select>
 
-          <p><strong>Date of Birth:</strong>
-            <%= p.participantdob ? new Date(p.participantdob).toLocaleDateString('en-US') : "—" %>
-          </p>
+      <label>Photo/Video Consent</label>
+      <select name="photoconsent">
+        <option value="true"  <%= parent.photoconsent ? "selected" : "" %>>Yes</option>
+        <option value="false" <%= !parent.photoconsent ? "selected" : "" %>>No</option>
+      </select>
 
-          <p><strong>Grade:</strong> <%= p.participantgrade || "—" %></p>
+      <label>Agreement Date</label>
+      <input type="date" name="agreementdate"
+             value="<%= parent.agreementdate ? parent.agreementdate.toISOString().split('T')[0] : '' %>">
 
-          <p><strong>School or Employer:</strong>
-            <%= p.participantschooloremployer || "—" %>
-          </p>
-
-          <p><strong>Field of Interest:</strong>
-            <%= p.participantfieldofinterest || "—" %>
-          </p>
-
-          <p><strong>Mariachi Instrument Interest:</strong>
-            <%= p.mariachiinstrumentinterest || "—" %>
-          </p>
-
-          <p><strong>Instrument Experience:</strong>
-            <%= p.instrumentexperience || "—" %>
-          </p>
-
-          <p><strong>Graduation Status:</strong>
-            <%= p.graduationstatus %>
-          </p>
+      <button class="edit-btn" type="submit" style="margin-top:20px;">
+        Save Parent Information
+      </button>
+    </form>
 
 
-          <!-- ============================= -->
-          <!--    INLINE PROGRESS UPDATE    -->
-          <!-- ============================= -->
-          <form method="POST" action="/account/participant/<%= p.participantid %>/update" style="margin-top:12px;">
-            <label><strong>Graduation Status:</strong></label>
-            <select name="graduationstatus">
-              <option value="not started" <%=p.graduationstatus==='not started'?'selected':''%>>Not Started</option>
-              <option value="in progress" <%=p.graduationstatus==='in progress'?'selected':''%>>In Progress</option>
-              <option value="completed" <%=p.graduationstatus==='completed'?'selected':''%>>Completed</option>
-            </select>
-
-            <label style="margin-left:12px;"><strong>Field of Interest:</strong></label>
-            <input type="text" name="participantfieldofinterest" value="<%= p.participantfieldofinterest %>">
-
-            <button class="button" type="submit" style="margin-left:12px;">Update Progress</button>
-          </form>
+    <!-- ADD CHILD BUTTON -->
+    <a href="/account/<%= parent.parentid %>/participant/add"
+       class="admin-btn" style="margin-top:20px; display:inline-block;">
+      Add Child
+    </a>
 
 
-          <!-- ============================= -->
-          <!--          MILESTONES          -->
-          <!-- ============================= -->
-          <div style="margin-top:10px;">
-            <h5>Milestones</h5>
+    <!-- =============================== -->
+    <!--          CHILDREN LIST          -->
+    <!-- =============================== -->
+    <h3 style="margin-top:35px;">Children</h3>
 
-            <% if (p.milestones && p.milestones.length) { %>
-              <ul>
-                <% p.milestones.forEach(ms => { %>
-                  <li style="margin-bottom:10px;">
-                    <strong><%= ms.milestonetitle %></strong> —
-                    <%= ms.milestonedate ? new Date(ms.milestonedate).toLocaleDateString('en-US') : "—" %>
-                    (<%= ms.milestonestatus %>)
+    <% parent.participants.forEach(child => { %>
 
-                    <!-- Update Status -->
-                    <form method="POST" action="/account/milestone/<%= ms.milestoneid %>/update"
-                      style="display:inline-block; margin-left:10px;">
-                      <select name="milestonestatus">
-                        <option value="Not Started" <%=ms.milestonestatus==='Not Started'?'selected':''%>>Not Started</option>
-                        <option value="In Progress" <%=ms.milestonestatus==='In Progress'?'selected':''%>>In Progress</option>
-                        <option value="Completed" <%=ms.milestonestatus==='Completed'?'selected':''%>>Completed</option>
-                      </select>
-                      <button class="button" type="submit">Save</button>
-                    </form>
+      <form action="/account/participant/<%= child.participantid %>/update-full"
+            method="POST" class="event-card">
 
-                    <!-- Delete -->
-                    <form method="POST" action="/account/milestone/<%= ms.milestoneid %>/delete"
-                      style="display:inline-block; margin-left:10px;">
-                      <button class="button danger-btn" type="submit">Delete</button>
-                    </form>
-                  </li>
-                <% }) %>
-              </ul>
-            <% } else { %>
-              <p>No milestones yet.</p>
-            <% } %>
-          </div>
+        <h3>
+          Edit Child:
+          <%= child.participantfirstname %> <%= child.participantlastname %>
+        </h3>
 
-          <!-- Add Milestone -->
-          <a class="button" href="/account/participant/<%= p.participantid %>/milestones/add"
-            style="margin-top:10px; display:inline-block;">Add Milestone</a>
+        <label>First Name</label>
+        <input type="text" name="participantfirstname" value="<%= child.participantfirstname %>" required>
 
-          <!-- Register for Event -->
-          <div style="margin-top:12px;">
-            <a class="button" href="/pages/participant/<%= p.participantid %>/register-event">Register for Program</a>
-          </div>
+        <label>Last Name</label>
+        <input type="text" name="participantlastname" value="<%= child.participantlastname %>" required>
 
-        </div>
-        <% }) %>
+        <label>Email</label>
+        <input type="email" name="participantemail" value="<%= child.participantemail %>" required>
 
-      <% } else { %>
-        <p>You have no registered participants yet.</p>
+        <label>Date of Birth</label>
+        <input type="date" name="participantdob"
+               value="<%= child.participantdob ? child.participantdob.toISOString().split('T')[0] : "" %>">
+
+        <label>Grade</label>
+        <input type="text" name="participantgrade" value="<%= child.participantgrade %>">
+
+        <label>School/Employer</label>
+        <input type="text" name="participantschooloremployer"
+               value="<%= child.participantschooloremployer %>">
+
+        <label>Field of Interest</label>
+        <input type="text" name="participantfieldofinterest"
+               value="<%= child.participantfieldofinterest %>">
+
+        <label>Instrument (Mariachi)</label>
+        <input type="text" name="mariachiinstrumentinterest"
+               value="<%= child.mariachiinstrumentinterest %>">
+
+        <label>Instrument Experience</label>
+        <input type="text" name="instrumentexperience"
+               value="<%= child.instrumentexperience %>">
+
+        <label>Graduation Status</label>
+        <select name="graduationstatus">
+          <option value="not started" <%= child.graduationstatus === "not started" ? "selected" : "" %>>Not Started</option>
+          <option value="in progress" <%= child.graduationstatus === "in progress" ? "selected" : "" %>>In Progress</option>
+          <option value="completed" <%= child.graduationstatus === "completed" ? "selected" : "" %>>Completed</option>
+        </select>
+
+        <button class="edit-btn" type="submit" style="margin-top:15px;">
+          Save Child
+        </button>
+
+      </form>
+
+
+      <!-- DELETE CHILD -->
+      <form action="/account/participant/<%= child.participantid %>/delete"
+            method="POST"
+            onsubmit="return confirm('Delete this child and all milestones?');">
+        <button class="admin-btn danger-btn" type="submit">
+          Delete Child
+        </button>
+      </form>
+
+
+      <!-- =============================== -->
+      <!--           MILESTONES            -->
+      <!-- =============================== -->
+      <h4 style="margin-top:20px;">Milestones</h4>
+
+      <% if (child.milestones.length === 0) { %>
+        <p>No milestones yet.</p>
       <% } %>
 
-    </div>
-  </div>
+      <% child.milestones.forEach(ms => { %>
+        <form action="/account/milestone/<%= ms.milestoneid %>/update-full"
+              method="POST" class="occ-edit-card">
+
+          <label>Title</label>
+          <input type="text" name="milestonetitle" value="<%= ms.milestonetitle %>" required>
+
+          <label>Date</label>
+          <input type="date" name="milestonedate"
+                 value="<%= ms.milestonedate ? ms.milestonedate.toISOString().split('T')[0] : "" %>">
+
+          <label>Status</label>
+          <select name="milestonestatus">
+            <option value="Not Started" <%= ms.milestonestatus === "Not Started" ? "selected" : "" %>>Not Started</option>
+            <option value="In Progress" <%= ms.milestonestatus === "In Progress" ? "selected" : "" %>>In Progress</option>
+            <option value="Completed" <%= ms.milestonestatus === "Completed" ? "selected" : "" %>>Completed</option>
+          </select>
+
+          <button class="edit-btn" type="submit" style="margin-top:10px;">Save Milestone</button>
+        </form>
+
+        <form action="/account/milestone/<%= ms.milestoneid %>/delete"
+              method="POST"
+              onsubmit="return confirm('Delete this milestone?');">
+          <button class="admin-btn danger-btn" type="submit">Delete Milestone</button>
+        </form>
+      <% }) %>
+
+      <a class="admin-btn" href="/account/participant/<%= child.participantid %>/milestones/add"
+         style="margin-bottom:25px; display:inline-block;">
+        Add Milestone
+      </a>
+
+    <% }) %>
+
+  </main>
 </div>
 
 <%- include('../partials/footer') %>
