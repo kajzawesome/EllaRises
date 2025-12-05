@@ -6,7 +6,7 @@ const knex = require("knex")({
   connection: {
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "admin",
+    password: process.env.DB_PASSWORD || "12345",
     database: process.env.DB_NAME || "ellarises",
     port: process.env.DB_PORT || "5432"
   }
@@ -1442,6 +1442,99 @@ app.post("/admin/user/:userid/delete", requireLogin, async (req, res) => {
   }
 });
 
+// ===============================
+// MANAGE SURVEY RESPONSES (FULL)
+// ===============================
+app.get("/admin/surveys", requireManager, async (req, res) => {
+  try {
+    const {
+      filterValue,
+      scoreOperator,
+      scoreValue,
+      search
+    } = req.query;
+
+    // Dropdown list for filtering by event
+    const filterOptions = await knex("events")
+      .select(
+        "eventid as id",
+        "eventname as label_en",
+        "eventtype as label_es"
+      );
+
+    // Base query for survey table
+    let query = knex("survey as s")
+      .join("registration as r", "s.registrationid", "r.registrationid")
+      .join("eventoccurrences as eo", "r.eventoccurrenceid", "eo.eventoccurrenceid")
+      .join("events as e", "eo.eventid", "e.eventid")
+      .join("participants as p", "r.participantemail", "p.participantemail")
+      .select(
+        "s.surveyid as id",
+
+        // Participant
+        knex.raw("p.participantfirstname || ' ' || p.participantlastname AS user_label"),
+
+        // Event info
+        "e.eventname",
+        "e.eventtype",
+        "e.eventdescription",
+        "eo.eventlocation",
+
+        // Scores
+        "s.satisfactionscore AS SurveySatisfactionScore",
+        "s.usefulnessscore AS SurveyUsefulnessScore",
+        "s.instructorscore AS SurveyInstructorScore",
+        "s.recommendationscore AS SurveyRecommendationScore",
+        "s.overallscore AS SurveyOverallScore",
+
+        // Comments
+        "s.comments AS SurveyComments",
+
+        // Timestamp
+        "s.submissiondate AS SurveySubmissionDate",
+        "s.submissiontime AS SurveySubmissionTime"
+      );
+
+    // Event filter
+    if (filterValue) {
+      query.where("e.eventid", filterValue);
+    }
+
+    // Score filter
+    if (scoreValue && scoreOperator) {
+      query.where("s.overallscore", scoreOperator, scoreValue);
+    }
+
+    // Search: name or comments
+    if (search && search.trim() !== "") {
+      query.where(builder => {
+        builder
+          .whereILike("p.participantfirstname", `%${search}%`)
+          .orWhereILike("p.participantlastname", `%${search}%`)
+          .orWhereILike("s.comments", `%${search}%`);
+      });
+    }
+
+    const responses = await query;
+
+    // Render page
+    res.render("admin/survey-responses", {
+      responses,
+      filterOptions,
+      filterBy: filterValue || "",
+      scoreValue: scoreValue || "",
+      scoreOperator: scoreOperator || ">=",
+      search: search || "",              // <-- REQUIRED
+      lang: req.session.lang || "en",
+      user: req.session.user
+    });
+
+  } catch (err) {
+    console.error("Error loading survey responses:", err);
+    res.status(500).send("Server error loading surveys");
+  }
+});
+
 // Manage Surveys
 app.post("/admin/surveys", requireManager, async (req, res) => {
   try {
@@ -1506,7 +1599,7 @@ app.post("/admin/surveys", requireManager, async (req, res) => {
 });
 
 // GET – edit form
-router.get('/surveyResponses/edit/:id', async (req, res) => {
+app.get('/surveyResponses/edit/:id', async (req, res) => {
   try {
     const response = await SurveyResponse.findByPk(req.params.id);
     if (!response) return res.status(404).send('Not found');
@@ -1523,7 +1616,7 @@ router.get('/surveyResponses/edit/:id', async (req, res) => {
 });
 
 // POST – save changes
-router.post('/surveyResponses/edit/:id', async (req, res) => {
+app.post('/surveyResponses/edit/:id', async (req, res) => {
   try {
     const response = await SurveyResponse.findByPk(req.params.id);
     if (!response) return res.status(404).send('Not found');
@@ -1538,7 +1631,7 @@ router.post('/surveyResponses/edit/:id', async (req, res) => {
 });
 
 // POST – delete
-router.post('/surveyResponses/delete/:id', async (req, res) => {
+app.post('/surveyResponses/delete/:id', async (req, res) => {
   try {
     await SurveyResponse.destroy({
       where: { id: req.params.id }
@@ -1550,8 +1643,6 @@ router.post('/surveyResponses/delete/:id', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
-
-module.exports = router;
 
 app.get("/admin/surveys", requireManager, async (req, res) => {
   try {

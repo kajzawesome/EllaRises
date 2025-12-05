@@ -1,265 +1,189 @@
-<%- include('../partials/header', { title: 'Survey Responses' , user: user, lang: lang }) %>
+<%- include('../partials/header', { title: 'Survey Responses' }) %>
 
-  <div class="admin-container">
+<div class="admin-container">
 
-    <!-- Sidebar -->
-    <aside class="admin-sidebar">
-      <h3>
-        <%= lang==='es' ? 'Herramientas Admin' : 'Admin Tools' %>
-      </h3>
-      <a class="admin-btn" href="/admin/dashboard">
-        <%= lang==='es' ? 'Panel' : 'Dashboard' %>
-      </a>
-      <a class="admin-btn" href="/admin/addEvent">
-        <%= lang==='es' ? 'Agregar Evento/Programa' : 'Add Event/Program' %>
-      </a>
-      <a class="admin-btn" href="/admin/manageevents">
-        <%= lang==='es' ? 'Administrar Eventos' : 'Manage Events' %>
-      </a>
-      <a class="admin-btn" href="/admin/manageusers">
-        <%= lang==='es' ? 'Administrar Usuarios' : 'Manage Users' %>
-      </a>
-      <a class="admin-btn" href="/admin/surveys">
-        <%= lang==='es' ? 'Administrar Encuestas' : 'Manage Surveys' %>
-      </a>
-      <a class="admin-btn" href="/admin/managedonations">
-        <%= lang==='es' ? 'Administrar Donaciones' : 'Manage Donations' %>
-      </a>
-    </aside>
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <h3>
+      <span class="lang-en">Admin Tools</span>
+      <span class="lang-es">Herramientas Admin</span>
+    </h3>
 
-    <main class="admin-main">
-      <section>
-        <h2>
-          <%= lang==='es' ? 'Respuestas de Encuesta' : 'Survey Responses' %>
-        </h2>
+    <a class="admin-btn" href="/admin/dashboard">
+      <span class="lang-en">Dashboard</span><span class="lang-es">Panel</span>
+    </a>
+    <a class="admin-btn" href="/admin/addEvent">
+      <span class="lang-en">Add Event/Program</span><span class="lang-es">Agregar Evento/Programa</span>
+    </a>
+    <a class="admin-btn" href="/admin/manageevents">
+      <span class="lang-en">Manage Events</span><span class="lang-es">Administrar Eventos</span>
+    </a>
+    <a class="admin-btn" href="/admin/manageusers">
+      <span class="lang-en">Manage Users</span><span class="lang-es">Administrar Usuarios</span>
+    </a>
+    <a class="admin-btn" href="/admin/surveys">
+      <span class="lang-en">Manage Surveys</span><span class="lang-es">Administrar Encuestas</span>
+    </a>
+    <a class="admin-btn" href="/admin/managedonations">
+      <span class="lang-en">Manage Donations</span><span class="lang-es">Administrar Donaciones</span>
+    </a>
+  </aside>
 
-        <!-- Filters -->
-        <div style="margin-bottom:18px;">
-          <form method="GET" action="/admin/surveys">
-            <!-- Event Filter -->
-            <label for="filterValue">
-              <%= lang==='es' ? 'Filtrar por Evento:' : 'Filter by Event:' %>
-            </label>
-            <select name="filterValue" id="filterValue">
-              <option value="">
-                <%= lang==='es' ? 'Todos los Eventos' : 'All Events' %>
+  <!-- MAIN CONTENT -->
+  <main class="admin-main">
+    <section>
+      <h2>
+        <span class="lang-en">Survey Responses</span>
+        <span class="lang-es">Respuestas de Encuesta</span>
+      </h2>
+
+      <!-- FILTERS -->
+      <div style="margin-bottom:18px;">
+        <form method="GET" action="/admin/surveys" style="display:flex; gap:12px; flex-wrap:wrap;">
+
+          <!-- Search -->
+          <input 
+            type="text" 
+            name="search"
+            value="<%= search || '' %>"
+            placeholder="Search participant or comments..."
+            class="input"
+            style="padding:6px 10px; min-width:200px;"
+          >
+
+          <!-- Event Filter -->
+          <select name="filterValue" class="input">
+            <option value="">
+              <span class="lang-en">All Events</span>
+              <span class="lang-es">Todos los Eventos</span>
+            </option>
+            <% filterOptions.forEach(f => { %>
+              <option value="<%= f.id %>" <%= filterBy == f.id ? "selected" : "" %>>
+                <span class="lang-en"><%= f.label_en %></span>
+                <span class="lang-es"><%= f.label_es %></span>
               </option>
-              <% if (filterOptions) { filterOptions.forEach(f=> { %>
-                <option value="<%= f.id %>" <%=filterBy==f.id ? 'selected' : '' %>>
-                  <%= lang==='es' ? f.label_es : f.label_en %>
-                </option>
-                <% }) } %>
-            </select>
+            <% }) %>
+          </select>
 
-            <!-- Numeric Score Filter -->
-            <label for="scoreValue">
-              <%= lang==='es' ? 'Filtrar por Puntaje:' : 'Filter by Score:' %>
-            </label>
-            <select name="scoreOperator" id="scoreOperator">
-              <option value=">=">
-                <%= lang==='es' ? 'Mayor o igual' : 'Greater or equal' %>
-              </option>
-              <option value="<=">
-                <%= lang==='es' ? 'Menor o igual' : 'Less or equal' %>
-              </option>
-              <option value="=">
-                <%= lang==='es' ? 'Igual' : 'Equal' %>
-              </option>
-            </select>
-            <input type="number" name="scoreValue" placeholder="<%= lang === 'es' ? 'Puntaje' : 'Score' %>"
-              value="<%= typeof scoreValue !== 'undefined' ? scoreValue : '' %>">
+          <!-- Score Filter -->
+          <select name="scoreOperator" class="input">
+            <option value=">=">&ge;</option>
+            <option value="<=">&le;</option>
+            <option value="=">=</option>
+          </select>
 
-            <button class="button" type="submit">
-              <%= lang==='es' ? 'Filtrar' : 'Filter' %>
-            </button>
-          </form>
-        </div>
+          <input 
+            type="number"
+            name="scoreValue"
+            value="<%= scoreValue || '' %>"
+            placeholder="Score"
+            class="input"
+          >
 
-        <% if (responses && responses.length) { %>
-          <!-- Average Overall Score -->
-          <p style="margin-bottom:12px;">
-            <%= lang==='es' ? 'Promedio Puntaje General:' : 'Average Overall Score:' %>
-              <strong>
-                <%= (responses.reduce((sum,r)=>sum + r.SurveyOverallScore,0)/responses.length).toFixed(2) %>
-              </strong>
-          </p>
-
-          <table style="width:100%; border-collapse:collapse;">
-            <thead>
-              <tr style="text-align:left; background:#f2f2f2;">
-                <th>ID</th>
-                <th>
-                  <%= lang==='es' ? 'Participante' : 'Participant' %>
-                </th>
-                <th>
-                  <%= lang==='es' ? 'Evento' : 'Event' %>
-                </th>
-                <th>
-                  <%= lang==='es' ? 'Tipo' : 'Type' %>
-                </th>
-                <th>
-                  <%= lang==='es' ? 'Descripción' : 'Description' %>
-                </th>
-                <th>
-                  <%= lang==='es' ? 'Ubicación' : 'Location' %>
-                </th>
-                <th>
-                  <%= lang==='es' ? 'Satisfacción' : 'Satisfaction' %>
-                </th>
-                <th>
-                  <%= lang==='es' ? 'Utilidad' : 'Usefulness' %>
-                </th>
-                <th>
-                  <%= lang==='es' ? 'Instructor' : 'Instructor' %>
-                </th>
-                <th>
-                  <%= lang==='es' ? 'Recomendación' : 'Recommendation' %>
-                </th>
-                <th>
-                  <%= lang==='es' ? 'General' : 'Overall' %>
-                </th>
-                <th>
-                  <%= lang==='es' ? 'Comentarios' : 'Comments' %>
-                </th>
-                <th>
-                  <%= lang==='es' ? 'Enviada' : 'Submitted' %>
-                </th>
-                <th></th>
-                <th></th> <!-- Extra empty headers for spacing/edit/delete -->
-              </tr>
-            </thead>
-            <tbody>
-              <% responses.forEach(r=> { %>
-                <tr>
-                  <td>
-                    <%= r.id %>
-                  </td>
-                  <td>
-                    <%= r.user_label %>
-                  </td>
-                  <td>
-                    <%= r.eventname %>
-                  </td>
-                  <td>
-                    <%= r.eventtype %>
-                  </td>
-                  <td>
-                    <%= r.eventdescription %>
-                  </td>
-                  <td>
-                    <%= r.eventlocation %>
-                  </td>
-                  <td>
-                    <%= r.SurveySatisfactionScore %>
-                  </td>
-                  <td>
-                    <%= r.SurveyUsefulnessScore %>
-                  </td>
-                  <td>
-                    <%= r.SurveyInstructorScore %>
-                  </td>
-                  <td>
-                    <%= r.SurveyRecommendationScore %>
-                  </td>
-                  <td>
-                    <%= r.SurveyOverallScore %>
-                  </td>
-                  <td>
-                    <%= r.SurveyComments || '—' %>
-                  </td>
-                  <td>
-                    <%= r.SurveySubmissionDate %>
-                      <%= r.SurveySubmissionTime %>
-                  </td>
-
-                <td>
-                  <a class="button" href="/admin/surveyResponses/edit/<%= r.id %>">
-                    <%= lang==='es' ? 'Editar' : 'Edit' %>
-                  </a>
-                </td>
-                
-                <td>
-                  <form method="POST" action="/admin/surveyResponses/delete/<%= r.id %>" onsubmit="<%= 
-                      `return confirm(${JSON.stringify(
-                        lang === 'es'
-                          ? '¿Está seguro de que desea eliminar esta respuesta de la encuesta?'
-                          : 'Are you sure you want to delete this survey response?'
-                      )});` 
-                    %>">
-                    <button class="button button-danger" type="submit">
-                      <%= lang==='es' ? 'Eliminar' : 'Delete' %>
-                    </button>
-                  </form>
-                </td>
-
-
-                </tr>
-                <% }) %>
-            </tbody>
-          </table>
-          <% } else { %>
-            <p>
-              <%= lang==='es' ? 'No hay respuestas aún.' : 'No survey responses yet.' %>
-            </p>
-            <% } %>
-      </section>
-
-      <!-- Edit Modal -->
-      <div id="editModal" class="modal" style="display:none;">
-        <div class="modal-content">
-          <span class="close-btn" onclick="closeModal()">&times;</span>
-
-          <h3>
-            <%= lang==='es' ? 'Editar Respuesta' : 'Edit Response' %>
-          </h3>
-
-          <form id="editForm" method="POST">
-            <input type="hidden" name="id" id="edit-id">
-
-            <label>Satisfaction Score</label>
-            <input type="number" name="SurveySatisfactionScore" id="edit-satisfaction" required>
-
-            <label>Usefulness Score</label>
-            <input type="number" name="SurveyUsefulnessScore" id="edit-usefulness" required>
-
-            <label>Instructor Score</label>
-            <input type="number" name="SurveyInstructorScore" id="edit-instructor" required>
-
-            <label>Recommendation Score</label>
-            <input type="number" name="SurveyRecommendationScore" id="edit-recommendation" required>
-
-            <label>Overall Score</label>
-            <input type="number" name="SurveyOverallScore" id="edit-overall" required>
-
-            <label>Comments</label>
-            <textarea name="SurveyComments" id="edit-comments"></textarea>
-
-            <button type="submit" class="button">
-              <%= lang==='es' ? 'Guardar Cambios' : 'Save Changes' %>
-            </button>
-          </form>
-        </div>
+          <button class="button" type="submit">
+            <span class="lang-en">Filter</span>
+            <span class="lang-es">Filtrar</span>
+          </button>
+        </form>
       </div>
-    </main>
-  </div>
 
-  <script>
-    function openEditModal(data) {
-      document.getElementById("edit-id").value = data.id;
-      document.getElementById("edit-satisfaction").value = data.SurveySatisfactionScore;
-      document.getElementById("edit-usefulness").value = data.SurveyUsefulnessScore;
-      document.getElementById("edit-instructor").value = data.SurveyInstructorScore;
-      document.getElementById("edit-recommendation").value = data.SurveyRecommendationScore;
-      document.getElementById("edit-overall").value = data.SurveyOverallScore;
-      document.getElementById("edit-comments").value = data.SurveyComments || "";
+      <!-- RESULTS -->
+      <% if (responses && responses.length > 0) { %>
 
-      document.getElementById("editForm").action = `/admin/surveyResponses/edit/${data.id}`;
-      document.getElementById("editModal").style.display = "block";
-    }
+      <!-- Average Overall Score -->
+      <p style="margin-bottom:12px;">
+        <span class="lang-en">Average Overall Score:</span>
+        <span class="lang-es">Promedio Puntaje General:</span>
+        <strong><%= (responses.reduce((sum,r)=>sum + r.SurveyOverallScore,0)/responses.length).toFixed(2) %></strong>
+      </p>
 
-    function closeModal() {
-      document.getElementById("editModal").style.display = "none";
-    }
-  </script>
+      <!-- TABLE -->
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="text-align:left; background:#f2f2f2;">
+            <th>ID</th>
+            <th><span class="lang-en">Participant</span><span class="lang-es">Participante</span></th>
+            <th><span class="lang-en">Event</span><span class="lang-es">Evento</span></th>
+            <th><span class="lang-en">Type</span><span class="lang-es">Tipo</span></th>
+            <th><span class="lang-en">Description</span><span class="lang-es">Descripción</span></th>
+            <th><span class="lang-en">Location</span><span class="lang-es">Ubicación</span></th>
+            <th><span class="lang-en">Satisfaction</span><span class="lang-es">Satisfacción</span></th>
+            <th><span class="lang-en">Usefulness</span><span class="lang-es">Utilidad</span></th>
+            <th><span class="lang-en">Instructor</span><span class="lang-es">Instructor</span></th>
+            <th><span class="lang-en">Recommendation</span><span class="lang-es">Recomendación</span></th>
+            <th><span class="lang-en">Overall</span><span class="lang-es">General</span></th>
+            <th><span class="lang-en">Comments</span><span class="lang-es">Comentarios</span></th>
+            <th><span class="lang-en">Submitted</span><span class="lang-es">Enviada</span></th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
 
-  <%- include('../partials/footer') %>
+        <tbody>
+          <% responses.forEach(r => { %>
+            <tr>
+              <td><%= r.id %></td>
+
+              <td><%= r.user_label %></td>
+
+              <td><%= r.eventname %></td>
+
+              <td><%= r.eventtype %></td>
+
+              <td><%= r.eventdescription %></td>
+
+              <td><%= r.eventlocation %></td>
+
+              <td><%= r.SurveySatisfactionScore %></td>
+
+              <td><%= r.SurveyUsefulnessScore %></td>
+
+              <td><%= r.SurveyInstructorScore %></td>
+
+              <td><%= r.SurveyRecommendationScore %></td>
+
+              <td><%= r.SurveyOverallScore %></td>
+
+              <td><%= r.SurveyComments || "—" %></td>
+
+              <td><%= r.SurveySubmissionDate %> <%= r.SurveySubmissionTime %></td>
+
+              <!-- EDIT -->
+              <td>
+                <a class="button" href="/admin/surveyResponses/edit/<%= r.id %>">
+                  <span class="lang-en">Edit</span>
+                  <span class="lang-es">Editar</span>
+                </a>
+              </td>
+
+              <!-- DELETE -->
+              <td>
+                <form 
+                  method="POST"
+                  action="/admin/surveyResponses/delete/<%= r.id %>"
+                  onsubmit="return confirm('Delete this survey response?');"
+                >
+                  <button class="button button-danger" type="submit">
+                    <span class="lang-en">Delete</span>
+                    <span class="lang-es">Eliminar</span>
+                  </button>
+                </form>
+              </td>
+
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+      <% } else { %>
+        <p>
+          <span class="lang-en">No survey responses found.</span>
+          <span class="lang-es">No hay respuestas de encuesta.</span>
+        </p>
+      <% } %>
+
+    </section>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>
