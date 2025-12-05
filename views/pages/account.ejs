@@ -22,6 +22,14 @@
 
     <h2>My Account</h2>
 
+<<<<<<< Updated upstream
+=======
+
+    <!-- =============================== -->
+    <!--      PARENT INFORMATION         -->
+    <!-- =============================== -->
+    <form action="/account/<%= parent.userid %>/update" method="POST" class="event-card">
+>>>>>>> Stashed changes
 
     <!-- ===================================== -->
     <!--        PARENT INFORMATION CARD        -->
@@ -130,9 +138,15 @@
 
     <% parent.participants.forEach(child => { %>
 
+<<<<<<< Updated upstream
     <!-- Child Card -->
     <form action="/account/participant/<%= child.participantid %>/update-full"
       method="POST" class="account-card">
+=======
+      <!-- CHILD EDIT FORM -->
+      <form action="/account/participant/<%= child.participantid %>/update-full"
+            method="POST" class="event-card">
+>>>>>>> Stashed changes
 
       <h3>Edit Child: <%= child.participantfirstname %> <%= child.participantlastname %></h3>
 
@@ -199,6 +213,7 @@
 
       </form>
 
+<<<<<<< Updated upstream
     <!-- Delete Child Button -->
     <form action="/account/participant/<%= child.participantid %>/delete"
       method="POST"
@@ -206,22 +221,35 @@
       <button class="child-delete-btn" type="submit">Delete Child</button>
     </form>
 
+=======
+
+      <!-- Delete Child -->
+      <form action="/account/participant/<%= child.participantid %>/delete"
+            method="POST"
+            onsubmit="return confirm('Delete this child and all milestones?');">
+        <button class="admin-btn danger-btn" type="submit">
+          Delete Child
+        </button>
+      </form>
+>>>>>>> Stashed changes
+
 
 
       <!-- =============================== -->
-      <!--   UPCOMING EVENTS (STATUS)     -->
+      <!--   UPCOMING EVENTS               -->
       <!-- =============================== -->
       <details class="event-card" style="margin-top:20px;">
         <summary><strong>Upcoming Events for <%= child.participantfirstname %></strong></summary>
 
         <% if (child.upcomingEvents.length > 0) { %>
+
           <% child.upcomingEvents.forEach(ev => { %>
-            <form
-              class="occ-edit-card"
-              style="margin-bottom:10px;"
-              method="POST"
-              action="/account/participant/<%= child.participantid %>/event-status/<%= ev.registrationid %>"
-            >
+
+            <form class="occ-edit-card"
+                  style="margin-bottom:10px;"
+                  method="POST"
+                  action="/account/participant/<%= child.participantid %>/event-status/<%= ev.registrationid %>">
+
               <div>
                 <strong><%= ev.eventname %></strong><br>
                 <small>
@@ -248,7 +276,9 @@
                 Save Status
               </button>
             </form>
+
           <% }) %>
+
         <% } else { %>
           <p style="margin-top:10px;">No upcoming events scheduled.</p>
         <% } %>
@@ -258,15 +288,16 @@
 
 
       <!-- =============================== -->
-      <!--        PAST UNSURVEYED          -->
+      <!--        PAST UNSURVEYED         -->
       <!-- =============================== -->
       <details class="event-card" style="margin-top:20px;">
         <summary><strong>Past Surveys for <%= child.participantfirstname %></strong></summary>
 
         <% if (child.pastUnsurveyed.length > 0) { %>
-          <% child.pastUnsurveyed.forEach(sv => { %>
-            <div class="occ-edit-card" style="margin-bottom:10px;">
 
+          <% child.pastUnsurveyed.forEach(sv => { %>
+
+            <div class="occ-edit-card" style="margin-bottom:10px;">
               <strong><%= sv.eventname %></strong><br>
               <small>
                 <%= sv.eventdatestart ? sv.eventdatestart.toISOString().split('T')[0] : "" %>
@@ -278,9 +309,10 @@
                   Complete Survey
                 </button>
               </form>
-
             </div>
+
           <% }) %>
+
         <% } else { %>
           <p style="margin-top:10px;">No pending surveys for this child.</p>
         <% } %>
@@ -293,7 +325,82 @@
       <!--           MILESTONES            -->
       <!-- =============================== -->
 
-      <!-- (rest of your milestone code unchanged) -->
+      <details class="event-card" style="margin-top:20px;">
+        <summary><strong>Milestones for <%= child.participantfirstname %></strong></summary>
+
+        <% if (child.milestones && child.milestones.length > 0) { %>
+
+          <% child.milestones.forEach(m => { %>
+
+            <form action="/account/participant/<%= child.participantid %>/milestones/<%= m.milestoneid %>/update"
+                  method="POST"
+                  class="compact-card"
+                  style="margin-bottom:15px;">
+
+              <h4 style="margin-bottom:10px;">Edit Milestone</h4>
+
+              <div class="compact-grid">
+
+                <div>
+                  <label>Title</label>
+                  <input type="text" name="milestonetitle"
+                         value="<%= m.milestonetitle %>" required>
+                </div>
+
+                <div>
+                  <label>Date</label>
+                  <input type="date" name="milestonedate"
+                         value="<%= m.milestonedate ? m.milestonedate.toISOString().split('T')[0] : '' %>"
+                         required>
+                </div>
+
+                <div style="grid-column: span 2;">
+                  <label>Status</label>
+                  <select name="milestonestatus" required>
+                    <option value="Not Started" <%= m.milestonestatus === "Not Started" ? "selected" : "" %>>
+                        Not Started
+                    </option>
+                    <option value="In Progress" <%= m.milestonestatus === "In Progress" ? "selected" : "" %>>
+                        In Progress
+                    </option>
+                    <option value="Completed" <%= m.milestonestatus === "Completed" ? "selected" : "" %>>
+                        Completed
+                    </option>
+                    <option value="Deferred" <%= m.milestonestatus === "Deferred" ? "selected" : "" %>>
+                        Deferred
+                    </option>
+                  </select>
+                </div>
+
+              </div>
+
+              <div style="display:flex; gap:10px; margin-top:10px;">
+                <button type="submit" class="edit-btn compact-btn">Save</button>
+
+                <form action="/account/participant/<%= child.participantid %>/milestones/<%= m.milestoneid %>/delete"
+                      method="POST"
+                      onsubmit="return confirm('Delete this milestone?');">
+                  <button class="danger-btn compact-btn" type="submit">Delete</button>
+                </form>
+              </div>
+
+            </form>
+
+          <% }) %>
+
+        <% } else { %>
+          <p style="margin-top:10px;">No milestones yet.</p>
+        <% } %>
+
+        <a href="/account/participant/<%= child.participantid %>/milestones/add"
+           class="admin-btn compact-btn"
+           style="margin-top:10px; display:inline-block;">
+           Add Milestone
+        </a>
+
+      </details>
+
+
 
     <% }) %>
 
