@@ -1,22 +1,21 @@
 // imports
 const express = require("express");
 const session = require("express-session");
+// Determine environment
 const isProd = process.env.NODE_ENV === "production";
 
-// Knex setup
+// Knex configuration
 const knex = require("knex")({
   client: "pg",
   connection: {
-    host: process.env.DB_HOST || "localhost",
-    user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "12345",
-    database: process.env.DB_NAME || "ellarises",
+    host: process.env.DB_HOST,          // RDS endpoint
+    user: process.env.DB_USER,          // RDS master username
+    password: process.env.DB_PASSWORD,  // RDS master password
+    database: process.env.DB_NAME,      // Your DB name
     port: Number(process.env.DB_PORT) || 5432,
-    ssl: isProd
-      ? { rejectUnauthorized: false } // For AWS RDS in production
-      : false                         // Local dev
+    ssl: isProd ? { rejectUnauthorized: false } : false
   },
-  pool: { min: 2, max: 10 }  // Optional: limits concurrent DB connections
+  pool: { min: 2, max: 10 },           // optional, good for production
 });
 
 module.exports = knex;
