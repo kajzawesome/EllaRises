@@ -3,16 +3,20 @@ const express = require("express");
 const session = require("express-session");
 const isProd = process.env.NODE_ENV === "production";
 
+// Knex setup
 const knex = require("knex")({
   client: "pg",
   connection: {
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "admin",
+    password: process.env.DB_PASSWORD || "12345",
     database: process.env.DB_NAME || "ellarises",
-    port: process.env.DB_PORT || "5432",
-    ssl: isProd ? { rejectUnauthorized: false } : false
-  }
+    port: process.env.DB_PORT || 5432,
+    // SSL handling
+    ssl: isProd
+      ? { rejectUnauthorized: false } // production (RDS)
+      : false,                        // local
+  },
 });
 
 module.exports = knex;
