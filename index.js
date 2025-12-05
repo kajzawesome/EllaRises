@@ -2030,7 +2030,6 @@ app.post("/admin/event/:eventid/edit", requireManager, async (req, res) => {
     }
 });
 
-
 app.post("/admin/event-occurrence/:occurrenceid/edit", requireManager, async (req, res) => {
     const { occurrenceid } = req.params;
 
@@ -2089,7 +2088,6 @@ app.post("/admin/event-occurrence/:occurrenceid/edit", requireManager, async (re
         res.status(500).send("Error saving occurrence.");
     }
 });
-
 
 app.get("/admin/event/:eventid/new-occurrence", requireManager, (req, res) => {
   const id = req.params.eventid;
