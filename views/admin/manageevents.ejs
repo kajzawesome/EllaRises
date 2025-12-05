@@ -2,174 +2,167 @@
 
 <div class="admin-container">
 
-    <aside class="admin-sidebar">
-        <h3><span class="lang-en">Admin Tools</span><span class="lang-es">Herramientas Admin</span></h3>
-        <a class="admin-btn" href="/admin/dashboard"> <span class="lang-en">Dashboard</span><span class="lang-es">Panel</span></a>
-        <a class="admin-btn" href="/admin/add-event"> <span class="lang-en">Add Event/Program</span><span class="lang-es">Agregar Evento/Programa</span></a>
-        <a class="admin-btn" href="/manageevents"> <span class="lang-en">Manage Events</span><span class="lang-es">Administrar Eventos</span></a>
-        <a class="admin-btn" href="/admin/manageusers"> <span class="lang-en">Manage Users</span><span class="lang-es">Administrar Usuarios</span></a>
-        <a class="admin-btn" href="/admin/survey-responses"> <span class="lang-en">Manage Surveys</span><span class="lang-es">Administrar Encuestas</span></a>
-        <a class="admin-btn" href="/admin/managedonations"> <span class="lang-en">Manage Donations</span><span class="lang-es">Administrar Donaciones</span></a>
-    </aside>
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+      <h3><span class="lang-en">Admin Tools</span><span class="lang-es">Herramientas Admin</span></h3>
+
+      <a class="admin-btn" href="/admin/dashboard"><span class="lang-en">Dashboard</span><span class="lang-es">Panel</span></a>
+      <a class="admin-btn" href="/admin/add-event"><span class="lang-en">Add Event/Program</span><span class="lang-es">Agregar Evento/Programa</span></a>
+      <a class="admin-btn" href="/manageevents"><span class="lang-en">Manage Events</span><span class="lang-es">Administrar Eventos</span></a>
+      <a class="admin-btn" href="/admin/manageusers"><span class="lang-en">Manage Users</span><span class="lang-es">Administrar Usuarios</span></a>
+      <a class="admin-btn" href="/admin/survey-responses"><span class="lang-en">Manage Surveys</span><span class="lang-es">Administrar Encuestas</span></a>
+      <a class="admin-btn" href="/admin/managedonations"><span class="lang-en">Manage Donations</span><span class="lang-es">Administrar Donaciones</span></a>
+  </aside>
+
 
   <!-- Main -->
   <main class="admin-main">
 
-    <% if (success_message) { %>
-      <div class="success"><%= success_message %></div>
-    <% } %>
+      <% if (success_message) { %>
+        <div class="success"><%= success_message %></div>
+      <% } %>
 
-    <h2>
-      <span class="lang-en">Edit Event & All Occurrences</span>
-      <span class="lang-es">Editar Evento y Todas las Fechas</span>
-    </h2>
+      <h2 class="page-title-sm">
+        <span class="lang-en">Edit Event</span>
+        <span class="lang-es">Editar Evento</span>
+      </h2>
 
-    <% if (!event) { %>
-      <p>
-        <span class="lang-en">Event not found.</span>
-        <span class="lang-es">No se encontró el evento.</span>
-      </p>
-    <% } else { %>
+      <% if (!event) { %>
+        <p><span class="lang-en">Event not found.</span><span class="lang-es">No se encontró el evento.</span></p>
+      <% } else { %>
 
-    <!-- ⭐ EVENT DETAILS (ONE SAVE BUTTON) -->
-    <form action="/admin/event/<%= event.eventid %>/edit" method="POST" class="event-card">
 
-      <h3>
-        <span class="lang-en">Event Details</span>
-        <span class="lang-es">Detalles del Evento</span>
-      </h3>
+      <!-- EVENT DETAILS -->
+      <form action="/admin/event/<%= event.eventid %>/edit"
+            method="POST"
+            class="compact-card">
 
-      <label>
-        <span class="lang-en">Name</span><span class="lang-es">Nombre</span>
-      </label>
-      <input type="text" name="eventname" value="<%= event.eventname %>" required>
+          <h3 class="section-title-sm">
+            <span class="lang-en">Event Details</span>
+            <span class="lang-es">Detalles</span>
+          </h3>
 
-      <label>
-        <span class="lang-en">Type</span><span class="lang-es">Tipo</span>
-      </label>
-      <input type="text" name="eventtype" value="<%= event.eventtype %>" required>
+          <div class="compact-grid">
+            <div>
+              <label>Name</label>
+              <input type="text" name="eventname" value="<%= event.eventname %>" required>
+            </div>
 
-      <label>
-        <span class="lang-en">Description</span><span class="lang-es">Descripción</span>
-      </label>
-      <textarea name="eventdescription" rows="3" required><%= event.eventdescription %></textarea>
+            <div>
+              <label>Type</label>
+              <input type="text" name="eventtype" value="<%= event.eventtype %>" required>
+            </div>
+          </div>
 
-      <label>
-        <span class="lang-en">Recurrence Pattern</span><span class="lang-es">Patrón de Repetición</span>
-      </label>
-      <select name="recurrencepattern" required>
-        <option value="None" <%= event.recurrencepattern === 'None' ? 'selected' : '' %>>None / Ninguno</option>
-        <option value="Daily" <%= event.recurrencepattern === 'Daily' ? 'selected' : '' %>>Daily / Diario</option>
-        <option value="Weekly" <%= event.recurrencepattern === 'Weekly' ? 'selected' : '' %>>Weekly / Semanal</option>
-        <option value="Monthly" <%= event.recurrencepattern === 'Monthly' ? 'selected' : '' %>>Monthly / Mensual</option>
-      </select>
+          <label>Description</label>
+          <textarea name="eventdescription" rows="2" required><%= event.eventdescription %></textarea>
 
-      <button class="edit-btn" type="submit" style="margin-top:20px;">
-        <span class="lang-en">Save Event Details</span>
-        <span class="lang-es">Guardar Detalles del Evento</span>
-      </button>
+          <label>Recurrence Pattern</label>
+          <select name="recurrencepattern">
+              <option value="None"   <%= event.recurrencepattern === 'None'   ? 'selected' : '' %>>None</option>
+              <option value="Daily"  <%= event.recurrencepattern === 'Daily'  ? 'selected' : '' %>>Daily</option>
+              <option value="Weekly" <%= event.recurrencepattern === 'Weekly' ? 'selected' : '' %>>Weekly</option>
+              <option value="Monthly"<%= event.recurrencepattern === 'Monthly'? 'selected' : '' %>>Monthly</option>
+          </select>
 
-    </form>
+          <button class="edit-btn compact-btn" type="submit">Save</button>
+      </form>
 
-      <!-- DELETE OCCURRENCE BUTTON -->
+
+      <!-- DELETE -->
       <form action="/admin/event/<%= event.eventid %>/delete"
             method="POST"
+            class="compact-card"
             onsubmit="return confirm('Delete this event and all its occurrences?');">
-        <button class="admin-btn" type="submit" style="margin-bottom:30px;">
-          <span class="lang-en">Delete Event</span>
-          <span class="lang-es">Eliminar Evento</span>
-        </button>
+
+          <button class="danger-btn compact-btn" type="submit">Delete Event</button>
       </form>
 
-    <!-- ⭐ OCCURRENCES SECTION -->
-    <h3 style="margin-top:30px;">
-      <span class="lang-en">Occurrences</span>
-      <span class="lang-es">Fechas del Evento</span>
-    </h3>
 
-    <% if (event.occurrences.length === 0) { %>
-      <p>
-        <span class="lang-en">No occurrences yet.</span>
-        <span class="lang-es">No hay fechas todavía.</span>
-      </p>
-    <% } %>
+      <!-- OCCURRENCES HEADER -->
+      <div class="occurrence-header-sm">
+        <h3>
+          <span class="lang-en">Occurrences</span>
+          <span class="lang-es">Fechas</span>
+        </h3><br>
+        <a href="/admin/event/<%= event.eventid %>/new-occurrence" class="admin-btn compact-btn">Add Occurrence</a>
+      </div>
 
-    <!-- Add Occurrence -->
-    <a href="/admin/event/<%= event.eventid %>/new-occurrence"
-       class="admin-btn" style="margin-top:15px; display:inline-block;">
-      <span class="lang-en">Add Occurrence</span>
-      <span class="lang-es">Agregar Fecha</span>
-    </a>
+      <!-- OCCURRENCE LIST -->
+      <% event.occurrences.forEach((occ) => { %>
 
-    <!-- ⭐ LIST OF OCCURRENCES -->
-    <div style="margin-top:25px;">
+        <form action="/admin/event-occurrence/<%= occ.eventoccurrenceid %>/edit"
+              method="POST"
+              class="compact-card">
 
-    <% event.occurrences.forEach((occ) => { %>
+          <div class="compact-grid-2">
+            <div>
+              <label>Start Date</label>
+              <input type="date" name="eventdatestart" value="<%= occ.eventdatestart.toISOString().slice(0,10) %>" required>
+            </div>
 
-      <!-- INDIVIDUAL OCCURRENCE FORM -->
-      <form action="/admin/event-occurrence/<%= occ.eventoccurrenceid %>/edit" 
-            method="POST"
-            class="occ-edit-card">
+            <div>
+              <label>Start Time</label>
+              <input type="time" name="eventtimestart" value="<%= occ.eventtimestart %>" required>
+            </div>
 
-        <label>Start Date</label>
-        <input type="date" name="eventdatestart" 
-               value="<%= occ.eventdatestart.toISOString().slice(0,10) %>" required>
+            <div>
+              <label>End Date</label>
+              <input type="date" name="eventdateend" value="<%= occ.eventdateend.toISOString().slice(0,10) %>" required>
+            </div>
 
-        <label>Start Time</label>
-        <input type="time" name="eventtimestart" 
-               value="<%= occ.eventtimestart %>" required>
+            <div>
+              <label>End Time</label>
+              <input type="time" name="eventtimeend" value="<%= occ.eventtimeend %>" required>
+            </div>
 
-        <label>End Date</label>
-        <input type="date" name="eventdateend" 
-               value="<%= occ.eventdateend.toISOString().slice(0,10) %>" required>
+            <div>
+              <label>Location</label>
+              <input type="text" name="eventlocation" value="<%= occ.eventlocation %>" required>
+            </div>
 
-        <label>End Time</label>
-        <input type="time" name="eventtimeend" 
-               value="<%= occ.eventtimeend %>" required>
+            <div>
+              <label>Capacity</label>
+              <input type="number" name="eventcapacity" min="1" value="<%= occ.eventcapacity %>" required>
+            </div>
 
-        <label>Location</label>
-        <input type="text" name="eventlocation" 
-               value="<%= occ.eventlocation %>" required>
+            <div>
+              <label>Deadline Date</label>
+              <input type="date" name="eventregistrationdeadlinedate"
+                     value="<%= occ.eventregistrationdeadlinedate.toISOString().slice(0,10) %>" required>
+            </div>
 
-        <label>Capacity</label>
-        <input type="number" min="1" name="eventcapacity" 
-               value="<%= occ.eventcapacity %>" required>
+            <div>
+              <label>Deadline Time</label>
+              <input type="time" name="eventregistrationdeadlinetime"
+                     value="<%= occ.eventregistrationdeadlinetime %>" required>
+            </div>
+          </div>
 
-        <label>Registration Deadline Date</label>
-        <input type="date" name="eventregistrationdeadlinedate"
-               value="<%= occ.eventregistrationdeadlinedate.toISOString().slice(0,10) %>" required>
+          <button class="edit-btn compact-btn" type="submit">Save</button>
+        </form>
 
-        <label>Registration Deadline Time</label>
-        <input type="time" name="eventregistrationdeadlinetime"
-               value="<%= occ.eventregistrationdeadlinetime %>" required>
+        <div class="occurrence-actions">
+            <a class="occ-btn-checkin" 
+              href="/admin/events/checkin/<%= occ.eventoccurrenceid %>">
+                Check In
+            </a>
 
-        <button class="edit-btn" type="submit" style="margin-top:15px;">
-          <span class="lang-en">Save Occurrence</span>
-          <span class="lang-es">Guardar Fecha</span>
-        </button>
-      </form>
+            <form action="/admin/event-occurrence/<%= occ.eventoccurrenceid %>/delete"
+                  method="POST"
+                  onsubmit="return confirm('Delete this occurrence?');">
+                <button class="danger-btn compact-btn" type="submit">
+                  Delete Occurrence
+                </button>
+            </form>
+        </div>
 
-      <a class="btn-small btn-blue" href="/admin/events/checkin/<%= occ.eventoccurrenceid %>">
-          Check In
-      </a>
+      <% }) %>
 
-      <!-- DELETE OCCURRENCE BUTTON -->
-      <form action="/admin/event-occurrence/<%= occ.eventoccurrenceid %>/delete"
-            method="POST"
-            onsubmit="return confirm('Delete this occurrence?');">
-        <button class="admin-btn" type="submit" style="margin-bottom:30px;">
-          <span class="lang-en">Delete Occurrence</span>
-          <span class="lang-es">Eliminar Fecha</span>
-        </button>
-      </form>
-
-    <% }) %>
-
-    </div>
-
-    <% } %>
+      <% } %>
 
   </main>
+
 </div>
 
 <%- include('../partials/footer') %>
