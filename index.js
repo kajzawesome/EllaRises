@@ -1,3 +1,16 @@
+const allowedHosts = [
+  '127.0.0.1',               // localhost
+  'localhost',
+  'ella-rises-1-10.is404.net' // your EB domain
+];
+
+app.use((req, res, next) => {
+  if (!allowedHosts.includes(req.headers.host)) {
+    return res.status(403).send('Host not permitted');
+  }
+  next();
+});
+
 // imports
 const express = require("express");
 const session = require("express-session");
