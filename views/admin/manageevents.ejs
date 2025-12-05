@@ -22,6 +22,10 @@
   <!-- Main -->
   <main class="admin-main">
 
+    <% if (success_message) { %>
+      <div class="success"><%= success_message %></div>
+    <% } %>
+
     <h2>
       <span class="lang-en">Edit Event & All Occurrences</span>
       <span class="lang-es">Editar Evento y Todas las Fechas</span>
@@ -89,10 +93,6 @@
       <span class="lang-en">Occurrences</span>
       <span class="lang-es">Fechas del Evento</span>
     </h3>
-
-    <% if (success_message) { %>
-      <div class="success"><%= success_message %></div>
-    <% } %>
 
     <% if (event.occurrences.length === 0) { %>
       <p>
