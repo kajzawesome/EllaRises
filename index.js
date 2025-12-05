@@ -11,12 +11,12 @@ const knex = require("knex")({
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "12345",
     database: process.env.DB_NAME || "ellarises",
-    port: process.env.DB_PORT || 5432,
-    // SSL handling
+    port: Number(process.env.DB_PORT) || 5432,
     ssl: isProd
-      ? { rejectUnauthorized: false } // production (RDS)
-      : false,                        // local
+      ? { rejectUnauthorized: false } // For AWS RDS in production
+      : false                         // Local dev
   },
+  pool: { min: 2, max: 10 }  // Optional: limits concurrent DB connections
 });
 
 module.exports = knex;
