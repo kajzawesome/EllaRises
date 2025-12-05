@@ -1,0 +1,73 @@
+<%- include('../partials/header', { title: "Event Check-In" }) %>
+
+<div class="admin-container">
+
+    <% if (user.level === "M") { %>
+    <aside class="admin-sidebar">
+        <h3><span class="lang-en">Admin Tools</span><span class="lang-es">Herramientas Admin</span></h3>
+        <a class="admin-btn" href="/admin/dashboard">Dashboard</a>
+        <a class="admin-btn" href="/admin/add-event">Add Event/Program</a>
+        <a class="admin-btn" href="/admin/manageevents">Manage Events</a>
+        <a class="admin-btn" href="/admin/manageusers">Manage Users</a>
+        <a class="admin-btn" href="/admin/surveys">Manage Surveys</a>
+        <a class="admin-btn" href="/admin/managedonations">Manage Donations</a>
+    </aside>
+    <% } %>
+
+    <h1>Event Check-In</h1>
+
+    <h2><%= occurrence.eventname %></h2>
+
+    <p>
+        <strong>Date:</strong> <%= occurrence.eventdatestart.toLocaleDateString() %><br>
+        <strong>Time:</strong> <%= occurrence.eventtimestart %><br>
+        <strong>Location:</strong> <%= occurrence.eventlocation %>
+    </p>
+
+    <table class="checkin-table">
+        <thead>
+            <tr>
+                <th>Participant</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Check-In</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <% registrations.forEach(r => { %>
+                <tr>
+                    <td>
+                        <%= r.participantfirstname %> 
+                        <%= r.participantlastname %>
+                    </td>
+
+                    <td><%= r.participantemail %></td>
+
+                    <td>
+                        <% if (r.registrationattendedflag) { %>
+                            <span class="badge green">Checked In</span>
+                        <% } else { %>
+                            <span class="badge red">Not Checked In</span>
+                        <% } %>
+                    </td>
+
+                    <td>
+                        <% if (!r.registrationattendedflag) { %>
+                            <form method="POST" action="/admin/events/checkin/<%= r.registrationid %>">
+                                <button class="btn-small btn-green">
+                                    Check In
+                                </button>
+                            </form>
+                        <% } else { %>
+                            <em>Done</em>
+                        <% } %>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+
+</div>
+
+<%- include('../partials/footer') %>

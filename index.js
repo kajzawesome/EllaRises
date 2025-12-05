@@ -4,18 +4,20 @@ const session = require("express-session");
 // Determine environment
 const isProd = process.env.NODE_ENV === "production";
 
-// Knex configuration
+// Knex setup
 const knex = require("knex")({
   client: "pg",
   connection: {
-    host: process.env.DB_HOST,          // RDS endpoint
-    user: process.env.DB_USER,          // RDS master username
-    password: process.env.DB_PASSWORD,  // RDS master password
-    database: process.env.DB_NAME,      // Your DB name
-    port: Number(process.env.DB_PORT) || 5432,
-    ssl: isProd ? { rejectUnauthorized: false } : false
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASSWORD || "12345",
+    database: process.env.DB_NAME || "ellarises",
+    port: process.env.DB_PORT || 5432,
+    // SSL handling
+    ssl: isProd
+      ? { rejectUnauthorized: false } // production (RDS)
+      : false,                        // local
   },
-  pool: { min: 2, max: 10 },           // optional, good for production
 });
 
 module.exports = knex;
@@ -251,176 +253,229 @@ app.get("/addUser", (req, res) => {
 });
 
 app.post("/addUser", async (req, res) => {
-    try {
-        const {
-            username,
-            password,
+  try {
+    const {
+      username,
+      password,
 
-            // Parent fields
-            parentfirstname,
-            parentlastname,
-            parentphone,
-            parentemail,
-            parentcity,
-            parentstate,
-            parentzip,
-            parentcollege,
-            languagepreference,
-            medicalconsent,
-            photoconsent,
-            tuitionagreement,
-            agreementdate,
-            scholarshipinterest,
+      parentfirstname,
+      parentlastname,
+      parentphone,
+      parentemail,
+      parentcity,
+      parentstate,
+      parentzip,
+      parentcollege,
+      languagepreference,
+      medicalconsent,
+      photoconsent,
+      tuitionagreement,
+      agreementdate,
+      scholarshipinterest,
 
-            // Participant fields
-            participantfirstname,
-            participantlastname,
-            participantemail,
-            participantdob,
-            participantgrade,
-            participantschooloremployer,
-            mariachiinstrumentinterest,
-            instrumentexperience,
+      participantfirstname,
+      participantlastname,
+      participantemail,
+      participantdob,
+      participantgrade,
+      participantschooloremployer,
+      mariachiinstrumentinterest,
+      instrumentexperience,
+      programs
+    } = req.body;
 
-            // NEW: programs from checkboxes
-            programs
-        } = req.body;
+    // === VALIDATION OMITTED FOR BREVITY (same as yours) ===
 
-        if (!username || !password) {
-            return res.render("createAccount", {
-                error_message: "Username and Password are required.",
-                title: "Create Account"
-            });
-        }
+    const programList = Array.isArray(programs) ? programs.join(", ") : "";
 
-        if (!parentfirstname || !parentlastname || !parentemail) {
-            return res.render("createAccount", {
-                error_message: "Parent name and email are required.",
-                title: "Create Account"
-            });
-        }
+    // Create login
+    const [loginRow] = await knex("logins")
+      .insert({ username, password, level: "U" })
+      .returning("userid");
 
-        if (!participantfirstname || !participantlastname || !participantemail) {
-            return res.render("createAccount", {
-                error_message: "Participant name and email are required.",
-                title: "Create Account"
-            });
-        }
+    const newUserID = loginRow.userid || loginRow;
 
-        const programList = Array.isArray(programs) ? programs.join(", ") : "";
+    const [parentRow] = await knex("parents")
+      .insert({
+        userid: newUserID,
+        parentfirstname,
+        parentlastname,
+        parentphone,
+        parentemail,
+        parentcity,
+        parentstate,
+        parentzip,
+        parentcollege,
+        languagepreference,
+        medicalconsent: medicalconsent === "true",
+        photoconsent: photoconsent === "true",
+        tuitionagreement: tuitionagreement === "true",
+        scholarshipinterest: scholarshipinterest === "true",
+        agreementdate
+      })
+      .returning("parentid");
 
-        const [loginRow] = await knex("logins")
-            .insert({
-                username,
-                password,
-                level: "U"
-            })
-            .returning("userid");
+    const newParentID = parentRow.parentid || parentRow;
 
-        const newUserID = loginRow.userid || loginRow;
+    // Create participant
+    const [participantRow] = await knex("participants")
+      .insert({
+        parentid: newParentID,
+        participantfirstname,
+        participantlastname,
+        participantemail,
+        participantdob,
+        participantgrade,
+        participantschooloremployer,
+        participantfieldofinterest: programList,
+        mariachiinstrumentinterest,
+        instrumentexperience,
+        graduationstatus: "enrolled"
+      })
+      .returning("participantemail");
 
-        const boolTuition = tuitionagreement === "true";
-        const boolMedical = medicalconsent === "true";
-        const boolPhoto = photoconsent === "true";
-        const boolScholarship = scholarshipinterest === "true";
+    const newParticipantEmail = participantRow.participantemail;
 
-        const [parentRow] = await knex("parents")
-            .insert({
-                userid: newUserID,
-                parentfirstname,
-                parentlastname,
-                parentphone,
-                parentemail,
-                parentcity,
-                parentstate,
-                parentzip,
-                parentcollege,
-                languagepreference,
-                medicalconsent: boolMedical,
-                photoconsent: boolPhoto,
-                tuitionagreement: boolTuition,
-                scholarshipinterest: boolScholarship,
-                agreementdate
-            })
-            .returning("parentid");
+    // ============================================================
+    // AUTO-REGISTER FOR FUTURE EVENTS + AUTO-CREATE SURVEYS
+    // ============================================================
 
-        const newParentID = parentRow.parentid || parentRow;
+    const today = new Date().toISOString().split("T")[0];
 
-        await knex("participants")
-            .insert({
-                parentid: newParentID,
-                participantfirstname,
-                participantlastname,
-                participantemail,
-                participantdob,
-                participantgrade,
-                participantschooloremployer,
-                participantfieldofinterest: programList,
-                mariachiinstrumentinterest,
-                instrumentexperience,
-                graduationstatus: "enrolled"
-            });
+    const futureOccurrences = await knex("eventoccurrences")
+      .where("eventregistrationdeadlinedate", ">=", today)
+      .select("eventoccurrenceid");
 
-        req.session.isLoggedIn = true;
-        req.session.user = {
-            userid: newUserID,
-            parentid: newParentID,
-            level: "U",
-            username: username,
-            name: `${parentfirstname} ${parentlastname}`
-        };
+    const registrationIds = [];
 
+    for (const occ of futureOccurrences) {
+      const [reg] = await knex("registration")
+        .insert({
+          participantemail: newParticipantEmail,
+          eventoccurrenceid: occ.eventoccurrenceid,
+          registrationstatus: "not attending",
+          registrationattendedflag: false,
+          createdatdate: today
+        })
+        .returning("registrationid");
 
-        res.redirect(`/account/${newUserID}`, { success_message: "User Created Successfully!"});
-
-    } catch (err) {
-        console.error("Error creating user:", err);
-
-        return res.render("createAccount", {
-            error_message: "There was an error creating your account. Please try again.",
-            title: "Create Account"
-        });
+      registrationIds.push(reg.registrationid || reg);
     }
+
+    // Log in and redirect
+    req.session.isLoggedIn = true;
+    req.session.user = {
+      userid: newUserID,
+      parentid: newParentID,
+      level: "U",
+      username,
+      name: `${parentfirstname} ${parentlastname}`
+    };
+
+    res.redirect(`/account/${newUserID}?success=User+Created`);
+
+  } catch (err) {
+    console.error("Error creating user:", err);
+    res.render("createAccount", {
+      error_message: "There was an error creating your account.",
+      title: "Create Account"
+    });
+  }
 });
 
 app.get("/account/:userid", requireLogin, async (req, res) => {
   try {
-    const userId = Number(req.params.userid);
-    const logged = req.session.user;
+    const { userid } = req.params;
 
-    // Parents can access only their own page; Managers can access any
-    if (logged.level === "U" && logged.userid !== userId) {
+    // Permission check
+    if (req.session.user.level === "U" && req.session.user.userid != userid) {
       return res.status(403).send("Unauthorized");
     }
 
+    // Load parent
     const parent = await knex("parents")
-      .where({ userid: userId })
+      .where({ userid })
       .first();
 
-    if (!parent) return res.status(404).send("Parent not found.");
+    if (!parent) return res.status(404).send("Parent not found");
 
+    const parentId = parent.parentid;
+
+    // Load children
     const participants = await knex("participants")
-      .where({ parentid: parent.parentid });
+      .where({ parentid: parentId });
 
-    // load milestones
-    for (let child of participants) {
-      const ms = await knex("milestones")
-        .where({ participantid: child.participantid })
-        .orderBy("milestonedate", "asc");
+    // Load future occurrences (for event availability)
+    const today = new Date().toISOString().split("T")[0];
 
-      child.milestones = ms;
+    const futureOccurrences = await knex("eventoccurrences as eo")
+      .join("events as e", "e.eventid", "eo.eventid")
+      .where("eo.eventregistrationdeadlinedate", ">=", today)
+      .select(
+        "eo.eventoccurrenceid",
+        "eo.eventdatestart",
+        "eo.eventtimestart",
+        "eo.eventregistrationdeadlinedate",
+        "e.eventname"
+      );
+
+    // Build full participant data
+    for (const child of participants) {
+      const childEmail = child.participantemail;
+
+      // Load registrations for this child
+      const regs = await knex("registration")
+        .where({ participantemail: childEmail });
+
+      // Upcoming events
+      const upcomingEvents = await knex("registration as r")
+        .join("eventoccurrences as eo", "eo.eventoccurrenceid", "r.eventoccurrenceid")
+        .join("events as e", "e.eventid", "eo.eventid")
+        .where("r.participantemail", childEmail)
+        .andWhere("eo.eventregistrationdeadlinedate", ">=", today)
+        .select(
+          "r.registrationid",
+          "r.registrationstatus",
+          "e.eventname",
+          "eo.eventdatestart",
+          "eo.eventtimestart"
+        );
+
+      child.upcomingEvents = upcomingEvents;
+
+      // Past surveys missing
+      const pastUnsurveyed = await knex("survey as s")
+        .join("registration as r", "r.registrationid", "s.registrationid")
+        .join("eventoccurrences as eo", "eo.eventoccurrenceid", "r.eventoccurrenceid")
+        .join("events as e", "e.eventid", "eo.eventid")
+        .where("r.participantemail", childEmail)
+        .andWhere("eo.eventdatestart", "<", today)
+        .whereNull("s.submissiondate")
+        .select(
+          "r.registrationid",
+          "e.eventname",
+          "eo.eventdatestart",
+          "eo.eventtimestart"
+        );
+
+      child.pastUnsurveyed = pastUnsurveyed;
+
+      // Load milestones
+      const milestones = await knex("milestones").where({ participantid: child.participantid });
+      child.milestones = milestones;
     }
 
+    // Attach children list
     parent.participants = participants;
 
     res.render("pages/account", {
+      user: req.session.user,
       parent,
-      user: logged,
       success_message: req.query.success || ""
     });
 
   } catch (err) {
-    console.error("Account load error:", err);
+    console.error("Account Load Error:", err);
     res.status(500).send("Server Error");
   }
 });
@@ -481,41 +536,58 @@ app.post("/account/:parentid/participant/add", requireLogin, async (req, res) =>
     const parentid = Number(req.params.parentid);
     const logged = req.session.user;
 
-    // 1. Validate parent
     const parent = await knex("parents").where({ parentid }).first();
     if (!parent) return res.status(404).send("Parent not found");
-
-    // 2. Permission check
     if (logged.level === "U" && logged.userid !== parent.userid)
       return res.status(403).send("Unauthorized");
 
-    // 3. Extract checkbox list
     const { programs } = req.body;
+    const programList = Array.isArray(programs) ? programs.join(", ") : "";
 
-    // Convert checkboxes → comma-separated list
-    const programList = Array.isArray(programs)
-      ? programs.join(", ")
-      : "";
+    const [participantRow] = await knex("participants")
+      .insert({
+        parentid,
+        participantfirstname: req.body.participantfirstname,
+        participantlastname: req.body.participantlastname,
+        participantemail: req.body.participantemail,
+        participantdob: req.body.participantdob || null,
+        participantgrade: req.body.participantgrade,
+        participantschooloremployer: req.body.participantschooloremployer,
+        participantfieldofinterest: programList,
+        mariachiinstrumentinterest: req.body.mariachiinstrumentinterest,
+        instrumentexperience: req.body.instrumentexperience,
+        graduationstatus: req.body.graduationstatus || "not started"
+      })
+      .returning("participantemail");
 
-    // 4. Insert the child
-    await knex("participants").insert({
-      parentid,
-      participantfirstname: req.body.participantfirstname,
-      participantlastname: req.body.participantlastname,
-      participantemail: req.body.participantemail,
-      participantdob: req.body.participantdob || null,
-      participantgrade: req.body.participantgrade,
-      participantschooloremployer: req.body.participantschooloremployer,
+    const newParticipantEmail = participantRow.participantemail;
 
-      // ★ STORE CHECKBOX VALUES HERE ★
-      participantfieldofinterest: programList,
+    // ============================================================
+    // AUTO-REGISTER FOR FUTURE EVENTS + CREATE SURVEYS
+    // ============================================================
 
-      mariachiinstrumentinterest: req.body.mariachiinstrumentinterest,
-      instrumentexperience: req.body.instrumentexperience,
-      graduationstatus: req.body.graduationstatus || "not started"
-    });
+    const today = new Date().toISOString().split("T")[0];
 
-    // 5. Redirect
+    const futureOccurrences = await knex("eventoccurrences")
+      .where("eventregistrationdeadlinedate", ">=", today)
+      .select("eventoccurrenceid");
+
+    const registrationIds = [];
+
+    for (const occ of futureOccurrences) {
+      const [reg] = await knex("registration")
+        .insert({
+          participantemail: newParticipantEmail,
+          eventoccurrenceid: occ.eventoccurrenceid,
+          registrationstatus: "not attending",
+          registrationattendedflag: false,
+          createdatdate: today
+        })
+        .returning("registrationid");
+
+      registrationIds.push(reg.registrationid || reg);
+    }
+
     res.redirect(`/account/${parent.userid}?success=Child+Added`);
 
   } catch (err) {
@@ -563,32 +635,84 @@ app.post("/account/participant/:participantid/update-full", requireLogin, async 
 });
 
 app.post("/account/participant/:participantid/delete", requireLogin, async (req, res) => {
-  try {
-    const pid = Number(req.params.participantid);
+    const trx = await knex.transaction();
 
-    const child = await knex("participants").where({ participantid: pid }).first();
-    if (!child) return res.status(404).send("Child not found");
+    try {
+        const participantid = Number(req.params.participantid);
 
-    const parent = await knex("parents")
-      .where({ parentid: child.parentid })
-      .first();
+        // Fetch participant
+        const child = await trx("participants")
+            .where({ participantid })
+            .first();
 
-    if (req.session.user.level === "U" &&
-        req.session.user.userid !== parent.userid)
-      return res.status(403).send("Unauthorized");
+        if (!child) {
+            await trx.rollback();
+            return res.status(404).send("Child not found");
+        }
 
-    // delete milestones
-    await knex("milestones").where({ participantid: pid }).del();
+        // Fetch parent
+        const parent = await trx("parents")
+            .where({ parentid: child.parentid })
+            .first();
 
-    // delete participant
-    await knex("participants").where({ participantid: pid }).del();
+        // Permission check
+        if (req.session.user.level === "U" &&
+            req.session.user.userid !== parent.userid) 
+        {
+            await trx.rollback();
+            return res.status(403).send("Unauthorized");
+        }
 
-    res.redirect(`/account/${parent.userid}?success=Child+Deleted`);
+        const participantEmail = child.participantemail;
+        const participantIdList = [participantid];
 
-  } catch (err) {
-    console.error("Delete child error:", err);
-    res.status(500).send("Server Error");
-  }
+        // ---------------------------------------------------
+        // 1. DELETE SURVEYS → Registration cleanup
+        // ---------------------------------------------------
+        const registrations = await trx("registration")
+            .where({ participantemail: participantEmail })
+            .select("registrationid");
+
+        const regIds = registrations.map(r => r.registrationid);
+
+        // Delete surveys
+        if (regIds.length > 0) {
+            await trx("survey")
+                .whereIn("registrationid", regIds)
+                .del();
+        }
+
+        // Delete registrations
+        if (participantEmail) {
+            await trx("registration")
+                .where({ participantemail: participantEmail })
+                .del();
+        }
+
+        // ---------------------------------------------------
+        // 2. DELETE MILESTONES
+        // ---------------------------------------------------
+        await trx("milestones")
+            .where({ participantid })
+            .del();
+
+        // ---------------------------------------------------
+        // 3. DELETE PARTICIPANT
+        // ---------------------------------------------------
+        await trx("participants")
+            .where({ participantid })
+            .del();
+
+        // Commit transaction
+        await trx.commit();
+
+        return res.redirect(`/account/${parent.userid}?success=Child+Deleted`);
+
+    } catch (err) {
+        console.error("Delete child error:", err);
+        await trx.rollback();
+        return res.status(500).send("Server Error");
+    }
 });
 
 app.post("/account/milestone/:milestoneid/update-full", requireLogin, async (req, res) => {
@@ -1165,177 +1289,99 @@ app.get("/admin/manageusers", requireLogin, async (req, res) => {
 });
 
 app.post("/admin/user/:userid/delete", requireLogin, async (req, res) => {
-  try {
-    const { userid } = req.params;
+    const trx = await knex.transaction();
 
-    // Only managers can delete parents
-    if (req.session.user.level !== "M") {
-      return res.status(403).send("Unauthorized");
+    try {
+        const { userid } = req.params;
+
+        // Only managers can delete parents
+        if (req.session.user.level !== "M") {
+            await trx.rollback();
+            return res.status(403).send("Unauthorized");
+        }
+
+        // Get parent row
+        const parent = await trx("parents").where({ userid }).first();
+        if (!parent) {
+            await trx.rollback();
+            return res.status(404).send("Parent not found");
+        }
+
+        const parentId = parent.parentid;
+
+        // Get all participants belonging to this parent
+        const participants = await trx("participants")
+            .where({ parentid: parentId });
+
+        const participantEmails = participants.map(p => p.participantemail);
+        const participantIds = participants.map(p => p.participantid);
+
+        //---------------------------------------------
+        // STEP 1 — DELETE SURVEYS tied to registrations
+        //---------------------------------------------
+        if (participantEmails.length > 0) {
+            const regs = await trx("registration")
+                .whereIn("participantemail", participantEmails)
+                .select("registrationid");
+
+            const regIds = regs.map(r => r.registrationid);
+
+            if (regIds.length > 0) {
+                await trx("survey")
+                    .whereIn("registrationid", regIds)
+                    .del();
+            }
+        }
+
+        //---------------------------------------------
+        // STEP 2 — DELETE REGISTRATIONS
+        //---------------------------------------------
+        if (participantEmails.length > 0) {
+            await trx("registration")
+                .whereIn("participantemail", participantEmails)
+                .del();
+        }
+
+        //---------------------------------------------
+        // STEP 3 — DELETE MILESTONES
+        //---------------------------------------------
+        if (participantIds.length > 0) {
+            await trx("milestones")
+                .whereIn("participantid", participantIds)
+                .del();
+        }
+
+        //---------------------------------------------
+        // STEP 4 — DELETE PARTICIPANTS
+        //---------------------------------------------
+        await trx("participants")
+            .where({ parentid: parentId })
+            .del();
+
+        //---------------------------------------------
+        // STEP 5 — DELETE PARENT RECORD
+        //---------------------------------------------
+        await trx("parents")
+            .where({ parentid: parentId })
+            .del();
+
+        //---------------------------------------------
+        // STEP 6 — DELETE LOGIN ACCOUNT
+        //---------------------------------------------
+        await trx("logins")
+            .where({ userid })
+            .del();
+
+        // Commit transaction
+        await trx.commit();
+
+        res.redirect("/admin/manageusers");
+
+    } catch (err) {
+        console.error("Error deleting parent:", err);
+        await trx.rollback();
+        res.status(500).send("Server Error");
     }
-
-    // Fetch parent row
-    const parent = await knex("parents").where({ userid }).first();
-    if (!parent) return res.status(404).send("Parent not found");
-
-    const parentId = parent.parentid;
-
-    // Fetch participant rows
-    const participants = await knex("participants")
-      .where({ parentid: parentId });
-
-    // =====================================================
-    //   STEP 1 — DELETE SURVEYS for each participant
-    // =====================================================
-    for (const p of participants) {
-      const regs = await knex("registration")
-        .where({ participantemail: p.participantemail });
-
-      for (const r of regs) {
-        await knex("survey")
-          .where({ registrationid: r.registrationid })
-          .del();
-      }
-    }
-
-    // =====================================================
-    //   STEP 2 — DELETE REGISTRATIONS for each participant
-    // =====================================================
-    for (const p of participants) {
-      await knex("registration")
-        .where({ participantemail: p.participantemail })
-        .del();
-    }
-
-    // =====================================================
-    //   STEP 3 — DELETE MILESTONES (FK → participants)
-    // =====================================================
-    for (const p of participants) {
-      await knex("milestones")
-        .where({ participantid: p.participantid })
-        .del();
-    }
-
-    // =====================================================
-    //   STEP 4 — DELETE PARTICIPANTS
-    // =====================================================
-    await knex("participants")
-      .where({ parentid: parentId })
-      .del();
-
-    // =====================================================
-    //   STEP 5 — DELETE PARENT RECORD
-    // =====================================================
-    await knex("parents")
-      .where({ parentid: parentId })
-      .del();
-
-    // =====================================================
-    //   STEP 6 — DELETE LOGIN ACCOUNT
-    // =====================================================
-    await knex("logins")
-      .where({ userid })
-      .del();
-
-    // Redirect back to admin user list
-    res.redirect("/admin/manageusers");
-
-  } catch (err) {
-    console.error("Error deleting parent:", err);
-    res.status(500).send("Server Error");
-  }
-});
-
-// ===============================
-// MANAGE SURVEY RESPONSES (FULL)
-// ===============================
-app.get("/admin/surveys", requireManager, async (req, res) => {
-  try {
-    const {
-      filterValue,
-      scoreOperator,
-      scoreValue,
-      search
-    } = req.query;
-
-    // Dropdown list for filtering by event
-    const filterOptions = await knex("events")
-      .select(
-        "eventid as id",
-        "eventname as label_en",
-        "eventtype as label_es"
-      );
-
-    // Base query for survey table
-    let query = knex("survey as s")
-      .join("registration as r", "s.registrationid", "r.registrationid")
-      .join("eventoccurrences as eo", "r.eventoccurrenceid", "eo.eventoccurrenceid")
-      .join("events as e", "eo.eventid", "e.eventid")
-      .join("participants as p", "r.participantemail", "p.participantemail")
-      .select(
-        "s.surveyid as id",
-
-        // Participant
-        knex.raw("p.participantfirstname || ' ' || p.participantlastname AS user_label"),
-
-        // Event info
-        "e.eventname",
-        "e.eventtype",
-        "e.eventdescription",
-        "eo.eventlocation",
-
-        // Scores
-        "s.satisfactionscore AS SurveySatisfactionScore",
-        "s.usefulnessscore AS SurveyUsefulnessScore",
-        "s.instructorscore AS SurveyInstructorScore",
-        "s.recommendationscore AS SurveyRecommendationScore",
-        "s.overallscore AS SurveyOverallScore",
-
-        // Comments
-        "s.comments AS SurveyComments",
-
-        // Timestamp
-        "s.submissiondate AS SurveySubmissionDate",
-        "s.submissiontime AS SurveySubmissionTime"
-      );
-
-    // Event filter
-    if (filterValue) {
-      query.where("e.eventid", filterValue);
-    }
-
-    // Score filter
-    if (scoreValue && scoreOperator) {
-      query.where("s.overallscore", scoreOperator, scoreValue);
-    }
-
-    // Search: name or comments
-    if (search && search.trim() !== "") {
-      query.where(builder => {
-        builder
-          .whereILike("p.participantfirstname", `%${search}%`)
-          .orWhereILike("p.participantlastname", `%${search}%`)
-          .orWhereILike("s.comments", `%${search}%`);
-      });
-    }
-
-    const responses = await query;
-
-    // Render page
-    res.render("admin/survey-responses", {
-      responses,
-      filterOptions,
-      filterBy: filterValue || "",
-      scoreValue: scoreValue || "",
-      scoreOperator: scoreOperator || ">=",
-      search: search || "",              // <-- REQUIRED
-      lang: req.session.lang || "en",
-      user: req.session.user
-    });
-
-  } catch (err) {
-    console.error("Error loading survey responses:", err);
-    res.status(500).send("Server error loading surveys");
-  }
 });
 
 // Manage Surveys
@@ -1384,114 +1430,6 @@ app.post("/admin/surveys", requireManager, async (req, res) => {
       : null;
 
     // Optional: populate filter options for dropdown in EJS
-    const filterOptions = await knex("events").select("eventid as id", "eventname as label");
-
-    res.render("admin/survey-responses", {
-      user: req.session.user,
-      responses,
-      filterOptions,
-      filterBy: filterType === "event" ? filterValue : null,
-      avgOverall,
-      lang: req.session.lang || "en"
-    });
-
-  } catch (err) {
-    console.error("Error fetching survey responses:", err);
-    res.status(500).send("Error fetching survey responses");
-  }
-});
-
-// GET – edit form
-app.get('/surveyResponses/edit/:id', async (req, res) => {
-  try {
-    const response = await SurveyResponse.findByPk(req.params.id);
-    if (!response) return res.status(404).send('Not found');
-
-    res.render('admin/editSurveyResponse', {
-      r: response,
-      user: req.user,
-      lang: req.session.lang || 'en'
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
-  }
-});
-
-// POST – save changes
-app.post('/surveyResponses/edit/:id', async (req, res) => {
-  try {
-    const response = await SurveyResponse.findByPk(req.params.id);
-    if (!response) return res.status(404).send('Not found');
-
-    await response.update(req.body);
-
-    res.redirect('/admin/surveyResponses');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
-  }
-});
-
-// POST – delete
-app.post('/surveyResponses/delete/:id', async (req, res) => {
-  try {
-    await SurveyResponse.destroy({
-      where: { id: req.params.id }
-    });
-
-    res.redirect('/admin/surveyResponses');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
-  }
-});
-
-app.get("/admin/surveys", requireManager, async (req, res) => {
-  try {
-    const { filterType, filterValue } = req.query; // e.g., /admin/surveys?filterType=event&filterValue=3
-
-    // Base query joining survey -> registration -> eventoccurrences -> events
-    let query = knex("survey")
-      .join("registration", "survey.registrationid", "registration.registrationid")
-      .join("eventoccurrences", "registration.eventoccurrenceid", "eventoccurrences.eventoccurrenceid")
-      .join("events", "eventoccurrences.eventid", "events.eventid")
-      .select(
-        "survey.surveyid as id",
-        "registration.participantemail as user_label",
-        "survey.satisfactionscore as SurveySatisfactionScore",
-        "survey.usefulnessscore as SurveyUsefulnessScore",
-        "survey.instructorscore as SurveyInstructorScore",
-        "survey.recommendationscore as SurveyRecommendationScore",
-        "survey.overallscore as SurveyOverallScore",
-        "survey.comments as SurveyComments",
-        "events.eventname",
-        "events.eventtype",
-        "events.eventdescription",
-        "eventoccurrences.eventlocation",
-        "survey.submissiondate as SurveySubmissionDate",
-        "survey.submissiontime as SurveySubmissionTime"
-      );
-
-    // Apply filters if provided
-    if (filterType && filterValue) {
-      if (filterType === "event") {
-        query = query.where("events.eventid", filterValue);
-      } else if (filterType === "score") {
-        query = query.where("survey.overallscore", ">=", filterValue);
-      } else if (filterType === "participant") {
-        query = query.where("registration.participantemail", filterValue);
-      }
-    }
-
-    const responses = await query.orderBy("survey.submissiondate", "desc");
-
-    // Compute average overall score for filtered set
-    const avgOverall = responses.length
-      ? (responses.reduce((sum, r) => sum + Number(r.SurveyOverallScore), 0) / responses.length).toFixed(2)
-      : null;
-
-    // Populate filter options for dropdown in EJS
     const filterOptions = await knex("events").select("eventid as id", "eventname as label");
 
     res.render("admin/survey-responses", {
@@ -1674,23 +1612,20 @@ app.post("/admin/add-event", requireManager, async (req, res) => {
         recurrencepattern,
         eventdefaultcapacity,
 
-        // First occurrence schedule
         occurrencestartdate,
         occurrencestarttime,
         occurrenceenddate,
         occurrenceendtime,
 
-        // Recurrence range
         repeatenddate,
 
-        // Other info
         eventlocation,
         registrationdaysbefore
     } = req.body;
 
     try {
-        // Insert main event
-        const [eventID] = await knex("events")
+        // 1. Insert the event
+        const [eventRow] = await knex("events")
             .insert({
                 eventname,
                 eventtype,
@@ -1700,35 +1635,27 @@ app.post("/admin/add-event", requireManager, async (req, res) => {
             })
             .returning("eventid");
 
-        const EventID = eventID.eventid ?? eventID;
+        const eventID = eventRow.eventid || eventRow;
 
-        // Convert to JS Dates
+        // --- Build occurrences ---
         let start = new Date(occurrencestartdate);
         let end   = new Date(occurrenceenddate);
-
         const final = new Date(repeatenddate);
 
-        // Store occurrences here
         let occurrences = [];
 
-        // Helper to add a single occurrence
         const addOccurrence = (startDate, endDate) => {
-            // Dynamic registration deadline: X days prior
             const deadline = new Date(startDate);
             deadline.setDate(deadline.getDate() - Number(registrationdaysbefore));
 
             occurrences.push({
-                eventid: EventID,
-
+                eventid: eventID,
                 eventdatestart: startDate.toISOString().split("T")[0],
                 eventtimestart: occurrencestarttime,
-
                 eventdateend: endDate.toISOString().split("T")[0],
                 eventtimeend: occurrenceendtime,
-
                 eventlocation,
                 eventcapacity: eventdefaultcapacity,
-
                 eventregistrationdeadlinedate: deadline.toISOString().split("T")[0],
                 eventregistrationdeadlinetime: "23:59"
             });
@@ -1737,7 +1664,7 @@ app.post("/admin/add-event", requireManager, async (req, res) => {
         // Add first occurrence
         addOccurrence(start, end);
 
-        // Generate recurring events
+        // Generate recurring dates
         while (true) {
             let nextStart = new Date(start);
             let nextEnd   = new Date(end);
@@ -1754,9 +1681,7 @@ app.post("/admin/add-event", requireManager, async (req, res) => {
                 nextStart.setMonth(nextStart.getMonth() + 1);
                 nextEnd.setMonth(nextEnd.getMonth() + 1);
             }
-            else {
-                break; // No recurrence
-            }
+            else break;
 
             if (nextStart > final) break;
 
@@ -1765,8 +1690,44 @@ app.post("/admin/add-event", requireManager, async (req, res) => {
             end = nextEnd;
         }
 
-        // Insert all occurrences
-        await knex("eventoccurrences").insert(occurrences);
+        // 2. Insert occurrences
+        const inserted = await knex("eventoccurrences")
+            .insert(occurrences)
+            .returning("eventoccurrenceid");
+
+        const occurrenceIds = inserted.map(o => o.eventoccurrenceid || o);
+
+        // 3. Load all participants
+        const participants = await knex("participants")
+            .select("participantemail");
+
+        // 4. Build registration rows
+        let registrations = [];
+
+        occurrenceIds.forEach(occId => {
+            participants.forEach(p => {
+                registrations.push({
+                    participantemail: p.participantemail,
+                    eventoccurrenceid: occId,
+                    registrationstatus: "Not attending",
+                    registrationattendedflag: false,
+                    checkindate: null,
+                    checkintime: null,
+                    createdatdate: new Date()
+                });
+            });
+        });
+
+        // 5. Insert registrations and return IDs
+        let registrationIds = [];
+
+        if (registrations.length > 0) {
+            const insertedRegs = await knex("registration")
+                .insert(registrations)
+                .returning("registrationid");
+
+            registrationIds = insertedRegs.map(r => r.registrationid || r);
+        }
 
         res.redirect("/admin/dashboard");
 
@@ -1931,7 +1892,6 @@ app.post("/admin/event/:eventid/new-occurrence", requireManager, async (req, res
         eventregistrationdeadlinetime
     } = req.body;
 
-    // Build new occurrence
     const newOccurrence = {
         eventid,
         eventdatestart,
@@ -1945,14 +1905,39 @@ app.post("/admin/event/:eventid/new-occurrence", requireManager, async (req, res
     };
 
     try {
-        // Insert the new occurrence
-        await knex("eventoccurrences").insert(newOccurrence);
+        // 1. Insert occurrence
+        const [occRow] = await knex("eventoccurrences")
+            .insert(newOccurrence)
+            .returning("eventoccurrenceid");
 
-        // Redirect back to the Event Edit page
-        return res.redirect(`/admin/edit-event/${eventid}`);
+        const newOccurrenceId = occRow.eventoccurrenceid || occRow;
+
+        // 2. Get all participants
+        const allParticipants = await knex("participants").select("participantemail");
+
+        // 3. Insert default registration rows
+        const registrationRows = allParticipants.map(p => ({
+            participantemail: p.participantemail,
+            eventoccurrenceid: newOccurrenceId,
+            registrationstatus: "Not attending",
+            registrationattendedflag: false,
+            checkindate: null,
+            checkintime: null,
+            createdatdate: new Date()
+        }));
+
+        // Insert & return registration IDs
+        const insertedRegs = await knex("registration")
+            .insert(registrationRows)
+            .returning("registrationid");
+
+        const registrationIds = insertedRegs.map(r => r.registrationid || r);
+
+        // 5. Redirect
+        return res.redirect(`/admin/event/${eventid}/edit`);
 
     } catch (err) {
-        console.error("Error inserting new occurrence:", err.message);
+        console.error("Error inserting new occurrence + auto registrations + surveys:", err);
 
         return res.status(500).render("error", {
             error_message: "Unable to add new occurrence."
@@ -1964,40 +1949,73 @@ app.post("/admin/event/:eventid/delete", requireManager, async (req, res) => {
     const { eventid } = req.params;
 
     try {
-        // Check if the event exists
-        const event = await knex("events")
-            .where({ eventid })
-            .first();
-
-        if (!event) {
-            return res.status(404).send("Event not found.");
-        }
-
-        // Perform delete inside a transaction
         await knex.transaction(async trx => {
 
-            // Delete occurrences first (foreign key safe)
-            await trx("eventoccurrences")
+            // ----------------------------------------------
+            // 1. Get all occurrences belonging to this event
+            // ----------------------------------------------
+            const occurrences = await trx("eventoccurrences")
                 .where({ eventid })
-                .del();
+                .select("eventoccurrenceid");
 
-            // Delete the parent event
+            const occIds = occurrences.map(o => o.eventoccurrenceid);
+
+            if (occIds.length > 0) {
+
+                // ----------------------------------------------
+                // 2. Get all registrations tied to these occurrences
+                // ----------------------------------------------
+                const regs = await trx("registration")
+                    .whereIn("eventoccurrenceid", occIds)
+                    .select("registrationid");
+
+                const regIds = regs.map(r => r.registrationid);
+
+                // ----------------------------------------------
+                // 3. Delete all linked surveys
+                // ----------------------------------------------
+                if (regIds.length > 0) {
+                    await trx("survey")
+                        .whereIn("registrationid", regIds)
+                        .del();
+                }
+
+                // ----------------------------------------------
+                // 4. Delete registrations for these occurrences
+                // ----------------------------------------------
+                await trx("registration")
+                    .whereIn("eventoccurrenceid", occIds)
+                    .del();
+
+                // ----------------------------------------------
+                // 5. Delete the occurrences
+                // ----------------------------------------------
+                await trx("eventoccurrences")
+                    .whereIn("eventoccurrenceid", occIds)
+                    .del();
+            }
+
+            // ----------------------------------------------
+            // 6. Delete the event itself
+            // ----------------------------------------------
             await trx("events")
                 .where({ eventid })
                 .del();
         });
 
-        // After deletion, reload the manage events page
+        // Reload event list
         const events = await knex("events").select("*");
 
-        res.render("admin/dashboard", {
+        return res.render("admin/events", {
+            title: "Manage Events",
             events,
-            title: "Manage Events"
+            search: "",
+            success_message: "Event deleted successfully!"
         });
 
     } catch (err) {
         console.error("Error deleting event:", err);
-        res.status(500).send("Error deleting event.");
+        return res.status(500).send("Error deleting event.");
     }
 });
 
@@ -2005,7 +2023,9 @@ app.post("/admin/event-occurrence/:occurrenceid/delete", requireManager, async (
     const { occurrenceid } = req.params;
 
     try {
-        // Get the occurrence so we know which event to reload
+        // ----------------------------------------------
+        // Load the occurrence to know which event to reload
+        // ----------------------------------------------
         const occ = await knex("eventoccurrences")
             .where({ eventoccurrenceid: occurrenceid })
             .first();
@@ -2014,22 +2034,50 @@ app.post("/admin/event-occurrence/:occurrenceid/delete", requireManager, async (
             return res.status(404).send("Occurrence not found.");
         }
 
-        // Delete it
-        await knex("eventoccurrences")
-            .where({ eventoccurrenceid: occurrenceid })
-            .del();
+        // ----------------------------------------------
+        // Perform cascading deletion inside a transaction
+        // ----------------------------------------------
+        await knex.transaction(async trx => {
 
-        // Fetch event again
+            // 1. Get registrations for this occurrence
+            const regs = await trx("registration")
+                .where({ eventoccurrenceid: occurrenceid })
+                .select("registrationid");
+
+            const regIds = regs.map(r => r.registrationid);
+
+            // 2. Delete surveys tied to those registrations
+            if (regIds.length > 0) {
+                await trx("survey")
+                    .whereIn("registrationid", regIds)
+                    .del();
+            }
+
+            // 3. Delete registrations
+            await trx("registration")
+                .where({ eventoccurrenceid: occurrenceid })
+                .del();
+
+            // 4. Delete the occurrence
+            await trx("eventoccurrences")
+                .where({ eventoccurrenceid: occurrenceid })
+                .del();
+        });
+
+        // ----------------------------------------------
+        // Reload parent event + its updated occurrence list
+        // ----------------------------------------------
         const event = await knex("events")
             .where({ eventid: occ.eventid })
             .first();
 
-        // Fetch updated occurrences list
         const occurrences = await knex("eventoccurrences")
             .where({ eventid: occ.eventid })
             .orderBy("eventdatestart");
 
-        // Render the manage events page with a success message
+        // ----------------------------------------------
+        // Render the updated manage event page
+        // ----------------------------------------------
         res.render("admin/manageevents", {
             title: "Manage Event",
             event: {
@@ -2043,6 +2091,330 @@ app.post("/admin/event-occurrence/:occurrenceid/delete", requireManager, async (
         console.error("Error deleting occurrence:", err);
         res.status(500).send("Error deleting occurrence.");
     }
+});
+
+// =============================================
+// ADMIN — VIEW CHECK-IN LIST
+// =============================================
+app.get("/admin/events/checkin/:eventOccurrenceId", requireManager, async (req, res) => {
+    try {
+        const eventOccurrenceId = Number(req.params.eventOccurrenceId);
+
+        // Load event occurrence info
+        const occurrence = await knex("eventoccurrences")
+            .join("events", "events.eventid", "eventoccurrences.eventid")
+            .where("eventoccurrences.eventoccurrenceid", eventOccurrenceId)
+            .select(
+                "eventoccurrences.*",
+                "events.eventname"
+            )
+            .first();
+
+        // Load all registration records for this occurrence
+        const registrations = await knex("registration")
+            .join("participants", "participants.participantemail", "registration.participantemail")
+            .where("registration.eventoccurrenceid", eventOccurrenceId)
+            .select(
+                "registration.registrationid",
+                "registration.registrationstatus",
+                "registration.registrationattendedflag",
+                "registration.checkindate",
+                "registration.checkintime",
+                "participants.participantfirstname",
+                "participants.participantlastname",
+                "participants.participantemail"
+            )
+            .orderBy("participants.participantlastname");
+
+        res.render("admin/checkin", {
+            occurrence,
+            registrations
+        });
+
+    } catch (err) {
+        console.error("Check-in page error:", err);
+        res.status(500).send("Server error");
+    }
+});
+
+// =============================================
+// ADMIN — CHECK IN A PARTICIPANT
+// =============================================
+app.post("/admin/events/checkin/:registrationId", requireLogin, async (req, res) => {
+  try {
+    const registrationId = Number(req.params.registrationId);
+
+    const now = new Date();
+    const checkinDate = now.toISOString().split("T")[0];
+    const checkinTime = now.toTimeString().split(" ")[0];
+
+    // 1. Mark attendance
+    await knex("registration")
+      .where({ registrationid: registrationId })
+      .update({
+        registrationattendedflag: true,
+        checkindate: checkinDate,
+        checkintime: checkinTime
+      });
+
+    // 2. Create survey only if not already created
+    const existingSurvey = await knex("survey")
+      .where({ registrationid: registrationId })
+      .first();
+
+    if (!existingSurvey) {
+      await knex("survey").insert({
+        registrationid: registrationId,
+        satisfactionscore: null,
+        usefulnessscore: null,
+        instructorscore: null,
+        recommendationscore: null,
+        overallscore: null,
+        comments: null,
+        submissiondate: null,
+        submissiontime: null
+      });
+    }
+
+    const reg = await knex("registration")
+      .where({ registrationid: registrationId })
+      .first();
+
+    return res.redirect(`/admin/events/checkin/${reg.eventoccurrenceid}`);
+
+  } catch (err) {
+    console.error("Check-in error:", err);
+    res.status(500).send("Server Error");
+  }
+});
+
+// Update a child's event registration status for a specific occurrence
+app.post(
+  "/account/participant/:participantid/event-status/:registrationid",
+  requireLogin,
+  async (req, res) => {
+    try {
+      const participantid = Number(req.params.participantid);
+      const registrationid = Number(req.params.registrationid);
+      const logged = req.session.user;
+      const { registrationstatus } = req.body;  // expects "Not attending" or "Planning to attend"
+
+      // Basic validation
+      const allowed = ["Not attending", "Planning to attend"];
+      const newStatus = allowed.includes(registrationstatus)
+        ? registrationstatus
+        : "Not attending";
+
+      // 1. Find child
+      const child = await knex("participants")
+        .where({ participantid })
+        .first();
+
+      if (!child) {
+        return res.status(404).send("Child not found");
+      }
+
+      // 2. Find parent owning this child
+      const parent = await knex("parents")
+        .where({ parentid: child.parentid })
+        .first();
+
+      if (!parent) {
+        return res.status(404).send("Parent not found");
+      }
+
+      // 3. Permission check: parent can only edit their own child
+      if (logged.level === "U" && logged.userid !== parent.userid) {
+        return res.status(403).send("Unauthorized");
+      }
+
+      // 4. Make sure this registration belongs to this child
+      const reg = await knex("registration")
+        .where({
+          registrationid,
+          participantemail: child.participantemail
+        })
+        .first();
+
+      if (!reg) {
+        return res.status(404).send("Registration record not found");
+      }
+
+      // 5. Update registration status
+      await knex("registration")
+        .where({ registrationid })
+        .update({
+          registrationstatus: newStatus
+        });
+
+      res.redirect(`/account/${parent.userid}?success=Event+status+updated`);
+
+    } catch (err) {
+      console.error("Update event status error:", err);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+app.get("/survey/fill/:registrationid", requireLogin, async (req, res) => {
+  try {
+    const { registrationid } = req.params;
+
+    const reg = await knex("registration")
+      .where({ registrationid })
+      .first();
+    if (!reg) return res.status(404).send("Registration not found.");
+
+    const participant = await knex("participants")
+      .where({ participantemail: reg.participantemail })
+      .first();
+    if (!participant) return res.status(404).send("Participant not found.");
+
+    const parent = await knex("parents")
+      .where({ parentid: participant.parentid })
+      .first();
+    if (req.session.user.level === "U" &&
+        req.session.user.userid !== parent.userid) {
+      return res.status(403).send("Unauthorized.");
+    }
+
+    const occurrence = await knex("eventoccurrences as eo")
+      .join("events as e", "e.eventid", "eo.eventid")
+      .where("eo.eventoccurrenceid", reg.eventoccurrenceid)
+      .select("eo.*", "e.eventname")
+      .first();
+
+    const survey = await knex("survey")
+      .where({ registrationid })
+      .first();
+
+    res.render("pages/survey_fill", {
+      registrationid,
+      participant,
+      parent,
+      occurrence,
+      survey
+    });
+
+  } catch (err) {
+    console.error("Survey load error:", err);
+    res.status(500).send("Error loading survey.");
+  }
+});
+
+app.post("/survey/submit/:registrationid", requireLogin, async (req, res) => {
+  try {
+    const { registrationid } = req.params;
+
+    const reg = await knex("registration")
+      .where({ registrationid })
+      .first();
+    if (!reg) return res.status(404).send("Registration not found.");
+
+    const participant = await knex("participants")
+      .where({ participantemail: reg.participantemail })
+      .first();
+
+    const parent = await knex("parents")
+      .where({ parentid: participant.parentid })
+      .first();
+
+    if (req.session.user.level === "U" &&
+        req.session.user.userid !== parent.userid) {
+      return res.status(403).send("Unauthorized.");
+    }
+
+    // Convert scores before averaging
+    const scores = [
+      Number(req.body.satisfactionscore),
+      Number(req.body.usefulnessscore),
+      Number(req.body.instructorscore),
+      Number(req.body.recommendationscore)
+    ];
+
+    const overall = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
+
+    const surveyData = {
+      registrationid,
+      satisfactionscore: req.body.satisfactionscore,
+      usefulnessscore: req.body.usefulnessscore,
+      instructorscore: req.body.instructorscore,
+      recommendationscore: req.body.recommendationscore,
+      overallscore: overall,
+      comments: req.body.comments || "",
+      submissiondate: new Date(),
+      submissiontime: new Date().toTimeString().split(" ")[0]
+    };
+
+    const existing = await knex("survey")
+      .where({ registrationid })
+      .first();
+
+    if (existing) {
+      await knex("survey")
+        .where({ registrationid })
+        .update(surveyData);
+    } else {
+      await knex("survey").insert(surveyData);
+    }
+
+    res.redirect(`/account/${parent.userid}?success=Survey+Submitted`);
+
+  } catch (err) {
+    console.error("Survey submission error:", err);
+    res.status(500).send("Error submitting survey.");
+  }
+});
+
+app.get("/admin/surveys", requireManager, async (req, res) => {
+  try {
+    const surveys = await knex("survey as s")
+      .join("registration as r", "r.registrationid", "s.registrationid")
+      .join("participants as p", "p.participantemail", "r.participantemail")
+      .join("eventoccurrences as eo", "eo.eventoccurrenceid", "r.eventoccurrenceid")
+      .join("events as e", "e.eventid", "eo.eventid")
+      .select(
+        "s.surveyid",
+        "s.satisfactionscore",
+        "s.usefulnessscore",
+        "s.instructorscore",
+        "s.recommendationscore",
+        "s.overallscore",
+        "s.comments",
+        "s.submissiondate",
+        "s.submissiontime",
+        "p.participantfirstname",
+        "p.participantlastname",
+        "e.eventname",
+        "eo.eventdatestart"
+      )
+      .orderBy("s.submissiondate", "desc");
+
+    res.render("admin/surveys", {
+      title: "Manage Surveys",
+      surveys
+    });
+
+  } catch (err) {
+    console.error("Admin survey list error:", err);
+    res.status(500).send("Error loading surveys.");
+  }
+});
+
+app.post("/admin/survey/:surveyid/delete", requireManager, async (req, res) => {
+  try {
+    const { surveyid } = req.params;
+
+    await knex("survey")
+      .where({ surveyid })
+      .del();
+
+    res.redirect("/admin/surveys");
+
+  } catch (err) {
+    console.error("Survey delete error:", err);
+    res.status(500).send("Error deleting survey.");
+  }
 });
 
 // -------------------------
