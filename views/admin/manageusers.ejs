@@ -48,6 +48,14 @@
                             <% } %>
                         </div>
 
+                        <!-- DELETE PARENT BUTTON -->
+                        <form action="/admin/user/<%= p.userid %>/delete"
+                            method="POST"
+                            onsubmit="return confirm('Are you sure you want to DELETE this parent, all their children, and all their milestones?');"
+                            style="margin-top:10px;">
+                            <button type="submit" class="admin-btn danger-btn">Delete Parent</button>
+                        </form>
+
                         <% if (p.children && p.children.length > 0) { %>
                             <button
                                 id="child-<%= p.parentid %>-toggle"
@@ -70,21 +78,7 @@
                                     <br>
 
                                     <span><strong>Email:</strong> <%= c.participantemail %></span><br>
-                                    <span><strong>DOB:</strong> <%= c.participantdob %></span><br>
-
-                                    <span><strong>Grade:</strong> <%= c.participantgrade %></span><br>
-                                    <span><strong>School/Employer:</strong> <%= c.participantschooloremployer %></span><br>
-
-                                    <span><strong>Programs:</strong> <%= c.participantfieldofinterest %></span><br>
-                                    <span><strong>Mariachi Instrument:</strong> <%= c.mariachiinstrumentinterest || "N/A" %></span><br>
-                                    <span><strong>Experience:</strong> <%= c.instrumentexperience %></span><br>
-
                                     <span><strong>Status:</strong> <%= c.graduationstatus %></span><br><br>
-
-                                    <!-- Milestones button -->
-                                    <form method="POST" action="/admin/user/<%= p.userid %>/participant/<%= c.participantid %>/milestones" style="display:inline;">
-                                        <button type="submit" class="button">View Milestones</button>
-                                    </form>
                                 </li>
                             <% }) %>
 

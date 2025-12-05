@@ -1356,6 +1356,87 @@ app.get("/admin/manageusers", requireManager, async (req, res) => {
   }
 });
 
+app.post("/admin/user/:userid/delete", requireLogin, async (req, res) => {
+  try {
+    const { userid } = req.params;
+
+    // Only managers can delete parents
+    if (req.session.user.level !== "M") {
+      return res.status(403).send("Unauthorized");
+    }
+
+    // Fetch parent row
+    const parent = await knex("parents").where({ userid }).first();
+    if (!parent) return res.status(404).send("Parent not found");
+
+    const parentId = parent.parentid;
+
+    // Fetch participant rows
+    const participants = await knex("participants")
+      .where({ parentid: parentId });
+
+    // =====================================================
+    //   STEP 1 — DELETE SURVEYS for each participant
+    // =====================================================
+    for (const p of participants) {
+      const regs = await knex("registration")
+        .where({ participantemail: p.participantemail });
+
+      for (const r of regs) {
+        await knex("survey")
+          .where({ registrationid: r.registrationid })
+          .del();
+      }
+    }
+
+    // =====================================================
+    //   STEP 2 — DELETE REGISTRATIONS for each participant
+    // =====================================================
+    for (const p of participants) {
+      await knex("registration")
+        .where({ participantemail: p.participantemail })
+        .del();
+    }
+
+    // =====================================================
+    //   STEP 3 — DELETE MILESTONES (FK → participants)
+    // =====================================================
+    for (const p of participants) {
+      await knex("milestones")
+        .where({ participantid: p.participantid })
+        .del();
+    }
+
+    // =====================================================
+    //   STEP 4 — DELETE PARTICIPANTS
+    // =====================================================
+    await knex("participants")
+      .where({ parentid: parentId })
+      .del();
+
+    // =====================================================
+    //   STEP 5 — DELETE PARENT RECORD
+    // =====================================================
+    await knex("parents")
+      .where({ parentid: parentId })
+      .del();
+
+    // =====================================================
+    //   STEP 6 — DELETE LOGIN ACCOUNT
+    // =====================================================
+    await knex("logins")
+      .where({ userid })
+      .del();
+
+    // Redirect back to admin user list
+    res.redirect("/admin/manageusers");
+
+  } catch (err) {
+    console.error("Error deleting parent:", err);
+    res.status(500).send("Server Error");
+  }
+});
+
 // Manage Surveys
 app.post("/admin/surveys", requireManager, async (req, res) => {
   try {
