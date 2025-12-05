@@ -1267,22 +1267,42 @@ app.get("/mission", (req, res) => {
 // ADMIN ROUTES
 // -------------------------
 app.get("/admin/dashboard", requireManager, async (req, res) => {
-    const events = await knex("events as e")
-        .leftJoin("eventoccurrences as eo", function () {
-            this.on("eo.eventid", "=", "e.eventid")
-                .andOn("eo.eventdatestart", ">=", knex.fn.now());
-        })
-        .select(
-            "e.eventid",
-            "e.eventname",
-            "e.eventtype",
-            knex.raw("MIN(eo.eventdatestart) as nextdate"),
-            "eo.eventlocation"
-        )
-        .groupBy("e.eventid", "e.eventname", "e.eventtype", "eo.eventlocation")
-        .orderBy("nextdate");
+    try {
+        const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
 
-    res.render("admin/dashboard", { events, title: "Admin Dashboard" });
+        let events = await knex("events as e")
+            .leftJoin("eventoccurrences as eo", function () {
+                this.on("eo.eventid", "=", "e.eventid")
+                    .andOn("eo.eventdatestart", ">=", knex.fn.now());
+            })
+            .select(
+                "e.eventid",
+                "e.eventname",
+                "e.eventtype",
+                knex.raw("MIN(eo.eventdatestart) as nextdate"),
+                "eo.eventlocation"
+            )
+            .groupBy("e.eventid", "e.eventname", "e.eventtype", "eo.eventlocation")
+            .orderBy("nextdate");
+
+        // FILTER BY SEARCH
+        if (search.length > 0) {
+            events = events.filter(e => {
+                const matchString = `${e.eventname} ${e.eventtype} ${e.eventlocation}`.toLowerCase();
+                return matchString.includes(search);
+            });
+        }
+
+        res.render("admin/dashboard", {
+            title: "Admin Dashboard",
+            events,
+            search
+        });
+
+    } catch (err) {
+        console.error("❌ Error loading dashboard:", err);
+        res.status(500).send("Server Error");
+    }
 });
 
 // Manage users
@@ -1829,30 +1849,33 @@ app.get("/admin/donations", requireManager, (req, res) => {
 });
 
 // MANAGE EVENTS PAGE (Dashboard list)
-app.get("/admin/manageevents", async (req, res) => {
-  try {
-    // Fetch all events + their next occurrence
-    const events = await knex("events as e")
-        .leftJoin("eventoccurrences as eo", function () {
-            this.on("eo.eventid", "=", "e.eventid")
-                .andOn("eo.eventdatestart", ">=", knex.fn.now());
-        })
-        .select(
-            "e.eventid",
-            "e.eventname",
-            "e.eventtype",
-            knex.raw("MIN(eo.eventdatestart) as nextdate"),
-            "eo.eventlocation"
-        )
-        .groupBy("e.eventid", "e.eventname", "e.eventtype", "eo.eventlocation")
-        .orderBy("nextdate");
+app.get("/admin/manageevents", requireManager, async (req, res) => {
+    try {
+        const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
 
-    res.render("admin/events", { events, title: "Manage Events" });
+        let events = await knex("events")
+            .select("*")
+            .orderBy("eventname", "asc");
 
-  } catch (err) {
-    console.error("❌ Error loading events:", err);
-    res.status(500).send("Error loading events");
-  }
+        // Apply search filter
+        if (search.length > 0) {
+            events = events.filter(e => {
+                const combined = `${e.eventname} ${e.eventtype} ${e.eventdescription}`
+                    .toLowerCase();
+                return combined.includes(search);
+            });
+        }
+
+        res.render("admin/events", {
+            title: "Manage Events",
+            events,
+            search
+        });
+
+    } catch (err) {
+        console.error("Error loading events:", err);
+        res.status(500).send("Server Error");
+    }
 });
 
 // Add event page
