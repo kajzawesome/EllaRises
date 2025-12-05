@@ -1596,32 +1596,61 @@ app.get("/admin/donations", requireManager, (req, res) => {
 
 // MANAGE EVENTS PAGE (Dashboard list)
 app.get("/manageevents", async (req, res) => {
-    try {
-        const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
+  try {
+    const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
+    const today = new Date().toISOString().split("T")[0];
 
-        let events = await knex("events")
-            .select("*")
-            .orderBy("eventname", "asc");
+    let events = await knex("events as e")
+      .leftJoin("eventoccurrences as eo", function () {
+        this.on("eo.eventid", "e.eventid")
+          .andOn(knex.raw("eo.eventdatestart >= ?", [today]));
+      })
+      .select(
+        "e.*",
+        // Find next event date
+        knex.raw(`
+          (
+            SELECT eo2.eventdatestart
+            FROM eventoccurrences eo2
+            WHERE eo2.eventid = e.eventid
+              AND eo2.eventdatestart >= ?
+            ORDER BY eo2.eventdatestart ASC
+            LIMIT 1
+          ) AS nextdate
+        `, [today]),
+        // Find next event location
+        knex.raw(`
+          (
+            SELECT eo3.eventlocation
+            FROM eventoccurrences eo3
+            WHERE eo3.eventid = e.eventid
+              AND eo3.eventdatestart >= ?
+            ORDER BY eo3.eventdatestart ASC
+            LIMIT 1
+          ) AS nextlocation
+        `, [today])
+      )
+      .groupBy("e.eventid")
+      .orderBy("e.eventname", "asc");
 
-        // Apply search filter
-        if (search.length > 0) {
-            events = events.filter(e => {
-                const combined = `${e.eventname} ${e.eventtype} ${e.eventdescription}`
-                    .toLowerCase();
-                return combined.includes(search);
-            });
-        }
-
-        res.render("pages/events", {
-            title: "Manage Events",
-            events,
-            search
-        });
-
-    } catch (err) {
-        console.error("Error loading events:", err);
-        res.status(500).send("Server Error");
+    // Apply search
+    if (search.length > 0) {
+      events = events.filter(e => {
+        const combined = `${e.eventname} ${e.eventtype} ${e.eventdescription}`.toLowerCase();
+        return combined.includes(search);
+      });
     }
+
+    res.render("pages/events", {
+      title: "Manage Events",
+      events,
+      search
+    });
+
+  } catch (err) {
+    console.error("Error loading events:", err);
+    res.status(500).send("Server Error");
+  }
 });
 
 // Add event page
