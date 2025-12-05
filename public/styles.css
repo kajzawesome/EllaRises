@@ -16,7 +16,7 @@ body {
     background-color: #F9F5EA;
     font-family: 'Montserrat', sans-serif;
     color: #3A3F3B;
-    text-align: center;
+    text-align: left;
 }
 
 h2, h3 {
@@ -478,14 +478,7 @@ h1 {
    ADMIN DASHBOARD
 ------------------------------------------------------ */
 
-.admin-container {
-    width: 100%;
-    max-width: 3000px;
-    margin: 40px auto;
-    padding: 30px 50px;
-    display: flex;
-    gap: 0px;
-}
+
 
 
 
@@ -516,14 +509,7 @@ h1 {
 
 .admin-btn:hover { background-color: #C66E89; }
 
-.admin-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
 
-    max-width: 1100px;
-}
 
 
 .tableau-container {
@@ -1536,12 +1522,11 @@ h1 {
     padding: 0 20px;
 }
 
-.admin-main {
-    flex: 1;
-}
+
 
 /* Center title + search nicely */
-.admin-main .page-title {
+
+.page-title {
     text-align: center;
     margin-bottom: 20px;
 }
@@ -1770,10 +1755,250 @@ h1 {
 
 
 
-.admin-main {
-    padding-left: 40px;   /* creates space without pushing content down */
-    width: 100%;
-    box-sizing: border-box;
+
+
+/* Card wrapper */
+.info-card {
+    background: #ffffff;
+    padding: 28px 32px;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    max-width: 850px;
+    margin: 0 auto 40px auto;
+}
+
+/* Section title */
+.section-title {
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* Grid layout */
+.two-col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 40px;    /* wider space between columns */
+    row-gap: 22px;       /* more room vertically */
+    margin-top: 20px;    /* a little breathing room under the title */
 }
 
 
+/* Inputs */
+.info-card label {
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.info-card input,
+.info-card select {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fafafa;
+}
+
+/* Centered Save Button */
+.save-btn {
+    display: block;
+    margin: 24px auto 0 auto;
+    padding: 10px 20px;
+    width: auto;            /* prevents stretching */
+    background: #e05484;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* Fix wide Add Child button */
+.add-child-btn {
+    display: inline-block;
+    width: auto !important;  /* stop stretching */
+    padding: 10px 24px;
+    background: #C66E89;
+    color: white;
+    font-weight: 600;
+    border-radius: 10px;
+    text-align: center;
+    margin: 0 auto;
+}
+.add-child-btn:hover {
+    background: #B35A74;
+}
+
+
+
+
+
+
+
+.admin-sidebar {
+    margin-right: 40px; /* gives breathing room but not offset */
+}
+
+.info-card label {
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.info-card input,
+.info-card select {
+    margin-top: 4px;    /* small gap after label */
+}
+
+/* --- UNIFIED ACCOUNT FORM CARDS --- */
+.account-card {
+    background: #ffffff;
+    padding: 40px 50px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto 40px auto;
+    text-align: left;
+}
+
+.account-card h3 {
+    text-align: center;
+    font-size: 26px;
+    margin-bottom: 30px;
+    font-weight: 700;
+    color: #3A3F3B;
+}
+
+.account-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 26px 40px;  /* vertical | horizontal */
+    margin-bottom: 30px;
+}
+
+.account-card label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+    color: #444;
+    font-size: 15px;
+}
+
+.account-card input,
+.account-card select {
+    width: 100%;
+    padding: 12px 14px;
+    background: #fafafa;
+    border: 1.4px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.account-save-btn {
+    display: block;
+    margin: 20px auto 0 auto;
+    padding: 12px 26px;
+    background: #e05484;
+    color: white;
+    border-radius: 10px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.account-save-btn:hover {
+    background: #c84673;
+}
+
+/* Make Delete child match aesthetic */
+.child-delete-btn {
+    background: #d9534f;
+    padding: 10px 22px;
+    border-radius: 10px;
+    color: #fff;
+    margin: 10px auto;
+    display: block;
+    font-weight: 600;
+}
+
+.child-delete-btn:hover {
+    background: #b83935;
+}
+
+/* Fix Add Child button */
+.add-child-btn {
+    display: inline-block;
+    padding: 12px 28px;
+    background: #c66e89;
+    color: white;
+    font-weight: 600;
+    border-radius: 12px;
+    margin: 20px auto 40px auto;
+}
+.add-child-btn:hover {
+    background: #b35a74;
+}
+
+
+
+
+/* Centers the Add Child card perfectly */
+.add-child-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+/* -----------------------------------------------------
+   CLEAN + CORRECT ADMIN LAYOUT (FINAL WORKING VERSION)
+------------------------------------------------------ */
+
+/* Container that holds sidebar + main */
+.admin-container {
+    width: 100%;
+    max-width: 1600px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+}
+
+
+/* Sidebar on the left */
+.admin-sidebar {
+    width: 240px;
+    background: #FFE4DF;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+/* Main admin content */
+.admin-main {
+    flex: 1;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* Add Child page wrapper */
+.add-child-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;   /* centers form */
+}
+
+/* The card (Make it mimic parent card size) */
+.add-child-card {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Fix Add Child page alignment */
+.add-child-page .admin-container {
+    display: block !important;   /* disable the 2-column flex layout */
+}

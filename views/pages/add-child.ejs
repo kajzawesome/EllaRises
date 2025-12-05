@@ -1,78 +1,92 @@
 <%- include('../partials/header', { title: title }) %>
 
-<div class="section">
-    <div class="section-content" style="flex-direction:column; align-items:flex-start; max-width:650px;">
+<div class="admin-main">
 
-        <h1>
-            <span class="lang-en">Add Child</span>
-            <span class="lang-es">Agregar Hija</span>
-        </h1>
+    <!-- Wrapper centers the card -->
+    <div class="add-child-wrapper">
 
-        <form action="/account/<%= parentid %>/participant/add" method="POST" style="width:100%;">
+        <!-- Card -->
+        <form action="/account/<%= parentid %>/participant/add"
+              method="POST"
+              class="account-card add-child-card">
 
-            <!-- Participant First Name -->
-            <label>
-                <span class="lang-en">Participant First Name *</span>
-                <span class="lang-es">Nombre de Participante *</span>
-            </label>
-            <input type="text" name="participantfirstname" required>
-            <br>
+            <h2 class="section-title">
+                <span class="lang-en">Add Child</span>
+                <span class="lang-es">Agregar Hija</span>
+            </h2>
 
-            <!-- Participant Last Name -->
-            <label>
-                <span class="lang-en">Participant Last Name *</span>
-                <span class="lang-es">Apellido de Participante *</span>
-            </label>
-            <input type="text" name="participantlastname" required>
-            <br>
+            <!-- ========================= -->
+            <!--   TOP FORM (2-COLUMN)     -->
+            <!-- ========================= -->
+            <div class="account-grid-2">
 
-            <!-- Email -->
-            <label>
-                <span class="lang-en">Participant Email *</span>
-                <span class="lang-es">Correo Electrónico de Participante *</span>
-            </label>
-            <input type="email" name="participantemail" required>
-            <br>
+                <div>
+                    <label>
+                        <span class="lang-en">Participant First Name *</span>
+                        <span class="lang-es">Nombre de Participante *</span>
+                    </label>
+                    <input type="text" name="participantfirstname" required>
+                </div>
 
-            <!-- DOB -->
-            <label>
-                <span class="lang-en">Date of Birth *</span>
-                <span class="lang-es">Fecha de Nacimiento *</span>
-            </label>
-            <input type="date" name="participantdob" required>
-            <br>
+                <div>
+                    <label>
+                        <span class="lang-en">Participant Last Name *</span>
+                        <span class="lang-es">Apellido de Participante *</span>
+                    </label>
+                    <input type="text" name="participantlastname" required>
+                </div>
 
-            <!-- Grade -->
-            <label>
-                <span class="lang-en">Grade *</span>
-                <span class="lang-es">Grado *</span>
-            </label>
-            <input type="text" name="participantgrade" required>
-            <br>
+                <div>
+                    <label>
+                        <span class="lang-en">Participant Email *</span>
+                        <span class="lang-es">Correo Electrónico *</span>
+                    </label>
+                    <input type="email" name="participantemail" required>
+                </div>
 
-            <!-- School or Employer -->
-            <label>
-                <span class="lang-en">School or Employer *</span>
-                <span class="lang-es">Escuela o Empleador *</span>
-            </label>
-            <input type="text" name="participantschooloremployer" required>
-            <br>
+                <div>
+                    <label>
+                        <span class="lang-en">Date of Birth *</span>
+                        <span class="lang-es">Fecha de Nacimiento *</span>
+                    </label>
+                    <input type="date" name="participantdob" required>
+                </div>
+
+                <div>
+                    <label>
+                        <span class="lang-en">Grade *</span>
+                        <span class="lang-es">Grado *</span>
+                    </label>
+                    <input type="text" name="participantgrade" required>
+                </div>
+
+                <div>
+                    <label>
+                        <span class="lang-en">School or Employer *</span>
+                        <span class="lang-es">Escuela o Empleador *</span>
+                    </label>
+                    <input type="text" name="participantschooloremployer" required>
+                </div>
+
+            </div>
 
             <hr>
 
-            <!-- Programs -->
-            <label class="lang-en">
+            <!-- ========================= -->
+            <!--      PROGRAMS SECTION     -->
+            <!-- ========================= -->
+            <label class="section-subtitle lang-en">
                 Which program(s) is your child interested in? *
                 <br><small>*University tours and other initiatives are automatically shared with all participants.</small>
             </label>
 
-            <label class="lang-es">
+            <label class="section-subtitle lang-es">
                 ¿En cuál(es) programas desea participar su hija? *
-                <br><small>Visitas universitarias y otras iniciativas educativas se comparten automáticamente con todas las participantes.</small>
+                <br><small>Visitas universitarias y otras iniciativas educativas se comparten automáticamente.</small>
             </label>
 
             <div class="checkbox-group">
-                <label><input type="checkbox" name="programs[]" value="Mariachi" required> Mariachi (waitlist)</label>
+                <label><input type="checkbox" name="programs[]" value="Mariachi"> Mariachi (waitlist)</label>
                 <label><input type="checkbox" name="programs[]" value="Ballet Folklorico"> Ballet Folklórico</label>
                 <label><input type="checkbox" name="programs[]" value="Art"> Art | Arte</label>
                 <label><input type="checkbox" name="programs[]" value="STEM"> STEM</label>
@@ -81,32 +95,41 @@
 
             <hr>
 
-            <!-- Mariachi Instrument -->
-            <label class="lang-en">Mariachi Instrument Interest *</label>
-            <label class="lang-es">Instrumento de Mariachi *</label>
-            <select name="mariachiinstrumentinterest" required>
-                <option value="">-- Select --</option>
-                <option value="violin">Violin</option>
-                <option value="guitar">Guitar | Guitarra</option>
-                <option value="trumpet">Trumpet | Trompeta</option>
-                <option value="guitarron">Guitarrón</option>
-                <option value="vihuela">Vihuela</option>
-                <option value="voice">Voice</option>
-                <option value="other">Other</option>
-            </select>
+            <!-- ========================= -->
+            <!--       MARIACHI INFO       -->
+            <!-- ========================= -->
+            <div class="account-grid-2">
 
-            <!-- Instrument Experience -->
-            <label class="lang-en">If your child plays an instrument, what and how long?</label>
-            <label class="lang-es">Si su hija ya toca un instrumento, ¿cuál y por cuánto tiempo?</label>
-            <input type="text" name="instrumentexperience">
-            <br>
+                <div>
+                    <label class="lang-en">Mariachi Instrument Interest *</label>
+                    <label class="lang-es">Interés en Instrumento de Mariachi *</label>
+                    <select name="mariachiinstrumentinterest" required>
+                        <option value="">-- Select --</option>
+                        <option value="violin">Violin</option>
+                        <option value="guitar">Guitar | Guitarra</option>
+                        <option value="trumpet">Trumpet | Trompeta</option>
+                        <option value="guitarron">Guitarrón</option>
+                        <option value="vihuela">Vihuela</option>
+                        <option value="voice">Voice</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
 
-            <button type="submit" class="button" style="margin-top:12px;">
+                <div>
+                    <label class="lang-en">If your child plays an instrument, what and how long?</label>
+                    <label class="lang-es">Si toca un instrumento, ¿cuál y por cuánto tiempo?</label>
+                    <input type="text" name="instrumentexperience">
+                </div>
+
+            </div>
+
+            <!-- SUBMIT BUTTON -->
+            <button type="submit" class="primary-btn save-btn" style="margin-top:15px;">
                 <span class="lang-en">Add Child</span>
                 <span class="lang-es">Agregar Hija</span>
             </button>
-        </form>
 
+        </form>
     </div>
 </div>
 
