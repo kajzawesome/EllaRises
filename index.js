@@ -124,48 +124,49 @@ app.get("/login", (req, res) => {
 
 app.post("/login", async (req, res) => {
   try {
-    const sName = req.body.username;
-    const sPassword = req.body.password;
+    const { username, password } = req.body;
 
-    const users = await knex("logins")
-      .select("userid", "username", "password", "level")
-      .where("username", sName)
-      .andWhere("password", sPassword);
-    
-    if (users.length === 0) {
+    // Authenticate user
+    const user = await knex("logins")
+      .where({ username, password })
+      .first();
+
+    if (!user) {
       return res.render("login", { error_message: "Invalid login" });
     }
 
-    const user = users[0];
     let fullName = "";
+    let parentId = null;
 
     if (user.level === "M") {
       const mgr = await knex("managers")
-        .select("managerfirstname", "managerlastname")
-        .where("userid", user.userid)
+        .where({ userid: user.userid })
         .first();
 
-      if (mgr) fullName = `${mgr.managerfirstname} ${mgr.managerlastname}`;
-    } else {
-      const parent = await knex("parents")
-        .select("parentfirstname", "parentlastname")
-        .where("userid", user.userid)
-        .first();
-
-      if (parent) fullName = `${parent.parentfirstname} ${parent.parentlastname}`;
+      if (mgr) {
+        fullName = `${mgr.managerfirstname} ${mgr.managerlastname}`;
+      }
     }
 
+    if (user.level === "U") {
+      const parent = await knex("parents")
+        .where({ userid: user.userid })
+        .first();
+
+      if (parent) {
+        fullName = `${parent.parentfirstname} ${parent.parentlastname}`;
+        parentId = parent.parentid;   // <-- STORE parentid
+      }
+    }
+
+    // Store session data (NOW parentid is included)
     req.session.isLoggedIn = true;
     req.session.user = {
+      userid: user.userid,
       username: user.username,
       level: user.level,
       name: fullName,
-      userid: user.userid
-    };
-      if (user.level === "U") {
-        knex("parents").where({userid: user.userid}).first().then(participant => {
-          req.session.user.parentid = participant.parentid;
-      });
+      parentid: parentId             // <-- ALWAYS SET HERE
     };
 
     res.redirect("/");
@@ -720,46 +721,51 @@ app.post("/pages/donations", async (req, res) => {
 app.get("/events/register", requireLogin, async (req, res) => {
   try {
     const user = req.session.user;
-
-    // Parent's ID from session
     const parentId = user.parentid;
+    const msg = req.query.msg || null;
 
-    // Fetch all events
-    const allEvents = await knex("events").select("*");
-
-    // Fetch all children of this parent
+    // 1. Load all children
     const children = await knex("participants")
-      .where("parentid", parentId)
+      .where({ parentid: parentId })
       .select("*");
 
-    // Fetch all registrations for ANY child of this parent
+    // 2. Load all event occurrences (future + past)
+    const occurrences = await knex("eventoccurrences")
+      .join("events", "events.eventid", "eventoccurrences.eventid")
+      .select(
+        "eventoccurrences.eventoccurrenceid as id",
+        "events.eventname as name",
+        "eventoccurrences.eventdatestart",
+        "eventoccurrences.eventtimestart"
+      );
+
+    // 3. Load all registrations for THIS parent's children
     const registrations = await knex("registration")
-      .join("participants", "registration.participantemail", "participants.participantemail")
+      .join("participants", "participants.participantemail", "registration.participantemail")
       .where("participants.parentid", parentId)
-      .select("registration.*", "participants.participantemail", "participants.firstname", "participants.lastname");
+      .select("registration.*", "participants.participantemail");
 
     const today = new Date();
     let pastItems = [];
     let upcomingRegistered = [];
     let availableItems = [];
 
-    allEvents.forEach(event => {
-      const eventDate = new Date(event.date);
+    occurrences.forEach(occ => {
+      const eventDate = new Date(occ.eventdatestart);
 
-      // Registration that matches event occurrence id
-      const reg = registrations.find(r => r.eventoccurrenceid === event.eventoccurrenceid);
+      const registered = registrations.find(r => r.eventoccurrenceid === occ.id);
 
-      if (reg && eventDate < today) {
-        pastItems.push({
-          ...event,
-          registered: true
-        });
-      }
-      else if (reg) {
-        upcomingRegistered.push(event);
-      }
-      else {
-        availableItems.push(event);
+      const item = {
+        id: occ.id,
+        name: occ.name,
+        date: eventDate
+      };
+
+      if (registered) {
+        if (eventDate < today) pastItems.push(item);
+        else upcomingRegistered.push(item);
+      } else {
+        if (eventDate >= today) availableItems.push(item);
       }
     });
 
@@ -769,11 +775,12 @@ app.get("/events/register", requireLogin, async (req, res) => {
       type: "Events",
       type_es: "Eventos",
       user,
-      lang: req.session.lang || "en",
+      children,
       pastItems,
       upcomingRegistered,
       availableItems,
-      children
+      lang: req.session.lang || "en",
+      msg
     });
 
   } catch (err) {
@@ -785,21 +792,47 @@ app.get("/events/register", requireLogin, async (req, res) => {
 app.post("/events/register/:eventOccurrenceId", requireLogin, async (req, res) => {
   try {
     const parentId = req.session.user.parentid;
-    const { child_email } = req.body;      // ✨ IMPORTANT: use child's email
-    const eventOccurrenceId = req.params.eventOccurrenceId;
+    const eventOccurrenceId = Number(req.params.eventOccurrenceId);
+    const childEmail = req.body.child_email;
 
+    if (!childEmail) {
+      return res.redirect("/events/register?msg=No+child+selected");
+    }
+
+    // Verify child belongs to parent
+    const child = await knex("participants")
+      .where({ participantemail: childEmail, parentid: parentId })
+      .first();
+
+    if (!child) {
+      return res.redirect("/events/register?msg=Unauthorized");
+    }
+
+    // Prevent duplicate registration
+    const existing = await knex("registration")
+      .where({
+        participantemail: childEmail,
+        eventoccurrenceid: eventOccurrenceId
+      })
+      .first();
+
+    if (existing) {
+      return res.redirect("/events/register?msg=Already+Registered");
+    }
+
+    // Insert registration
     await knex("registration").insert({
-      participantemail: child_email,
+      participantemail: childEmail,
       eventoccurrenceid: eventOccurrenceId,
       registrationstatus: "registered",
       registrationattendedflag: false,
       createdatdate: new Date()
     });
 
-    res.redirect("/events/register");
+    return res.redirect("/events/register?msg=Success");
 
   } catch (err) {
-    console.error(err);
+    console.error("Event registration error:", err);
     res.status(500).send("Server error");
   }
 });
