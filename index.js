@@ -206,7 +206,7 @@ app.get("/account/:userid", requireLogin, async (req, res) => {
     // Load milestones per participant
     for (let p of participants) {
       const milestones = await knex("milestones")
-        .where({ participantemail: p.participantemail })
+        .where({ participantid: p.participantid })
         .orderBy("milestonedate", "asc");
 
       p.milestones = milestones;
@@ -223,6 +223,294 @@ app.get("/account/:userid", requireLogin, async (req, res) => {
   } catch (err) {
     console.error("Account page error:", err);
     res.status(500).send("Error loading account page");
+  }
+});
+
+app.post("/account/:userid/update", requireLogin, async (req, res) => {
+  try {
+    const userid = req.params.userid;
+
+    if (req.session.user.userid !== Number(userid) && !req.session.user.ismanager) {
+      return res.status(403).send("Unauthorized");
+    }
+
+    await knex("parents")
+      .where({ userid })
+      .update({
+        parentfirstname: req.body.parentfirstname,
+        parentlastname: req.body.parentlastname,
+        parentemail: req.body.parentemail,
+        parentphone: req.body.parentphone,
+        parentcity: req.body.parentcity,
+        parentstate: req.body.parentstate,
+        parentzip: req.body.parentzip,
+        parentcollege: req.body.parentcollege,
+        languagepreference: req.body.languagepreference,
+        scholarshipinterest: req.body.scholarshipinterest,
+        tuitionagreement: req.body.tuitionagreement === "true",
+        medicalconsent: req.body.medicalconsent === "true",
+        photoconsent: req.body.photoconsent === "true",
+        agreementdate: req.body.agreementdate || null
+      });
+
+    res.redirect(`/account/${userid}`);
+
+  } catch (err) {
+    console.error("Update parent error:", err);
+    res.redirect(`/account/${req.params.userid}`);
+  }
+});
+
+app.post("/account/:parentid/participant/add", requireLogin, async (req, res) => {
+  try {
+    const parent = await knex("parents")
+      .where({ parentid: req.params.parentid })
+      .first();
+
+    await knex("participants").insert({
+      parentid: req.params.parentid,
+      participantfirstname: req.body.participantfirstname,
+      participantlastname: req.body.participantlastname,
+      participantemail: req.body.participantemail,
+      participantdob: req.body.participantdob || null,
+      participantgrade: req.body.participantgrade,
+      participantschooloremployer: req.body.participantschooloremployer,
+      participantfieldofinterest: req.body.participantfieldofinterest,
+      mariachiinstrumentinterest: req.body.mariachiinstrumentinterest,
+      instrumentexperience: req.body.instrumentexperience,
+      graduationstatus: req.body.graduationstatus || "not started"
+    });
+
+    res.redirect(`/account/${parent.userid}`);
+
+  } catch (err) {
+    console.error("Add child error:", err);
+    res.redirect("back");
+  }
+});
+
+app.post("/account/participant/:participantid/delete", requireLogin, async (req, res) => {
+  try {
+    const participantid = req.params.participantid;
+
+    // Find the participant
+    const participant = await knex("participants")
+      .where({ participantid })
+      .first();
+
+    if (!participant) {
+      return res.status(404).send("Participant not found.");
+    }
+
+    // Load parent
+    const parent = await knex("parents")
+      .where({ parentid: participant.parentid })
+      .first();
+
+    if (!parent) {
+      return res.status(404).send("Parent not found.");
+    }
+
+    // Authorization: only the parent OR a manager can delete
+    if (req.session.user.userid !== parent.userid && !req.session.user.level === "U") {
+      return res.status(403).send("Unauthorized");
+    }
+
+    // ========== OPTIONAL: Delete milestones first ==========
+    await knex("milestones")
+      .where({ participantid: participant.participantid })
+      .del();
+
+    // ========== Delete participant ==========
+    await knex("participants")
+      .where({ participantid })
+      .del();
+
+    // Redirect back to the parent's account page
+    res.redirect(`/account/${parent.userid}`);
+
+  } catch (err) {
+    console.error("Delete child error:", err);
+    res.redirect("back");
+  }
+});
+
+app.post("/account/participant/:participantId/milestones/add", requireLogin, async (req, res) => {
+  try {
+    const { participantId } = req.params;
+    const { milestonetitle, milestonedate, milestonestatus } = req.body;
+
+    // Validate participant exists
+    const participant = await knex("participants")
+      .where({ participantid: participantId })
+      .first();
+
+    if (!participant) {
+      return res.status(404).send("Participant not found.");
+    }
+
+    // Security: only the correct parent or a manager
+    const isManager = req.session.user.level === "M";
+    if (participant.parentid !== req.session.user.parentid && !isManager) {
+      return res.status(403).send("Unauthorized");
+    }
+
+    // Insert milestone
+    await knex("milestones").insert({
+      participantid: participantId,
+      milestonetitle: milestonetitle,
+      milestonedate: milestonedate,
+      milestonestatus: milestonestatus
+    });
+
+    // Get parent to redirect correctly
+    const parent = await knex("parents")
+      .where({ parentid: participant.parentid })
+      .first();
+
+    if (!parent) {
+      return res.status(404).send("Parent not found.");
+    }
+
+    // Redirect using parent.userid
+    res.redirect(`/account/${parent.userid}`);
+
+  } catch (err) {
+    console.error("Error adding milestone:", err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.post("/account/milestone/:milestoneid/update-full", requireLogin, async (req, res) => {
+  try {
+    const { milestoneid } = req.params;
+
+    const milestone = await knex("milestones")
+      .where({ milestoneid })
+      .first();
+
+    if (!milestone) {
+      return res.status(404).send("Milestone not found.");
+    }
+
+    // Lookup participant
+    const participant = await knex("participants")
+      .where({ participantid: milestone.participantid })
+      .first();
+
+    if (!participant) {
+      return res.status(404).send("Participant not found.");
+    }
+
+    // Lookup parent
+    const parent = await knex("parents")
+      .where({ parentid: participant.parentid })
+      .first();
+
+    if (!parent) {
+      return res.status(404).send("Parent not found.");
+    }
+
+    // Authorization: parent or manager
+    if (req.session.user.userid !== parent.userid && !req.session.user.level === "U") {
+      return res.status(403).send("Unauthorized");
+    }
+
+    // Perform update
+    await knex("milestones")
+      .where({ milestoneid })
+      .update({
+        milestonetitle: req.body.milestonetitle,
+        milestonedate: req.body.milestonedate || null,
+        milestonestatus: req.body.milestonestatus
+      });
+
+    res.redirect(`/account/${parent.userid}`);
+
+  } catch (err) {
+    console.error("Error updating milestone:", err);
+    res.redirect("back");
+  }
+});
+
+app.post("/account/milestone/:milestoneid/delete", requireLogin, async (req, res) => {
+  try {
+    const { milestoneid } = req.params;
+
+    const milestone = await knex("milestones")
+      .where({ milestoneid })
+      .first();
+
+    if (!milestone) {
+      return res.status(404).send("Milestone not found.");
+    }
+
+    // Lookup participant
+    const participant = await knex("participants")
+      .where({ participantid: milestone.participantid })
+      .first();
+
+    if (!participant) {
+      return res.status(404).send("Participant not found.");
+    }
+
+    // Lookup parent
+    const parent = await knex("parents")
+      .where({ parentid: participant.parentid })
+      .first();
+
+    if (!parent) {
+      return res.status(404).send("Parent not found.");
+    }
+
+    // Authorization: parent or manager
+    if (req.session.user.userid !== parent.userid && !req.session.user.level === "U") {
+      return res.status(403).send("Unauthorized");
+    }
+
+    // Delete milestone
+    await knex("milestones")
+      .where({ milestoneid })
+      .del();
+
+    res.redirect(`/account/${parent.userid}`);
+
+  } catch (err) {
+    console.error("Error deleting milestone:", err);
+    res.redirect("back");
+  }
+});
+
+app.post("/account/participant/:participantid/update-full", requireLogin, async (req, res) => {
+  try {
+    const child = await knex("participants")
+      .where({ participantid: req.params.participantid })
+      .first();
+
+    const parent = await knex("parents")
+      .where({ parentid: child.parentid })
+      .first();
+
+    await knex("participants")
+      .where({ participantid: req.params.participantid })
+      .update({
+        participantfirstname: req.body.participantfirstname,
+        participantlastname: req.body.participantlastname,
+        participantemail: req.body.participantemail,
+        participantdob: req.body.participantdob || null,
+        participantgrade: req.body.participantgrade,
+        participantschooloremployer: req.body.participantschooloremployer,
+        participantfieldofinterest: req.body.participantfieldofinterest,
+        mariachiinstrumentinterest: req.body.mariachiinstrumentinterest,
+        instrumentexperience: req.body.instrumentexperience,
+        graduationstatus: req.body.graduationstatus
+      });
+
+    res.redirect(`/account/${parent.userid}`);
+
+  } catch (err) {
+    console.error("Update child error:", err);
+    res.redirect("back");
   }
 });
 

@@ -9,30 +9,27 @@
 
                 <label>
                     <span class="lang-en">Title</span><span class="lang-es">Título</span>
-                    <input type="text" name="title" required>
+                    <input type="text" name="milestonetitle" required>
                 </label>
 
                 <label>
                     <span class="lang-en">Date</span><span class="lang-es">Fecha</span>
-                    <input type="date" name="date" required>
+                    <input type="date" name="milestonedate" required>
                 </label>
 
                 <label>
                     <span class="lang-en">Status</span><span class="lang-es">Estado</span>
-                    <select name="status" required>
-                        <option value="Not Started"><span class="lang-en">Not Started</span><span class="lang-es">No
-                                Iniciado</span></option>
-                        <option value="In Progress"><span class="lang-en">In Progress</span><span class="lang-es">En
-                                Progreso</span></option>
-                        <option value="Completed"><span class="lang-en">Completed</span><span
-                                class="lang-es">Completado</span></option>
-                        <option value="Deferred"><span class="lang-en">Deferred</span><span
-                                class="lang-es">Pospuesto</span></option>
+                    <select name="milestonestatus" required>
+                        <option value="Not Started">Not Started / No Iniciado</option>
+                        <option value="In Progress">In Progress / En Progreso</option>
+                        <option value="Completed">Completed / Completado</option>
+                        <option value="Deferred">Deferred / Pospuesto</option>
                     </select>
                 </label>
 
                 <button type="submit" class="button" style="margin-top:12px;">
-                    <span class="lang-en">Add Milestone</span><span class="lang-es">Agregar Hito</span>
+                    <span class="lang-en">Add Milestone</span>
+                    <span class="lang-es">Agregar Hito</span>
                 </button>
 
             </form>
