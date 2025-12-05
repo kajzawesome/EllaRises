@@ -1385,59 +1385,84 @@ app.post("/admin/user/:userid/delete", requireLogin, async (req, res) => {
 });
 
 // Manage Surveys
-app.post("/admin/surveys", requireManager, async (req, res) => {
+// ---------------------------------------------
+// ADMIN — SURVEY RESPONSES PAGE
+// ---------------------------------------------
+app.get("/admin/survey-responses", requireManager, async (req, res) => {
   try {
-    const { filterType, filterValue } = req.body; // e.g., filter by eventid or score threshold
+    const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
+    const filterBy = req.query.filterValue || "";
+    const scoreOperator = req.query.scoreOperator || ">=";
+    const scoreValue = req.query.scoreValue || "";
 
-    // Base query joining survey -> registration -> eventoccurrences -> events
-    let query = knex("survey")
-      .join("registration", "survey.registrationid", "registration.registrationid")
-      .join("eventoccurrences", "registration.eventoccurrenceid", "eventoccurrences.eventoccurrenceid")
-      .join("events", "eventoccurrences.eventid", "events.eventid")
+    // Base query
+    let query = knex("survey as s")
+      .join("registration as r", "s.registrationid", "r.registrationid")
+      .join("participants as p", "p.participantemail", "r.participantemail")
+      .join("eventoccurrences as eo", "eo.eventoccurrenceid", "r.eventoccurrenceid")
+      .join("events as e", "e.eventid", "eo.eventid")
+      .whereNotNull("s.submissiondate")
       .select(
-        "survey.surveyid as id",
-        "registration.participantemail as user_label",
-        "survey.satisfactionscore as SurveySatisfactionScore",
-        "survey.usefulnessscore as SurveyUsefulnessScore",
-        "survey.instructorscore as SurveyInstructorScore",
-        "survey.recommendationscore as SurveyRecommendationScore",
-        "survey.overallscore as SurveyOverallScore",
-        "survey.comments as SurveyComments",
-        "events.eventname",
-        "events.eventtype",
-        "events.eventdescription",
-        "eventoccurrences.eventlocation",
-        "survey.submissiondate as SurveySubmissionDate",
-        "survey.submissiontime as SurveySubmissionTime"
+        "s.surveyid as id",
+        knex.raw("p.participantfirstname || ' ' || p.participantlastname as user_label"),
+        "e.eventname",
+        "e.eventtype",
+        "e.eventdescription",
+        "eo.eventlocation",
+
+        "s.satisfactionscore as SurveySatisfactionScore",
+        "s.usefulnessscore as SurveyUsefulnessScore",
+        "s.instructorscore as SurveyInstructorScore",
+        "s.recommendationscore as SurveyRecommendationScore",
+        "s.overallscore as SurveyOverallScore",
+        "s.comments as SurveyComments",
+        "s.submissiondate as SurveySubmissionDate",
+        "s.submissiontime as SurveySubmissionTime"
       );
 
-    // Apply filters if provided
-    if (filterType && filterValue) {
-      if (filterType === "event") {
-        query = query.where("events.eventid", filterValue);
-      } else if (filterType === "score") {
-        query = query.where("survey.overallscore", ">=", filterValue);
-      } else if (filterType === "participant") {
-        query = query.where("registration.participantemail", filterValue);
-      }
+    // ---------------------
+    // SEARCH (participant or comment)
+    // ---------------------
+    if (search) {
+      query = query.where(qb => {
+        qb.whereRaw("LOWER(p.participantfirstname || ' ' || p.participantlastname) LIKE ?", `%${search}%`)
+          .orWhereRaw("LOWER(s.comments) LIKE ?", `%${search}%`);
+      });
     }
 
-    const responses = await query.orderBy("survey.submissiondate", "desc");
+    // ---------------------
+    // EVENT FILTER
+    // ---------------------
+    if (filterBy) {
+      query = query.where("e.eventid", filterBy);
+    }
 
-    // Compute average overall score for filtered set
-    const avgOverall = responses.length
-      ? (responses.reduce((sum, r) => sum + Number(r.SurveyOverallScore), 0) / responses.length).toFixed(2)
-      : null;
+    // ---------------------
+    // SCORE FILTER
+    // ---------------------
+    if (scoreValue !== "") {
+      query = query.where("s.overallscore", scoreOperator, Number(scoreValue));
+    }
 
-    // Optional: populate filter options for dropdown in EJS
-    const filterOptions = await knex("events").select("eventid as id", "eventname as label");
+    // ---------------------
+    // Execute final query
+    // ---------------------
+    const responses = await query.orderBy("s.submissiondate", "desc");
+
+    // Event dropdown options
+    const filterOptions = await knex("events")
+      .select("eventid as id", "eventname as label_en", "eventname as label_es");
 
     res.render("admin/survey-responses", {
       user: req.session.user,
       responses,
       filterOptions,
-      filterBy: filterType === "event" ? filterValue : null,
-      avgOverall,
+
+      search,
+      filterBy,
+      scoreOperator,
+      scoreValue,
+
       lang: req.session.lang || "en"
     });
 
@@ -1570,7 +1595,7 @@ app.get("/admin/donations", requireManager, (req, res) => {
 });
 
 // MANAGE EVENTS PAGE (Dashboard list)
-app.get("/admin/manageevents", requireManager, async (req, res) => {
+app.get("/manageevents", async (req, res) => {
     try {
         const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
 
@@ -1587,7 +1612,7 @@ app.get("/admin/manageevents", requireManager, async (req, res) => {
             });
         }
 
-        res.render("admin/events", {
+        res.render("pages/events", {
             title: "Manage Events",
             events,
             search
@@ -2189,10 +2214,7 @@ app.post("/admin/events/checkin/:registrationId", requireLogin, async (req, res)
 });
 
 // Update a child's event registration status for a specific occurrence
-app.post(
-  "/account/participant/:participantid/event-status/:registrationid",
-  requireLogin,
-  async (req, res) => {
+app.post("/account/participant/:participantid/event-status/:registrationid", requireLogin, async (req, res) => {
     try {
       const participantid = Number(req.params.participantid);
       const registrationid = Number(req.params.registrationid);
@@ -2401,21 +2423,23 @@ app.get("/admin/surveys", requireManager, async (req, res) => {
   }
 });
 
-app.post("/admin/survey/:surveyid/delete", requireManager, async (req, res) => {
+app.post("/admin/survey/delete/:surveyid", requireManager, async (req, res) => {
   try {
     const { surveyid } = req.params;
 
+    // Delete the survey
     await knex("survey")
       .where({ surveyid })
       .del();
 
-    res.redirect("/admin/surveys");
+    return res.redirect("/admin/survey-responses?success=Survey+Deleted");
 
   } catch (err) {
-    console.error("Survey delete error:", err);
-    res.status(500).send("Error deleting survey.");
+    console.error("Error deleting survey response:", err);
+    return res.redirect("/admin/survey-responses?error=Delete+Failed");
   }
 });
+
 
 // -------------------------
 // START SERVER
