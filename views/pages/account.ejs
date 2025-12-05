@@ -2,6 +2,19 @@
 
 <div class="admin-container">
 
+  <% if (user.level === "M") { %>
+  <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <h3><span class="lang-en">Admin Tools</span><span class="lang-es">Herramientas Admin</span></h3>
+        <a class="admin-btn" href="/admin/dashboard"> <span class="lang-en">Dashboard</span><span class="lang-es">Panel</span></a>
+        <a class="admin-btn" href="/admin/add-event"> <span class="lang-en">Add Event/Program</span><span class="lang-es">Agregar Evento/Programa</span></a>
+        <a class="admin-btn" href="/admin/manageevents"> <span class="lang-en">Manage Events</span><span class="lang-es">Administrar Eventos</span></a>
+        <a class="admin-btn" href="/admin/manageusers"> <span class="lang-en">Manage Users</span><span class="lang-es">Administrar Usuarios</span></a>
+        <a class="admin-btn" href="/admin/surveys"> <span class="lang-en">Manage Surveys</span><span class="lang-es">Administrar Encuestas</span></a>
+        <a class="admin-btn" href="/admin/managedonations"> <span class="lang-en">Manage Donations</span><span class="lang-es">Administrar Donaciones</span></a>
+    </aside>
+    <% } %>
+
   <!-- Main -->
   <main class="admin-main">
 
