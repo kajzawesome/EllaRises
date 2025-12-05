@@ -1,3 +1,16 @@
+const allowedHosts = [
+  '127.0.0.1',               // localhost
+  'localhost',
+  'ella-rises-1-10.is404.net' // your EB domain
+];
+
+app.use((req, res, next) => {
+  if (!allowedHosts.includes(req.headers.host)) {
+    return res.status(403).send('Host not permitted');
+  }
+  next();
+});
+
 // imports
 const express = require("express");
 const session = require("express-session");
@@ -9,8 +22,8 @@ const knex = require("knex")({
   client: "pg",
   connection: {
     host: process.env.DB_HOST || "localhost",
-    user: process.env.DB_USER || "mariellesutton",
-    password: process.env.DB_PASSWORD || "password",
+    user: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASSWORD || "12345",
     database: process.env.DB_NAME || "ellarises",
     port: process.env.DB_PORT || 5432,
     // SSL handling
