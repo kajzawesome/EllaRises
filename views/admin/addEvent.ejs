@@ -12,182 +12,184 @@
         <a class="admin-btn" href="/admin/managedonations"> <span class="lang-en">Manage Donations</span><span class="lang-es">Administrar Donaciones</span></a>
     </aside>
 
-    <h1 class="page-title">
-        <span class="lang-en">Add New Event</span>
-        <span class="lang-es">Agregar Nuevo Evento</span>
-    </h1>
+    <div class="event-right">
+        <h1 class="page-title">
+            <span class="lang-en">Add New Event</span>
+            <span class="lang-es">Agregar Nuevo Evento</span>
+        </h1>
 
-    <% if (error_message) { %>
-        <div class="error"><%= error_message %></div>
-    <% } %>
+        <% if (error_message) { %>
+            <div class="error"><%= error_message %></div>
+        <% } %>
 
-    <form action="/admin/add-event" method="POST" class="event-form">
-
-
-        <!-- ========================================================== -->
-        <!--  EVENT DETAILS -->
-        <!-- ========================================================== -->
-        <h2 class="form-section-title">
-            <span class="lang-en">Event Details</span>
-            <span class="lang-es">Detalles del Evento</span>
-        </h2>
-
-        <!-- Event Name -->
-        <div class="form-group">
-            <label for="eventname">
-                <span class="lang-en">Event Name *</span>
-                <span class="lang-es">Nombre del Evento *</span>
-            </label>
-            <input type="text" id="eventname" name="eventname" required>
-        </div>
-
-        <!-- Event Type -->
-        <div class="form-group">
-            <label for="eventtype">
-                <span class="lang-en">Event Type *</span>
-                <span class="lang-es">Tipo de Evento *</span>
-            </label>
-            <input type="text" id="eventtype" name="eventtype" required>
-        </div>
-
-        <!-- Event Description -->
-        <div class="form-group">
-            <label for="eventdescription">
-                <span class="lang-en">Event Description *</span>
-                <span class="lang-es">Descripción del Evento *</span>
-            </label>
-            <textarea id="eventdescription" name="eventdescription" rows="4" required></textarea>
-        </div>
-
-        <!-- Location -->
-        <div class="form-group">
-            <label for="eventlocation">
-                <span class="lang-en">Event Location *</span>
-                <span class="lang-es">Ubicación del Evento *</span>
-            </label>
-            <input type="text" id="eventlocation" name="eventlocation" required>
-        </div>
-
-        <!-- Default Capacity -->
-        <div class="form-group">
-            <label for="eventdefaultcapacity">
-                <span class="lang-en">Default Capacity *</span>
-                <span class="lang-es">Capacidad Predeterminada *</span>
-            </label>
-            <input type="number" id="eventdefaultcapacity" name="eventdefaultcapacity" min="1" required>
-        </div>
+        <form action="/admin/add-event" method="POST" class="event-form">
 
 
-        <!-- ========================================================== -->
-        <!--  EVENT SCHEDULE (FIRST OCCURRENCE) -->
-        <!-- ========================================================== -->
-        <h2 class="form-section-title">
-            <span class="lang-en">Event Schedule</span>
-            <span class="lang-es">Horario del Evento</span>
-        </h2>
+            <!-- ========================================================== -->
+            <!--  EVENT DETAILS -->
+            <!-- ========================================================== -->
+            <h2 class="form-section-title">
+                <span class="lang-en">Event Details</span>
+                <span class="lang-es">Detalles del Evento</span>
+            </h2>
 
-        <!-- Occurrence Start -->
-        <div class="form-group">
-            <label>
-                <span class="lang-en">First Occurrence Start *</span>
-                <span class="lang-es">Inicio de la Primera Sesión *</span>
-            </label>
-
-            <div class="flex-row">
-                <input type="date" name="occurrencestartdate" required>
-                <input type="time" name="occurrencestarttime" required>
+            <!-- Event Name -->
+            <div class="form-group">
+                <label for="eventname">
+                    <span class="lang-en">Event Name *</span>
+                    <span class="lang-es">Nombre del Evento *</span>
+                </label>
+                <input type="text" id="eventname" name="eventname" required>
             </div>
-        </div>
 
-        <!-- Occurrence End -->
-        <div class="form-group">
-            <label>
-                <span class="lang-en">First Occurrence End *</span>
-                <span class="lang-es">Fin de la Primera Sesión *</span>
-            </label>
-
-            <div class="flex-row">
-                <input type="date" name="occurrenceenddate" required>
-                <input type="time" name="occurrenceendtime" required>
+            <!-- Event Type -->
+            <div class="form-group">
+                <label for="eventtype">
+                    <span class="lang-en">Event Type *</span>
+                    <span class="lang-es">Tipo de Evento *</span>
+                </label>
+                <input type="text" id="eventtype" name="eventtype" required>
             </div>
-        </div>
+
+            <!-- Event Description -->
+            <div class="form-group">
+                <label for="eventdescription">
+                    <span class="lang-en">Event Description *</span>
+                    <span class="lang-es">Descripción del Evento *</span>
+                </label>
+                <textarea id="eventdescription" name="eventdescription" rows="4" required></textarea>
+            </div>
+
+            <!-- Location -->
+            <div class="form-group">
+                <label for="eventlocation">
+                    <span class="lang-en">Event Location *</span>
+                    <span class="lang-es">Ubicación del Evento *</span>
+                </label>
+                <input type="text" id="eventlocation" name="eventlocation" required>
+            </div>
+
+            <!-- Default Capacity -->
+            <div class="form-group">
+                <label for="eventdefaultcapacity">
+                    <span class="lang-en">Default Capacity *</span>
+                    <span class="lang-es">Capacidad Predeterminada *</span>
+                </label>
+                <input type="number" id="eventdefaultcapacity" name="eventdefaultcapacity" min="1" required>
+            </div>
 
 
-        <!-- ========================================================== -->
-        <!--  RECURRENCE SETTINGS -->
-        <!-- ========================================================== -->
-        <h2 class="form-section-title">
-            <span class="lang-en">Recurrence Pattern</span>
-            <span class="lang-es">Patrón de Repetición</span>
-        </h2>
+            <!-- ========================================================== -->
+            <!--  EVENT SCHEDULE (FIRST OCCURRENCE) -->
+            <!-- ========================================================== -->
+            <h2 class="form-section-title">
+                <span class="lang-en">Event Schedule</span>
+                <span class="lang-es">Horario del Evento</span>
+            </h2>
 
-        <!-- Recurrence Pattern -->
-        <div class="form-group">
-            <label for="recurrencepattern">
-                <span class="lang-en">Recurrence *</span>
-                <span class="lang-es">Repetición *</span>
-            </label>
+            <!-- Occurrence Start -->
+            <div class="form-group">
+                <label>
+                    <span class="lang-en">First Occurrence Start *</span>
+                    <span class="lang-es">Inicio de la Primera Sesión *</span>
+                </label>
 
-            <select id="recurrencepattern" name="recurrencepattern" required>
-                <option value="">
-                    <span class="lang-en">-- Select Pattern --</span>
-                    <span class="lang-es">-- Seleccione Patrón --</span>
-                </option>
-                <option value="None">
-                    <span class="lang-en">None</span>
-                    <span class="lang-es">Ninguno</span>
-                </option>
-                <option value="Daily">
-                    <span class="lang-en">Daily</span>
-                    <span class="lang-es">Diario</span>
-                </option>
-                <option value="Weekly">
-                    <span class="lang-en">Weekly</span>
-                    <span class="lang-es">Semanal</span>
-                </option>
-                <option value="Monthly">
-                    <span class="lang-en">Monthly</span>
-                    <span class="lang-es">Mensual</span>
-                </option>
-            </select>
-        </div>
+                <div class="flex-row">
+                    <input type="date" name="occurrencestartdate" required>
+                    <input type="time" name="occurrencestarttime" required>
+                </div>
+            </div>
 
-        <!-- Repeat Until -->
-        <div class="form-group">
-            <label for="repeatenddate">
-                <span class="lang-en">Repeat Until *</span>
-                <span class="lang-es">Repetir Hasta *</span>
-            </label>
-            <input type="date" name="repeatenddate" required>
-        </div>
+            <!-- Occurrence End -->
+            <div class="form-group">
+                <label>
+                    <span class="lang-en">First Occurrence End *</span>
+                    <span class="lang-es">Fin de la Primera Sesión *</span>
+                </label>
+
+                <div class="flex-row">
+                    <input type="date" name="occurrenceenddate" required>
+                    <input type="time" name="occurrenceendtime" required>
+                </div>
+            </div>
 
 
-        <!-- ========================================================== -->
-        <!--  REGISTRATION DEADLINE -->
-        <!-- ========================================================== -->
-        <h2 class="form-section-title">
-            <span class="lang-en">Registration Deadline</span>
-            <span class="lang-es">Fecha Límite de Registro</span>
-        </h2>
+            <!-- ========================================================== -->
+            <!--  RECURRENCE SETTINGS -->
+            <!-- ========================================================== -->
+            <h2 class="form-section-title">
+                <span class="lang-en">Recurrence Pattern</span>
+                <span class="lang-es">Patrón de Repetición</span>
+            </h2>
 
-        <div class="form-group">
-            <label for="registrationdaysbefore">
-                <span class="lang-en">Registration closes how many days before the event?</span>
-                <span class="lang-es">¿Cuántos días antes del evento cierra el registro?</span>
-            </label>
-            <input type="number" id="registrationdaysbefore" name="registrationdaysbefore" min="0" required>
-        </div>
+            <!-- Recurrence Pattern -->
+            <div class="form-group">
+                <label for="recurrencepattern">
+                    <span class="lang-en">Recurrence *</span>
+                    <span class="lang-es">Repetición *</span>
+                </label>
+
+                <select id="recurrencepattern" name="recurrencepattern" required>
+                    <option value="">
+                        <span class="lang-en">-- Select Pattern --</span>
+                        <span class="lang-es">-- Seleccione Patrón --</span>
+                    </option>
+                    <option value="None">
+                        <span class="lang-en">None</span>
+                        <span class="lang-es">Ninguno</span>
+                    </option>
+                    <option value="Daily">
+                        <span class="lang-en">Daily</span>
+                        <span class="lang-es">Diario</span>
+                    </option>
+                    <option value="Weekly">
+                        <span class="lang-en">Weekly</span>
+                        <span class="lang-es">Semanal</span>
+                    </option>
+                    <option value="Monthly">
+                        <span class="lang-en">Monthly</span>
+                        <span class="lang-es">Mensual</span>
+                    </option>
+                </select>
+            </div>
+
+            <!-- Repeat Until -->
+            <div class="form-group">
+                <label for="repeatenddate">
+                    <span class="lang-en">Repeat Until *</span>
+                    <span class="lang-es">Repetir Hasta *</span>
+                </label>
+                <input type="date" name="repeatenddate" required>
+            </div>
 
 
-        <!-- ========================================================== -->
-        <!--  SUBMIT BUTTON -->
-        <!-- ========================================================== -->
-        <button type="submit" class="submit-btn">
-            <span class="lang-en">Add Event</span>
-            <span class="lang-es">Agregar Evento</span>
-        </button>
+            <!-- ========================================================== -->
+            <!--  REGISTRATION DEADLINE -->
+            <!-- ========================================================== -->
+            <h2 class="form-section-title">
+                <span class="lang-en">Registration Deadline</span>
+                <span class="lang-es">Fecha Límite de Registro</span>
+            </h2>
 
-    </form>
+            <div class="form-group">
+                <label for="registrationdaysbefore">
+                    <span class="lang-en">Registration closes how many days before the event?</span>
+                    <span class="lang-es">¿Cuántos días antes del evento cierra el registro?</span>
+                </label>
+                <input type="number" id="registrationdaysbefore" name="registrationdaysbefore" min="0" required>
+            </div>
+
+
+            <!-- ========================================================== -->
+            <!--  SUBMIT BUTTON -->
+            <!-- ========================================================== -->
+            <button type="submit" class="submit-btn">
+                <span class="lang-en">Add Event</span>
+                <span class="lang-es">Agregar Evento</span>
+            </button>
+
+        </form>
+    </div>
 
 </div>
 

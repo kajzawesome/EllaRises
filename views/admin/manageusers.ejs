@@ -1,10 +1,9 @@
 <%- include('../partials/header', { title: 'Manage Users' }) %>
 
-<title><%= title || "Manage Users" %></title>
 
 <div class="admin-page">
-    <h1 class="page-title">Manage Users</h1>
 
+    <!-- LEFT: SIDEBAR -->
     <aside class="admin-sidebar">
         <h3><span class="lang-en">Admin Tools</span><span class="lang-es">Herramientas Admin</span></h3>
         <a class="admin-btn" href="/admin/dashboard"> <span class="lang-en">Dashboard</span><span class="lang-es">Panel</span></a>
@@ -15,115 +14,111 @@
         <a class="admin-btn" href="/admin/managedonations"> <span class="lang-en">Manage Donations</span><span class="lang-es">Administrar Donaciones</span></a>
     </aside>
 
-    <!-- ======================== -->
-    <!--       SEARCH BAR         -->
-    <!-- ======================== -->
-    <form action="/admin/manageusers" method="GET" class="search-form" style="margin-bottom:20px;">
-        <input 
-            type="text" 
-            name="q" 
-            placeholder="Search by name, email, city, or child name..."
-            value="<%= searchQuery || '' %>"
-            class="search-input"
-            style="padding:8px; width:260px;"
-        >
-        <button type="submit" class="admin-btn" style="padding:8px 14px;">Search</button>
-    </form>
+    <!-- RIGHT: TITLE + SEARCH + CONTENT -->
+    <div class="admin-main">
 
-    <!-- ======================== -->
-    <!--     PARENT ACCOUNTS      -->
-    <!-- ======================== -->
-    <section>
-        <h2>Parent Accounts</h2>
+        <h1 class="page-title">Manage Users</h1>
 
-        <% if (parents.length === 0) { %>
-            <div class="alert info">No parent accounts found.</div>
-        <% } else { %>
+        <!-- SEARCH BAR -->
+        <form action="/admin/manageusers" method="GET" class="search-form">
+            <input 
+                type="text" 
+                name="q" 
+                placeholder="Search by name, email, city, or child name..."
+                value="<%= searchQuery || '' %>"
+                class="search-input"
+            >
+            <button type="submit" class="search-btn">Search</button>
+        </form>
 
-            <% parents.forEach(p => { %>
-                <div class="parent-card">
+        <!-- PARENT ACCOUNTS -->
+        <section>
+            <h2>Parent Accounts</h2>
 
-                    <div class="parent-header">
+            <% if (parents.length === 0) { %>
+                <div class="alert info">No parent accounts found.</div>
+            <% } else { %>
 
-                        <!-- Parent name links to their account page -->
-                        <div class="parent-name">
-                            <a href="/account/<%= p.userid %>">
-                                <%= p.parentfirstname %> <%= p.parentlastname %>
-                            </a>
-                        </div>
+                <% parents.forEach(p => { %>
+                    <div class="parent-card">
 
-                        <!-- Contact info -->
-                        <div class="parent-info">
-                            <span><strong>Email:</strong> <%= p.parentemail %></span><br>
-                            <span><strong>Phone:</strong> <%= p.parentphone %></span><br>
+                        <div class="parent-header">
 
-                            <% if (p.parentcity) { %>
-                                <span><strong>Location:</strong> 
-                                    <%= p.parentcity %>, 
-                                    <%= p.parentstate %> 
-                                    <%= p.parentzip %>
-                                </span>
+                            <!-- Parent name links to their account page -->
+                            <div class="parent-name">
+                                <a href="/account/<%= p.userid %>">
+                                    <%= p.parentfirstname %> <%= p.parentlastname %>
+                                </a>
+                            </div>
+
+                            <!-- Contact info -->
+                            <div class="parent-info">
+                                <span><strong>Email:</strong> <%= p.parentemail %></span><br>
+                                <span><strong>Phone:</strong> <%= p.parentphone %></span><br>
+
+                                <% if (p.parentcity) { %>
+                                    <span><strong>Location:</strong> 
+                                        <%= p.parentcity %>, 
+                                        <%= p.parentstate %> 
+                                        <%= p.parentzip %>
+                                    </span>
+                                <% } %>
+                            </div>
+
+                            <!-- DELETE PARENT BUTTON -->
+                            <form 
+                                action="/admin/user/<%= p.userid %>/delete"
+                                method="POST"
+                                onsubmit="return confirm('Are you sure you want to DELETE this parent, all their children, registrations, surveys, and milestones?');"
+                            >
+                                <button type="submit" class="admin-btn danger-btn">Delete Parent</button>
+                            </form>
+
+                            <% if (p.children && p.children.length > 0) { %>
+                                <button
+                                    id="child-<%= p.parentid %>-toggle"
+                                    class="child-toggle"
+                                    onclick="toggleChildren('child-<%= p.parentid %>')"
+                                >
+                                    Show Children ▼
+                                </button>
                             <% } %>
                         </div>
 
-                        <!-- DELETE PARENT BUTTON -->
-                        <form 
-                            action="/admin/user/<%= p.userid %>/delete"
-                            method="POST"
-                            onsubmit="return confirm('Are you sure you want to DELETE this parent, all their children, registrations, surveys, and milestones?');"
-                            style="margin-top:10px;"
-                        >
-                            <button type="submit" class="admin-btn danger-btn">Delete Parent</button>
-                        </form>
-
+                        <!-- CHILD LIST -->
                         <% if (p.children && p.children.length > 0) { %>
-                            <button
-                                id="child-<%= p.parentid %>-toggle"
-                                class="child-toggle"
-                                onclick="toggleChildren('child-<%= p.parentid %>')"
-                            >
-                                Show Children ▼
-                            </button>
+                            <ul class="child-list" id="child-<%= p.parentid %>" style="display:none;">
+
+                                <% p.children.forEach(c => { %>
+                                    <li class="child-card">
+                                        <strong>
+                                            <%= c.participantfirstname %> <%= c.participantlastname %>
+                                        </strong><br>
+                                        <span><strong>Email:</strong> <%= c.participantemail %></span><br>
+                                        <span><strong>Status:</strong> <%= c.graduationstatus %></span><br><br>
+                                    </li>
+                                <% }) %>
+
+                            </ul>
+
+                        <% } else { %>
+                            <p style="margin-top:10px; color:#888;">No participants linked.</p>
                         <% } %>
+
                     </div>
+                <% }) %>
 
-                    <!-- CHILD LIST -->
-                    <% if (p.children && p.children.length > 0) { %>
-                        <ul class="child-list" id="child-<%= p.parentid %>" style="display:none;">
+            <% } %>
 
-                            <% p.children.forEach(c => { %>
-                                <li class="child-card">
+        </section>
+    </div> <!-- /.admin-main -->
 
-                                    <strong>
-                                        <%= c.participantfirstname %> <%= c.participantlastname %>
-                                    </strong>
-                                    <br>
-
-                                    <span><strong>Email:</strong> <%= c.participantemail %></span><br>
-                                    <span><strong>Status:</strong> <%= c.graduationstatus %></span><br><br>
-
-                                </li>
-                            <% }) %>
-
-                        </ul>
-
-                    <% } else { %>
-                        <p style="margin-top:10px; color:#888;">No participants linked.</p>
-                    <% } %>
-
-                </div>
-            <% }) %>
-
-        <% } %>
-
-    </section>
 </div>
 
 <script>
 function toggleChildren(id) {
     const list = document.getElementById(id);
     const btn = document.getElementById(id + "-toggle");
-
     const isHidden = window.getComputedStyle(list).display === "none";
 
     if (isHidden) {
@@ -135,5 +130,6 @@ function toggleChildren(id) {
     }
 }
 </script>
+
 
 <%- include('../partials/footer') %>

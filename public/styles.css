@@ -1391,3 +1391,389 @@ h1 {
         text-align: center;
     }
 }
+
+
+/* -----------------------------------------------------
+   ADMIN FORM PAGE REFINEMENT
+------------------------------------------------------ */
+
+.add-event-container {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    padding: 40px 20px;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.event-form {
+    background: #ffffff;
+    padding: 40px 50px;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    flex: 1;
+}
+
+.form-section-title {
+    font-size: 26px;
+    font-family: 'TT Milks Script';
+    margin-top: 40px;
+    margin-bottom: 12px;
+    color: #CE325B;
+}
+
+/* FORM GROUP */
+.form-group {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.form-group label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+    color: #3A3F3B;
+    font-size: 15px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1.5px solid #d8d8d8;
+    font-size: 15px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* FOCUS STATE */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #CE325B;
+    box-shadow: 0 0 4px rgba(206,50,91,0.25);
+}
+
+/* SIDE-BY-SIDE DATE/TIME ROW */
+.flex-row {
+    display: flex;
+    gap: 16px;
+}
+
+.flex-row input {
+    flex: 1;
+}
+
+/* SUBMIT BUTTON */
+.submit-btn {
+    margin-top: 40px;
+    padding: 14px 32px;
+    border-radius: 28px;
+    background: #CE325B;
+    color: white;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.25s;
+    box-shadow: 0 4px 12px rgba(206,50,91,0.25);
+}
+
+.submit-btn:hover {
+    background: #b72a50;
+}
+
+/* PAGE TITLE */
+.page-title {
+    font-size: 34px;
+    text-align: center;
+    margin-bottom: 20px;
+    flex-basis: 100%;
+}
+
+/* Error message */
+.error {
+    background: #ffe2e7;
+    padding: 12px 18px;
+    border-radius: 8px;
+    border-left: 4px solid #CE325B;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #b72a50;
+    max-width: 500px;
+}
+
+/* Make form full-width on mobile */
+@media (max-width: 900px) {
+    .add-event-container {
+        flex-direction: column;
+    }
+
+    .event-form {
+        width: 100%;
+    }
+}
+
+
+/* -----------------------------------------------------
+   MANAGE USERS PAGE LAYOUT
+------------------------------------------------------ */
+
+.admin-page {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+    max-width: 1300px;
+    margin: 40px auto 60px;
+    padding: 0 20px;
+}
+
+.admin-main {
+    flex: 1;
+}
+
+/* Center title + search nicely */
+.admin-main .page-title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Search bar */
+.search-form {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 30px;
+}
+
+.search-input {
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #d8d8d8;
+    min-width: 280px;
+    max-width: 420px;
+    font-size: 14px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #CE325B;
+    box-shadow: 0 0 4px rgba(206,50,91,0.25);
+}
+
+.search-btn {
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: none;
+    background: #CE325B;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(206,50,91,0.25);
+    transition: 0.2s;
+}
+
+.search-btn:hover {
+    background: #b72a50;
+}
+
+/* Parent Accounts heading */
+.admin-main section h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+
+/* -----------------------------------------------------
+   SURVEY RESPONSES TABLE
+------------------------------------------------------ */
+
+.admin-main h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Filter bar */
+.survey-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.survey-filters .input,
+.survey-filters select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1.5px solid #ddd;
+    font-size: 14px;
+    min-width: 160px;
+}
+
+.survey-filters button {
+    padding: 8px 20px;
+    border-radius: 20px;
+}
+
+/* Table styling */
+.survey-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.survey-table thead {
+    background: #f8f8f8;
+}
+
+.survey-table th,
+.survey-table td {
+    padding: 10px 12px;
+    vertical-align: top;
+}
+
+/* Column width rules */
+.survey-table th:nth-child(1) { width: 40px; }   /* ID */
+.survey-table th:nth-child(2) { width: 120px; }  /* Participant */
+.survey-table th:nth-child(3) { width: 130px; }  /* Event */
+.survey-table th:nth-child(4) { width: 110px; }  /* Type */
+.survey-table th:nth-child(5) { width: 200px; }  /* Description */
+.survey-table th:nth-child(6) { width: 120px; }  /* Location */
+.survey-table th:nth-child(7),
+.survey-table th:nth-child(8),
+.survey-table th:nth-child(9),
+.survey-table th:nth-child(10),
+.survey-table th:nth-child(11) {
+    width: 70px;
+    text-align: center;
+}
+
+/* Numeric columns centered */
+.survey-table td:nth-child(7),
+.survey-table td:nth-child(8),
+.survey-table td:nth-child(9),
+.survey-table td:nth-child(10),
+.survey-table td:nth-child(11) {
+    text-align: center;
+}
+
+/* Comments truncated */
+.survey-table td:nth-child(12) {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.survey-table td:nth-child(12):hover {
+    white-space: normal;
+    background: #fdf7fa;
+}
+
+/* Submitted date */
+.survey-table td:nth-child(13) {
+    width: 150px;
+    font-size: 12px;
+}
+
+/* Edit/Delete buttons */
+.survey-table td:nth-child(14),
+.survey-table td:nth-child(15) {
+    text-align: center;
+    width: 70px;
+}
+
+.table-action-btn {
+    padding: 6px 14px;
+    border-radius: 12px;
+    background: #CE325B;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.table-action-btn-danger {
+    background: #C84242;
+}
+
+/* EVENT SURVEY PAGE CLEANUP */
+
+.survey-event-info {
+    background: #ffffff;
+    padding: 24px 30px;
+    border-radius: 14px;
+    max-width: 420px;
+    margin: 0 auto 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    text-align: left;
+}
+
+.survey-form-card {
+    background: #ffffff;
+    padding: 40px 50px;
+    max-width: 800px;
+    margin: 0 auto 60px;
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.09);
+}
+
+.survey-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 30px;
+    margin-top: 20px;
+}
+
+.survey-field label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.survey-field select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1.5px solid #ccc;
+    font-size: 15px;
+}
+
+.survey-field-full {
+    margin-top: 30px;
+}
+
+.survey-field-full textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1.5px solid #ccc;
+    font-size: 15px;
+    background: #fafafa;
+}
+
+.survey-submit-btn {
+    margin-top: 30px;
+    width: 240px;
+}
+
+
+
+
+.admin-main {
+    padding-left: 40px;   /* creates space without pushing content down */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
