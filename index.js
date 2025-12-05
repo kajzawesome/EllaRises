@@ -8,7 +8,7 @@ const knex = require("knex")({
   connection: {
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "12345",
+    password: process.env.DB_PASSWORD || "admin",
     database: process.env.DB_NAME || "ellarises",
     port: process.env.DB_PORT || "5432",
     ssl: isProd ? { rejectUnauthorized: false } : false
@@ -157,6 +157,11 @@ app.post("/login", async (req, res) => {
       level: user.level,
       name: fullName,
       userid: user.userid
+    };
+      if (user.level === "U") {
+        knex("parents").where({userid: user.userid}).first().then(participant => {
+          req.session.user.parentid = participant.parentid;
+      });
     };
 
     res.redirect("/");
@@ -949,21 +954,37 @@ app.post("/pages/donations", async (req, res) => {
 // -------------------------
 // EVENTS ROUTES
 // -------------------------
-app.get("/events/register",requireLogin, async (req, res) => {
+app.get("/events/register", requireLogin, async (req, res) => {
   const user = req.session.user || null;
-  const allEvents = await knex("events").select("*");
+
+  // Get all EVENTS (not programs)
+  const allEvents = await knex("events")
+    .where({ eventtype: "event" })
+    .select("*");
+
+  const registrations = user
+    ? await knex("registration").where({ participantemail: user.participantemail })
+    : [];
+
   let pastEvents = [];
   let upcomingRegistered = [];
   let availableEvents = [];
-  const registrations = user ? await knex("event_registrations").where({ user_id: user.id }) : [];
+
   const today = new Date();
 
   allEvents.forEach(event => {
-    const reg = registrations.find(r => r.event_id === event.id);
-    const eventDate = new Date(event.date);
-    if (eventDate < today && !reg?.survey_completed) pastEvents.push({ ...event, surveyCompleted: reg?.survey_completed || false });
-    else if (reg) upcomingRegistered.push(event);
-    else availableEvents.push(event);
+    const reg = registrations.find(r => r.event_id === event.eventid);
+    const eventDate = new Date(event.eventdate);
+
+    if (eventDate < today && !reg?.survey_completed) {
+      pastEvents.push({ ...event, surveyCompleted: reg?.survey_completed || false });
+    }
+    else if (reg) {
+      upcomingRegistered.push(event);
+    }
+    else {
+      availableEvents.push(event);
+    }
   });
 
   res.render("events/register", {
@@ -987,25 +1008,43 @@ function addMonths(date, months) {
   return d;
 }
 
-app.get("/programs/register",requireLogin, async (req, res) => {
+app.get("/programs/register", requireLogin, async (req, res) => {
   const user = req.session.user || null;
-  const allPrograms = await knex("programs").select("*");
-  let enrollments = user ? await knex("program_enrollments").where({ user_id: user.id }) : [];
+
+  // Get all PROGRAMS (not events)
+  const allPrograms = await knex("events")
+    .where({ eventtype: "program" })
+    .select("*");
+
+  const enrollments = user
+    ? await knex("registration").where({ participantemail: user.participantemail })
+    : [];
+
+  const today = new Date();
   let pastPrograms = [];
   let currentPrograms = [];
-  let availablePrograms = [];
-  const today = new Date();
 
   enrollments.forEach(e => {
-    const program = allPrograms.find(p => p.id === e.program_id);
+    const program = allPrograms.find(p => p.eventid === e.event_id);
     if (!program) return;
+
     const endDate = addMonths(new Date(e.start_date), program.duration_months);
-    if (endDate < today && !e.survey_completed) pastPrograms.push({ ...e, program });
-    else if (endDate >= today) currentPrograms.push({ ...e, program });
+
+    if (endDate < today && !e.survey_completed) {
+      pastPrograms.push({ ...e, program });
+    }
+    else if (endDate >= today) {
+      currentPrograms.push({ ...e, program });
+    }
   });
 
-  availablePrograms = allPrograms.filter(p => !enrollments.some(e => e.program_id === p.id));
+  // Filter out ones already enrolled in
+  const availablePrograms = allPrograms.filter(
+    p => !enrollments.some(e => e.event_id === p.eventid)
+  );
+
   const preferredLang = user?.preferred_language || "en";
+
   const sortedPrograms = preferredLang === "es"
     ? [...availablePrograms].sort((a, b) => a.es_priority - b.es_priority)
     : [...availablePrograms].sort((a, b) => a.en_priority - b.en_priority);
