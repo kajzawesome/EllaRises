@@ -1419,6 +1419,54 @@ app.post("/admin/surveys", requireManager, async (req, res) => {
   }
 });
 
+// GET – edit form
+router.get('/surveyResponses/edit/:id', async (req, res) => {
+  try {
+    const response = await SurveyResponse.findByPk(req.params.id);
+    if (!response) return res.status(404).send('Not found');
+
+    res.render('admin/editSurveyResponse', {
+      r: response,
+      user: req.user,
+      lang: req.session.lang || 'en'
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+// POST – save changes
+router.post('/surveyResponses/edit/:id', async (req, res) => {
+  try {
+    const response = await SurveyResponse.findByPk(req.params.id);
+    if (!response) return res.status(404).send('Not found');
+
+    await response.update(req.body);
+
+    res.redirect('/admin/surveyResponses');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+// POST – delete
+router.post('/surveyResponses/delete/:id', async (req, res) => {
+  try {
+    await SurveyResponse.destroy({
+      where: { id: req.params.id }
+    });
+
+    res.redirect('/admin/surveyResponses');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+module.exports = router;
+
 app.get("/admin/surveys", requireManager, async (req, res) => {
   try {
     const { filterType, filterValue } = req.query; // e.g., /admin/surveys?filterType=event&filterValue=3
