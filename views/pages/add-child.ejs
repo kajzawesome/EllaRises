@@ -1,93 +1,104 @@
 <%- include('../partials/header', { title: title }) %>
 
 <div class="section">
-    <div class="section-content" style="flex-direction:column; align-items:flex-start;">
+    <div class="section-content" style="flex-direction:column; align-items:flex-start; max-width:650px;">
+
         <h1>
             <span class="lang-en">Add Child</span>
             <span class="lang-es">Agregar Hija</span>
         </h1>
 
-        <form action="/account/<%= parentid %>/participant/add" method="POST" style="max-width:600px; margin-top:20px;">
+        <form action="/account/<%= parentid %>/participant/add" method="POST" style="width:100%;">
 
-            <!-- First Name -->
+            <!-- Participant First Name -->
             <label>
-                <span class="lang-en">First Name *</span>
-                <span class="lang-es">Nombre *</span>
-                <input type="text" name="participantfirstname" required>
+                <span class="lang-en">Participant First Name *</span>
+                <span class="lang-es">Nombre de Participante *</span>
             </label>
+            <input type="text" name="participantfirstname" required>
             <br>
 
-            <!-- Last Name -->
+            <!-- Participant Last Name -->
             <label>
-                <span class="lang-en">Last Name *</span>
-                <span class="lang-es">Apellido *</span>
-                <input type="text" name="participantlastname" required>
+                <span class="lang-en">Participant Last Name *</span>
+                <span class="lang-es">Apellido de Participante *</span>
             </label>
+            <input type="text" name="participantlastname" required>
             <br>
 
             <!-- Email -->
             <label>
-                <span class="lang-en">Email *</span>
-                <span class="lang-es">Correo *</span>
-                <input type="email" name="participantemail" required>
+                <span class="lang-en">Participant Email *</span>
+                <span class="lang-es">Correo Electrónico de Participante *</span>
             </label>
+            <input type="email" name="participantemail" required>
             <br>
 
             <!-- DOB -->
             <label>
-                <span class="lang-en">Date of Birth</span>
-                <span class="lang-es">Fecha de Nacimiento</span>
-                <input type="date" name="participantdob">
+                <span class="lang-en">Date of Birth *</span>
+                <span class="lang-es">Fecha de Nacimiento *</span>
             </label>
+            <input type="date" name="participantdob" required>
             <br>
 
             <!-- Grade -->
             <label>
-                <span class="lang-en">Grade</span>
-                <span class="lang-es">Grado</span>
-                <input type="text" name="participantgrade">
+                <span class="lang-en">Grade *</span>
+                <span class="lang-es">Grado *</span>
             </label>
+            <input type="text" name="participantgrade" required>
             <br>
 
-            <!-- School / Employer -->
+            <!-- School or Employer -->
             <label>
-                <span class="lang-en">School or Employer</span>
-                <span class="lang-es">Escuela o Empleador</span>
-                <input type="text" name="participantschooloremployer">
+                <span class="lang-en">School or Employer *</span>
+                <span class="lang-es">Escuela o Empleador *</span>
             </label>
+            <input type="text" name="participantschooloremployer" required>
             <br>
 
-            <!-- Field of Interest -->
-            <label>
-                <span class="lang-en">Field of Interest</span>
-                <span class="lang-es">Área de Interés</span>
-                <input type="text" name="participantfieldofinterest">
+            <hr>
+
+            <!-- Programs -->
+            <label class="lang-en">
+                Which program(s) is your child interested in? *
+                <br><small>*University tours and other initiatives are automatically shared with all participants.</small>
             </label>
-            <br>
+
+            <label class="lang-es">
+                ¿En cuál(es) programas desea participar su hija? *
+                <br><small>Visitas universitarias y otras iniciativas educativas se comparten automáticamente con todas las participantes.</small>
+            </label>
+
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="programs[]" value="Mariachi" required> Mariachi (waitlist)</label>
+                <label><input type="checkbox" name="programs[]" value="Ballet Folklorico"> Ballet Folklórico</label>
+                <label><input type="checkbox" name="programs[]" value="Art"> Art | Arte</label>
+                <label><input type="checkbox" name="programs[]" value="STEM"> STEM</label>
+                <label><input type="checkbox" name="programs[]" value="Summer Camps"> Summer Camps</label>
+            </div>
+
+            <hr>
 
             <!-- Mariachi Instrument -->
-            <label>
-                <span class="lang-en">Mariachi Instrument Interest</span>
-                <span class="lang-es">Instrumento de Mariachi</span>
-                <select name="mariachiinstrumentinterest">
-                    <option value="">-- Select --</option>
-                    <option value="violin">Violin</option>
-                    <option value="guitar">Guitar / Guitarra</option>
-                    <option value="trumpet">Trumpet / Trompeta</option>
-                    <option value="guitarron">Guitarrón</option>
-                    <option value="vihuela">Vihuela</option>
-                    <option value="voice">Voice</option>
-                    <option value="other">Other</option>
-                </select>
-            </label>
-            <br>
+            <label class="lang-en">Mariachi Instrument Interest *</label>
+            <label class="lang-es">Instrumento de Mariachi *</label>
+            <select name="mariachiinstrumentinterest" required>
+                <option value="">-- Select --</option>
+                <option value="violin">Violin</option>
+                <option value="guitar">Guitar | Guitarra</option>
+                <option value="trumpet">Trumpet | Trompeta</option>
+                <option value="guitarron">Guitarrón</option>
+                <option value="vihuela">Vihuela</option>
+                <option value="voice">Voice</option>
+                <option value="other">Other</option>
+            </select>
 
             <!-- Instrument Experience -->
-            <label>
-                <span class="lang-en">Instrument Experience</span>
-                <span class="lang-es">Experiencia con Instrumentos</span>
-                <input type="text" name="instrumentexperience">
-            </label>
+            <label class="lang-en">If your child plays an instrument, what and how long?</label>
+            <label class="lang-es">Si su hija ya toca un instrumento, ¿cuál y por cuánto tiempo?</label>
+            <input type="text" name="instrumentexperience">
             <br>
 
             <button type="submit" class="button" style="margin-top:12px;">
@@ -95,6 +106,7 @@
                 <span class="lang-es">Agregar Hija</span>
             </button>
         </form>
+
     </div>
 </div>
 

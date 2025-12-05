@@ -15,7 +15,32 @@
         <a class="admin-btn" href="/admin/managedonations"> <span class="lang-en">Manage Donations</span><span class="lang-es">Administrar Donaciones</span></a>
     </aside>
 
-    <!-- Events & Occurrences -->
+    <main class="admin-main">
+
+        <!-- Search Bar -->
+        <form method="GET" action="/admin/manageevents" style="margin: 20px 0; text-align:center;">
+            <input 
+                type="text"
+                name="search"
+                value="<%= search || '' %>"
+                placeholder="Search event name, type, or location..."
+                style="padding: 8px; width: 260px; border-radius: 6px; border: 1px solid #ccc;"
+            >
+
+            <button class="admin-btn" type="submit">
+                <span class="lang-en">Search</span>
+                <span class="lang-es">Buscar</span>
+            </button>
+
+            <% if (search) { %>
+                <a href="/admin/manageevents" class="admin-btn" style="background:#777; margin-left:10px;">
+                    <span class="lang-en">Clear</span>
+                    <span class="lang-es">Limpiar</span>
+                </a>
+            <% } %>
+        </form>
+
+        <!-- Events & Occurrences -->
         <section class="upcoming-items" style="margin: 20px auto; max-width: 600px;">
             <h2>
                 <span class="lang-en">All Programs & Events</span>
@@ -72,8 +97,8 @@
 
             <% } else { %>
                 <p>
-                    <span class="lang-en">No programs or events.</span>
-                    <span class="lang-es">No hay programas o eventos.</span>
+                    <span class="lang-en">No programs or events found.</span>
+                    <span class="lang-es">No se encontraron programas o eventos.</span>
                 </p>
             <% } %>
 

@@ -262,31 +262,78 @@ app.post("/account/:userid/update", requireLogin, async (req, res) => {
 });
 
 app.post("/account/:parentid/participant/add", requireLogin, async (req, res) => {
-  try {
-    const parent = await knex("parents")
-      .where({ parentid: req.params.parentid })
-      .first();
+    try {
+        const { parentid } = req.params;
 
-    await knex("participants").insert({
-      parentid: req.params.parentid,
-      participantfirstname: req.body.participantfirstname,
-      participantlastname: req.body.participantlastname,
-      participantemail: req.body.participantemail,
-      participantdob: req.body.participantdob || null,
-      participantgrade: req.body.participantgrade,
-      participantschooloremployer: req.body.participantschooloremployer,
-      participantfieldofinterest: req.body.participantfieldofinterest,
-      mariachiinstrumentinterest: req.body.mariachiinstrumentinterest,
-      instrumentexperience: req.body.instrumentexperience,
-      graduationstatus: req.body.graduationstatus || "not started"
-    });
+        // Make sure parent exists
+        const parent = await knex("parents")
+            .where({ parentid })
+            .first();
 
-    res.redirect(`/account/${parent.userid}`);
+        if (!parent) {
+            return res.status(404).send("Parent not found.");
+        }
 
-  } catch (err) {
-    console.error("Add child error:", err);
-    res.redirect("back");
-  }
+        // Only the correct parent or manager may add a child
+        const isManager = req.session.user.level === "M";
+        if (req.session.user.parentid != parentid && !req.session.user.level === "U") {
+            return res.status(403).send("Unauthorized");
+        }
+
+        // Extract participant fields
+        const {
+            participantfirstname,
+            participantlastname,
+            participantemail,
+            participantdob,
+            participantgrade,
+            participantschooloremployer,
+            mariachiinstrumentinterest,
+            instrumentexperience,
+            programs // <-- multiple checkbox values
+        } = req.body;
+
+        // Required fields validation
+        if (!participantfirstname || !participantlastname || !participantemail) {
+            return res.render("account-add-child", {
+                parentid,
+                title: "Add Child",
+                error_message: "Required fields missing."
+            });
+        }
+
+        // Convert multiple checkboxes into comma-separated list
+        const programList = Array.isArray(programs) ? programs.join(", ") : "";
+
+        // Insert participant
+        const [participantRow] = await knex("participants")
+            .insert({
+                parentid,
+                participantfirstname,
+                participantlastname,
+                participantemail,
+                participantdob,
+                participantgrade,
+                participantschooloremployer,
+                participantfieldofinterest: programList,  // SAME column used in /addUser
+                mariachiinstrumentinterest,
+                instrumentexperience,
+                graduationstatus: "enrolled"
+            })
+            .returning("participantid");
+
+        // Redirect back to parent account page
+        res.redirect(`/account/${parent.userid}`);
+
+    } catch (err) {
+        console.error("Error adding child:", err);
+
+        res.render("account-add-child", {
+            parentid: req.params.parentid,
+            title: "Add Child",
+            error_message: "There was an error adding the child."
+        });
+    }
 });
 
 app.post("/account/participant/:participantid/delete", requireLogin, async (req, res) => {
@@ -1267,22 +1314,42 @@ app.get("/mission", (req, res) => {
 // ADMIN ROUTES
 // -------------------------
 app.get("/admin/dashboard", requireManager, async (req, res) => {
-    const events = await knex("events as e")
-        .leftJoin("eventoccurrences as eo", function () {
-            this.on("eo.eventid", "=", "e.eventid")
-                .andOn("eo.eventdatestart", ">=", knex.fn.now());
-        })
-        .select(
-            "e.eventid",
-            "e.eventname",
-            "e.eventtype",
-            knex.raw("MIN(eo.eventdatestart) as nextdate"),
-            "eo.eventlocation"
-        )
-        .groupBy("e.eventid", "e.eventname", "e.eventtype", "eo.eventlocation")
-        .orderBy("nextdate");
+    try {
+        const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
 
-    res.render("admin/dashboard", { events, title: "Admin Dashboard" });
+        let events = await knex("events as e")
+            .leftJoin("eventoccurrences as eo", function () {
+                this.on("eo.eventid", "=", "e.eventid")
+                    .andOn("eo.eventdatestart", ">=", knex.fn.now());
+            })
+            .select(
+                "e.eventid",
+                "e.eventname",
+                "e.eventtype",
+                knex.raw("MIN(eo.eventdatestart) as nextdate"),
+                "eo.eventlocation"
+            )
+            .groupBy("e.eventid", "e.eventname", "e.eventtype", "eo.eventlocation")
+            .orderBy("nextdate");
+
+        // FILTER BY SEARCH
+        if (search.length > 0) {
+            events = events.filter(e => {
+                const matchString = `${e.eventname} ${e.eventtype} ${e.eventlocation}`.toLowerCase();
+                return matchString.includes(search);
+            });
+        }
+
+        res.render("admin/dashboard", {
+            title: "Admin Dashboard",
+            events,
+            search
+        });
+
+    } catch (err) {
+        console.error("❌ Error loading dashboard:", err);
+        res.status(500).send("Server Error");
+    }
 });
 
 // Manage users
@@ -1829,30 +1896,33 @@ app.get("/admin/donations", requireManager, (req, res) => {
 });
 
 // MANAGE EVENTS PAGE (Dashboard list)
-app.get("/admin/manageevents", async (req, res) => {
-  try {
-    // Fetch all events + their next occurrence
-    const events = await knex("events as e")
-        .leftJoin("eventoccurrences as eo", function () {
-            this.on("eo.eventid", "=", "e.eventid")
-                .andOn("eo.eventdatestart", ">=", knex.fn.now());
-        })
-        .select(
-            "e.eventid",
-            "e.eventname",
-            "e.eventtype",
-            knex.raw("MIN(eo.eventdatestart) as nextdate"),
-            "eo.eventlocation"
-        )
-        .groupBy("e.eventid", "e.eventname", "e.eventtype", "eo.eventlocation")
-        .orderBy("nextdate");
+app.get("/admin/manageevents", requireManager, async (req, res) => {
+    try {
+        const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
 
-    res.render("admin/events", { events, title: "Manage Events" });
+        let events = await knex("events")
+            .select("*")
+            .orderBy("eventname", "asc");
 
-  } catch (err) {
-    console.error("❌ Error loading events:", err);
-    res.status(500).send("Error loading events");
-  }
+        // Apply search filter
+        if (search.length > 0) {
+            events = events.filter(e => {
+                const combined = `${e.eventname} ${e.eventtype} ${e.eventdescription}`
+                    .toLowerCase();
+                return combined.includes(search);
+            });
+        }
+
+        res.render("admin/events", {
+            title: "Manage Events",
+            events,
+            search
+        });
+
+    } catch (err) {
+        console.error("Error loading events:", err);
+        res.status(500).send("Server Error");
+    }
 });
 
 // Add event page
