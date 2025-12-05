@@ -19,13 +19,47 @@ body {
     text-align: center;
 }
 
-h1, h2, h3 {
-    font-family: 'DM Serif Display', serif;
+h2, h3 {
+    font-family: 'Montserrat', sans-serif;
     font-weight: 400;
     letter-spacing: 0.5px;
     color: #3A3F3B;
     margin-bottom: 20px;
 }
+
+h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    color: #3A3F3B;
+    margin-bottom: 20px;
+}
+
+/* ------------------------------------------
+   TT Milks Script (Custom Branding Font)
+------------------------------------------- */
+
+@font-face {
+    font-family: 'TT Milks Script';
+    src: url('/fonts/TTMilksScript-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'TT Milks Script';
+    src: url('/fonts/TTMilksScript-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'TT Milks Script';
+    src: url('/fonts/TTMilksScript-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
 
 /* -----------------------------------------------------
    NAVBAR
@@ -108,25 +142,35 @@ h1, h2, h3 {
 }
 
 /* Donate + Login buttons */
-.nav-donate,
+.nav-donate a,
 .nav-button {
-    padding: 8px 20px;
-    background-color: #99B7C6;
-    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
     font-weight: 600;
+
+    padding: 6px 18px;
+    height: 36px;        /* forces identical height */
+    line-height: 1;      /* prevents tall text */
+
+    background-color: #99B7C6;
     color: white !important;
-    white-space: nowrap;
+
     border: none;
+    border-radius: 20px;
+    white-space: nowrap;
     cursor: pointer;
+
+    text-decoration: none; /* makes <a> behave like <button> */
 }
 
-.nav-donate:hover,
 .nav-button:hover {
     background-color: #87A3B0;
 }
 
 .nav-button {
-    padding: 8px 16px;
     margin-left: 10px;
 }
 
@@ -435,11 +479,15 @@ h1, h2, h3 {
 ------------------------------------------------------ */
 
 .admin-container {
+    width: 100%;
+    max-width: 3000px;
+    margin: 40px auto;
+    padding: 30px 50px;
     display: flex;
-    min-height: 70vh;
-    padding: 40px;
-    gap: 40px;
+    gap: 0px;
 }
+
+
 
 .admin-sidebar {
     width: 240px;
@@ -473,15 +521,30 @@ h1, h2, h3 {
     display: flex;
     flex-direction: column;
     gap: 40px;
+
+    max-width: 1100px;
 }
+
 
 .tableau-container {
     width: 100%;
-    height: 600px;
-    border-radius: 16px;
+    max-width: 1120px;
+    margin: 0 auto;
+
     overflow: hidden;
+
+    padding-bottom: 20px;
+
+    /* Scaling */
+    transform: scale(0.9);
+    transform-origin: top center;
+
+    height: px; /* match new smaller Tableau height */
+    border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    background: white;
 }
+
 
 .admin-item-card {
     background: #fff;
@@ -911,4 +974,420 @@ h1, h2, h3 {
     font-size: 22px;
     cursor: pointer;
     margin-top: -10px;
+}
+
+
+
+/* ------------------------------
+   FORM PAGE CONTAINER
+--------------------------------*/
+.account-form-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 40px 50px;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    text-align: left;
+}
+
+/* SECTION HEADERS */
+.account-form-container h2 {
+    font-size: 26px;
+    margin-top: 40px;
+    margin-bottom: 10px;
+    font-family: 'TT Milks Script', cursive;
+}
+
+/* ------------------------------
+   FORM GRID
+--------------------------------*/
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 30px;
+    margin: 20px 0;
+}
+
+/* ------------------------------
+   INPUT STYLING
+--------------------------------*/
+.account-form-container input,
+.account-form-container select,
+.account-form-container textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+    background: #fdfdfd;
+}
+
+.account-form-container input:focus,
+.account-form-container select:focus {
+    outline: none;
+    border-color: #CE325B;
+    box-shadow: 0 0 4px rgba(206, 50, 91, 0.3);
+}
+
+/* ------------------------------
+   LABELS
+--------------------------------*/
+.account-form-container label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* ------------------------------
+   HR SPACING
+--------------------------------*/
+.account-form-container hr {
+    margin: 30px 0;
+    border: none;
+    border-top: 1px solid #e4d9ce;
+}
+
+/* ------------------------------
+   CHECKBOXES / RADIOS
+--------------------------------*/
+.checkbox-group,
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.checkbox-group label,
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ------------------------------
+   SUBMIT BUTTON
+--------------------------------*/
+.account-submit {
+    margin: 40px auto 0;
+    display: block;
+    padding: 12px 28px;
+    background: #CE325B;
+    color: white;
+    font-weight: 600;
+    border-radius: 10px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.account-submit:hover {
+    background: #b72a50;
+}
+
+
+/* FORM CONTAINER */
+.account-form-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 50px;
+    background: #ffffff;
+    border-radius: 16px;
+}
+
+/* GRID LAYOUT */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px 40px; /* row gap | column gap */
+    margin-bottom: 40px;
+}
+
+/* INPUTS + SELECTS */
+.account-form-container input,
+.account-form-container select {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14.5px;
+    border: 1.5px solid #e4e4e4;
+    border-radius: 8px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+/* Make inputs slightly smaller */
+.account-form-container input,
+.account-form-container select {
+    height: 42px;
+}
+
+/* LABELS */
+.account-form-container label {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+    color: #3A3F3B;
+}
+
+/* RADIO / CHECKBOX GROUPS */
+.radio-group,
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.radio-group label,
+.checkbox-group label {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* SECTION DIVIDERS */
+.account-form-container hr {
+    margin: 40px 0;
+    border: none;
+    border-top: 1px solid #e1ddd7;
+}
+
+/* SUBMIT BUTTON */
+.account-submit {
+    padding: 12px 26px;
+    font-size: 16px;
+    margin: 20px 10px 0 0;
+    border-radius: 10px;
+}
+
+/* Make radios and checkboxes align inline with their label */
+.radio-group label,
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* space between circle and text */
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+/* Make sure the input stays small and inline */
+.radio-group input[type="radio"],
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* Keep groups vertically spaced but each item inline */
+.radio-group,
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px; /* spacing between choices */
+    margin-top: 10px;
+}
+
+/* Make introductory text centered + not full width */
+.page-intro-text {
+    max-width: 800px;         /* keeps it from being too wide */
+    margin: 0 auto 30px;      /* centers it + adds spacing below */
+    text-align: center;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+.page-intro-wrapper {
+    max-width: 900px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
+    text-align: center;
+}
+
+/* Login Page Container */
+.login-container {
+    max-width: 500px;
+    margin: 60px auto;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+/* Base button styling */
+.login-btn,
+.create-btn {
+    padding: 12px 28px;
+    border-radius: 28px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: 0.25s ease;
+    display: inline-block;
+    margin: 10px 0;
+}
+
+/* Primary (Login) */
+.login-btn {
+    background-color: #CE325B;
+    color: white;
+    box-shadow: 0 4px 12px rgba(206, 50, 91, 0.25);
+}
+
+.login-btn:hover {
+    background-color: #b72a50;
+    box-shadow: 0 6px 14px rgba(206, 50, 91, 0.35);
+}
+
+/* Secondary (Create Account) */
+.create-btn {
+    background-color: #ffffff;
+    color: #CE325B;
+    border: 2px solid #CE325B;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+}
+
+.create-btn:hover {
+    background-color: #ffe6ee;
+    border-color: #b72a50;
+    color: #b72a50;
+}
+
+/* Outer wrapper to center the card */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 60px 0;
+}
+
+/* The card itself */
+.login-card {
+    background: white;
+    padding: 40px 50px;
+    width: 420px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+/* Title */
+.login-card h1 {
+    margin-bottom: 10px;
+}
+
+/* Error message styling */
+.login-error {
+    color: #CE325B;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* Login form spacing */
+.login-form div {
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+/* Input inside card */
+.login-card input {
+    width: 92.5%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1.5px solid #ccc;
+    font-size: 15px;
+}
+
+.login-card input:focus {
+    border-color: #CE325B;
+    box-shadow: 0 0 4px rgba(206, 50, 91, 0.3);
+}
+
+/* Buttons centered */
+.login-btn,
+.create-btn {
+    padding: 12px 28px;
+    border-radius: 28px;
+    font-size: 16px;
+    font-weight: 600;
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+/* Primary button */
+.login-btn {
+    background-color: #CE325B;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(206,50,91,0.25);
+}
+
+.login-btn:hover {
+    background-color: #b72a50;
+}
+
+/* Secondary button */
+.create-btn {
+    background: white;
+    border: 2px solid #CE325B;
+    color: #CE325B;
+}
+
+.create-btn:hover {
+    background: #ffe6ee;
+    border-color: #b72a50;
+    color: #b72a50;
+}
+
+/* -----------------------------------------------------
+   GET INVOLVED PAGE — OPTION CARDS
+------------------------------------------------------ */
+
+.get-involved-container {
+    padding: 60px 20px;
+}
+
+.involve-options {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin-top: 30px;
+}
+
+/* The card-style links */
+.option-card {
+    display: inline-block;
+    padding: 14px 30px;
+    border-radius: 28px;
+    background: #ffffff;
+    color: #CE325B;
+    border: 2px solid #CE325B;
+    font-weight: 600;
+    font-size: 18px;
+    text-decoration: none;
+    transition: 
+        transform 0.20s ease,
+        box-shadow 0.20s ease,
+        background-color 0.20s ease,
+        border-color 0.20s ease,
+        color 0.20s ease;
+}
+
+.option-card:hover {
+    transform: translateY(-3px);
+    background: #FFE6EE;
+    border-color: #b72a50;
+    color: #b72a50;
+    box-shadow: 0 6px 16px rgba(206, 50, 91, 0.25);
+}
+
+
+/* Optional: widen cards slightly on large screens */
+@media (min-width: 700px) {
+    .option-card {
+        min-width: 240px;
+        text-align: center;
+    }
 }
