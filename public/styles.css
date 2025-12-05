@@ -2428,3 +2428,48 @@ h1 {
 .add-child-page .admin-container {
     display: block !important;   /* disable the 2-column flex layout */
 }
+
+.compact-card {
+    background: #ffffff;
+    padding: 24px 28px;
+    border-radius: 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    max-width: 700px;
+}
+
+.section-title-sm {
+    font-size: 20px;
+    font-family: 'TT Milks Script';
+    margin-bottom: 16px;
+    color: #CE325B;
+}
+
+.compact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 24px;
+}
+
+.compact-card input,
+.compact-card select {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1.3px solid #ddd;
+    background: #fafafa;
+    font-size: 14px;
+}
+
+.compact-card input:focus,
+.compact-card select:focus {
+    border-color: #CE325B;
+    outline: none;
+    box-shadow: 0 0 4px rgba(206,50,91,0.3);
+}
+
+.compact-btn {
+    padding: 8px 18px;
+    font-size: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+}

@@ -22,6 +22,7 @@
 
     <h2>My Account</h2>
 
+
     <!-- ===================================== -->
     <!--        PARENT INFORMATION CARD        -->
     <!-- ===================================== -->
@@ -196,7 +197,7 @@
 
       <button class="account-save-btn" type="submit">Save Child</button>
 
-    </form>
+      </form>
 
     <!-- Delete Child Button -->
     <form action="/account/participant/<%= child.participantid %>/delete"
@@ -206,25 +207,28 @@
     </form>
 
 
-    <!-- Upcoming Events -->
-    <details class="event-card" style="margin-top:20px;">
-      <summary><strong>Upcoming Events for <%= child.participantfirstname %></strong></summary>
 
-      <% if (child.upcomingEvents.length > 0) { %>
-      <% child.upcomingEvents.forEach(ev => { %>
+      <!-- =============================== -->
+      <!--   UPCOMING EVENTS (STATUS)     -->
+      <!-- =============================== -->
+      <details class="event-card" style="margin-top:20px;">
+        <summary><strong>Upcoming Events for <%= child.participantfirstname %></strong></summary>
 
-      <form class="occ-edit-card"
-        style="margin-bottom:10px;"
-        method="POST"
-        action="/account/participant/<%= child.participantid %>/event-status/<%= ev.registrationid %>">
-
-        <div>
-          <strong><%= ev.eventname %></strong><br>
-          <small>
-            <%= ev.eventdatestart ? ev.eventdatestart.toISOString().split('T')[0] : "" %>
-            @ <%= ev.eventtimestart %>
-          </small>
-        </div>
+        <% if (child.upcomingEvents.length > 0) { %>
+          <% child.upcomingEvents.forEach(ev => { %>
+            <form
+              class="occ-edit-card"
+              style="margin-bottom:10px;"
+              method="POST"
+              action="/account/participant/<%= child.participantid %>/event-status/<%= ev.registrationid %>"
+            >
+              <div>
+                <strong><%= ev.eventname %></strong><br>
+                <small>
+                  <%= ev.eventdatestart ? ev.eventdatestart.toISOString().split('T')[0] : "" %>
+                  @ <%= ev.eventtimestart %>
+                </small>
+              </div>
 
         <label style="margin-top:5px; display:block;">
           Status:
@@ -240,44 +244,56 @@
           </select>
         </label>
 
-        <button type="submit" class="small-save-btn">Save Status</button>
+              <button type="submit" class="edit-btn" style="margin-top:5px;">
+                Save Status
+              </button>
+            </form>
+          <% }) %>
+        <% } else { %>
+          <p style="margin-top:10px;">No upcoming events scheduled.</p>
+        <% } %>
 
-      </form>
+    </details>
 
-      <% }) %>
-      <% } else { %>
-      <p style="margin-top:10px;">No upcoming events scheduled.</p>
-      <% } %>
+
+
+      <!-- =============================== -->
+      <!--        PAST UNSURVEYED          -->
+      <!-- =============================== -->
+      <details class="event-card" style="margin-top:20px;">
+        <summary><strong>Past Surveys for <%= child.participantfirstname %></strong></summary>
+
+        <% if (child.pastUnsurveyed.length > 0) { %>
+          <% child.pastUnsurveyed.forEach(sv => { %>
+            <div class="occ-edit-card" style="margin-bottom:10px;">
+
+              <strong><%= sv.eventname %></strong><br>
+              <small>
+                <%= sv.eventdatestart ? sv.eventdatestart.toISOString().split('T')[0] : "" %>
+                @ <%= sv.eventtimestart %>
+              </small>
+
+              <form method="GET" action="/survey/fill/<%= sv.registrationid %>">
+                <button class="edit-btn" style="margin-top:5px;">
+                  Complete Survey
+                </button>
+              </form>
+
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p style="margin-top:10px;">No pending surveys for this child.</p>
+        <% } %>
 
     </details>
 
 
-    <!-- Past Surveys -->
-    <details class="event-card" style="margin-top:20px;">
-      <summary><strong>Past Surveys for <%= child.participantfirstname %></strong></summary>
 
-      <% if (child.pastUnsurveyed.length > 0) { %>
-      <% child.pastUnsurveyed.forEach(sv => { %>
+      <!-- =============================== -->
+      <!--           MILESTONES            -->
+      <!-- =============================== -->
 
-      <div class="occ-edit-card" style="margin-bottom:10px;">
-        <strong><%= sv.eventname %></strong><br>
-        <small>
-          <%= sv.eventdatestart ? sv.eventdatestart.toISOString().split('T')[0] : "" %>
-          @ <%= sv.eventtimestart %>
-        </small>
-
-        <form method="GET" action="/survey/fill/<%= sv.registrationid %>">
-          <button class="edit-btn" style="margin-top:5px;">Complete Survey</button>
-        </form>
-      </div>
-
-      <% }) %>
-      <% } else { %>
-      <p style="margin-top:10px;">No pending surveys for this child.</p>
-      <% } %>
-
-    </details>
-
+      <!-- (rest of your milestone code unchanged) -->
 
     <% }) %>
 

@@ -1,39 +1,64 @@
-<%- include('../partials/header', { title: 'Add Milestone' , user: user, lang: lang }) %>
+<%- include('../partials/header', { title: 'Add Milestone', user: user, lang: lang }) %>
 
-    <div class="section">
-        <div class="section-content" style="flex-direction:column; align-items:flex-start;">
-            <h1><span class="lang-en">Add Milestone</span><span class="lang-es">Agregar Hito</span></h1>
+<div class="admin-container">
 
-            <form action="/account/participant/<%= participantId %>/milestones/add" method="POST"
-                style="max-width:600px; margin-top:20px;">
+    <!-- MAIN -->
+    <main class="admin-main">
 
-                <label>
-                    <span class="lang-en">Title</span><span class="lang-es">Título</span>
+        <h2 class="page-title-sm">
+            <span class="lang-en">Add Milestone</span>
+            <span class="lang-es">Agregar Hito</span>
+        </h2>
+
+        <form action="/account/participant/<%= participantId %>/milestones/add"
+              method="POST"
+              class="compact-card">
+
+            <h3 class="section-title-sm">
+                <span class="lang-en">Milestone Details</span>
+                <span class="lang-es">Detalles del Hito</span>
+            </h3>
+
+            <div class="compact-grid">
+                <div>
+                    <label>
+                        <span class="lang-en">Title</span>
+                        <span class="lang-es">Título</span>
+                    </label>
                     <input type="text" name="milestonetitle" required>
-                </label>
+                </div>
 
-                <label>
-                    <span class="lang-en">Date</span><span class="lang-es">Fecha</span>
+                <div>
+                    <label>
+                        <span class="lang-en">Date</span>
+                        <span class="lang-es">Fecha</span>
+                    </label>
                     <input type="date" name="milestonedate" required>
-                </label>
+                </div>
 
-                <label>
-                    <span class="lang-en">Status</span><span class="lang-es">Estado</span>
+                <div style="grid-column: span 2;">
+                    <label>
+                        <span class="lang-en">Status</span>
+                        <span class="lang-es">Estado</span>
+                    </label>
+
                     <select name="milestonestatus" required>
                         <option value="Not Started">Not Started / No Iniciado</option>
                         <option value="In Progress">In Progress / En Progreso</option>
                         <option value="Completed">Completed / Completado</option>
                         <option value="Deferred">Deferred / Pospuesto</option>
                     </select>
-                </label>
+                </div>
+            </div>
 
-                <button type="submit" class="button" style="margin-top:12px;">
-                    <span class="lang-en">Add Milestone</span>
-                    <span class="lang-es">Agregar Hito</span>
-                </button>
+            <button type="submit" class="edit-btn compact-btn" style="margin-top:16px;">
+                <span class="lang-en">Add Milestone</span>
+                <span class="lang-es">Agregar Hito</span>
+            </button>
 
-            </form>
-        </div>
-    </div>
+        </form>
 
-    <%- include('../partials/footer') %>
+    </main>
+</div>
+
+<%- include('../partials/footer') %>

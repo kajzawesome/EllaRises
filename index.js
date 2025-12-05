@@ -2482,7 +2482,6 @@ app.post("/admin/survey/delete/:surveyid", requireManager, async (req, res) => {
   }
 });
 
-
 // -------------------------
 // START SERVER
 // -------------------------
