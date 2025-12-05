@@ -1,4 +1,4 @@
-<%- include('../partials/header', { title: 'My Account' }) %>
+<%- include('../partials/header', { title: 'My Account', user: user }) %>
 
 <div class="admin-container">
 
@@ -22,18 +22,9 @@
 
     <h2>My Account</h2>
 
-<<<<<<< Updated upstream
-=======
-
     <!-- =============================== -->
     <!--      PARENT INFORMATION         -->
     <!-- =============================== -->
-    <form action="/account/<%= parent.userid %>/update" method="POST" class="event-card">
->>>>>>> Stashed changes
-
-    <!-- ===================================== -->
-    <!--        PARENT INFORMATION CARD        -->
-    <!-- ===================================== -->
     <form action="/account/<%= parent.userid %>/update" method="POST" class="account-card">
 
       <h3 class="section-title">Parent Information</h3>
@@ -130,7 +121,6 @@
       Add Child
     </a>
 
-
     <!-- ===================================== -->
     <!--               CHILDREN               -->
     <!-- ===================================== -->
@@ -138,105 +128,83 @@
 
     <% parent.participants.forEach(child => { %>
 
-<<<<<<< Updated upstream
-    <!-- Child Card -->
-    <form action="/account/participant/<%= child.participantid %>/update-full"
-      method="POST" class="account-card">
-=======
       <!-- CHILD EDIT FORM -->
       <form action="/account/participant/<%= child.participantid %>/update-full"
             method="POST" class="event-card">
->>>>>>> Stashed changes
 
-      <h3>Edit Child: <%= child.participantfirstname %> <%= child.participantlastname %></h3>
+        <h3>Edit Child: <%= child.participantfirstname %> <%= child.participantlastname %></h3>
 
-      <div class="account-grid-2">
+        <div class="account-grid-2">
 
-        <div>
-          <label>First Name</label>
-          <input type="text" name="participantfirstname" value="<%= child.participantfirstname %>" required>
+          <div>
+            <label>First Name</label>
+            <input type="text" name="participantfirstname" value="<%= child.participantfirstname %>" required>
+          </div>
+
+          <div>
+            <label>Last Name</label>
+            <input type="text" name="participantlastname" value="<%= child.participantlastname %>" required>
+          </div>
+
+          <div>
+            <label>Email</label>
+            <input type="email" name="participantemail" value="<%= child.participantemail %>" required>
+          </div>
+
+          <div>
+            <label>Date of Birth</label>
+            <input type="date" name="participantdob"
+              value="<%= child.participantdob ? child.participantdob.toISOString().split('T')[0] : '' %>">
+          </div>
+
+          <div>
+            <label>Grade</label>
+            <input type="text" name="participantgrade" value="<%= child.participantgrade %>">
+          </div>
+
+          <div>
+            <label>School/Employer</label>
+            <input type="text" name="participantschooloremployer" value="<%= child.participantschooloremployer %>">
+          </div>
+
+          <div>
+            <label>Field of Interest</label>
+            <input type="text" name="participantfieldofinterest" value="<%= child.participantfieldofinterest %>">
+          </div>
+
+          <div>
+            <label>Instrument (Mariachi)</label>
+            <input type="text" name="mariachiinstrumentinterest" value="<%= child.mariachiinstrumentinterest %>">
+          </div>
+
+          <div>
+            <label>Instrument Experience</label>
+            <input type="text" name="instrumentexperience" value="<%= child.instrumentexperience %>">
+          </div>
+
+          <div>
+            <label>Graduation Status</label>
+            <select name="graduationstatus">
+              <option value="not started" <%= child.graduationstatus === "not started" ? "selected" : "" %>>Not Started</option>
+              <option value="in progress" <%= child.graduationstatus === "in progress" ? "selected" : "" %>>In Progress</option>
+              <option value="completed" <%= child.graduationstatus === "completed" ? "selected" : "" %>>Completed</option>
+            </select>
+          </div>
+
         </div>
 
-        <div>
-          <label>Last Name</label>
-          <input type="text" name="participantlastname" value="<%= child.participantlastname %>" required>
-        </div>
-
-        <div>
-          <label>Email</label>
-          <input type="email" name="participantemail" value="<%= child.participantemail %>" required>
-        </div>
-
-        <div>
-          <label>Date of Birth</label>
-          <input type="date" name="participantdob"
-            value="<%= child.participantdob ? child.participantdob.toISOString().split('T')[0] : '' %>">
-        </div>
-
-        <div>
-          <label>Grade</label>
-          <input type="text" name="participantgrade" value="<%= child.participantgrade %>">
-        </div>
-
-        <div>
-          <label>School/Employer</label>
-          <input type="text" name="participantschooloremployer" value="<%= child.participantschooloremployer %>">
-        </div>
-
-        <div>
-          <label>Field of Interest</label>
-          <input type="text" name="participantfieldofinterest" value="<%= child.participantfieldofinterest %>">
-        </div>
-
-        <div>
-          <label>Instrument (Mariachi)</label>
-          <input type="text" name="mariachiinstrumentinterest" value="<%= child.mariachiinstrumentinterest %>">
-        </div>
-
-        <div>
-          <label>Instrument Experience</label>
-          <input type="text" name="instrumentexperience" value="<%= child.instrumentexperience %>">
-        </div>
-
-        <div>
-          <label>Graduation Status</label>
-          <select name="graduationstatus">
-            <option value="not started" <%= child.graduationstatus === "not started" ? "selected" : "" %>>Not Started</option>
-            <option value="in progress" <%= child.graduationstatus === "in progress" ? "selected" : "" %>>In Progress</option>
-            <option value="completed" <%= child.graduationstatus === "completed" ? "selected" : "" %>>Completed</option>
-          </select>
-        </div>
-
-      </div>
-
-      <button class="account-save-btn" type="submit">Save Child</button>
-
+        <button class="account-save-btn" type="submit">Save Child</button>
       </form>
-
-<<<<<<< Updated upstream
-    <!-- Delete Child Button -->
-    <form action="/account/participant/<%= child.participantid %>/delete"
-      method="POST"
-      onsubmit="return confirm('Delete this child and all milestones?');">
-      <button class="child-delete-btn" type="submit">Delete Child</button>
-    </form>
-
-=======
 
       <!-- Delete Child -->
       <form action="/account/participant/<%= child.participantid %>/delete"
             method="POST"
             onsubmit="return confirm('Delete this child and all milestones?');">
-        <button class="admin-btn danger-btn" type="submit">
-          Delete Child
-        </button>
+        <button class="danger-btn child-delete-btn" type="submit">Delete Child</button>
       </form>
->>>>>>> Stashed changes
-
-
 
       <!-- =============================== -->
-      <!--   UPCOMING EVENTS               -->
+      <!--           UPCOMING EVENTS       -->
       <!-- =============================== -->
       <details class="event-card" style="margin-top:20px;">
         <summary><strong>Upcoming Events for <%= child.participantfirstname %></strong></summary>
@@ -246,46 +214,40 @@
           <% child.upcomingEvents.forEach(ev => { %>
 
             <form class="occ-edit-card"
-                  style="margin-bottom:10px;"
                   method="POST"
                   action="/account/participant/<%= child.participantid %>/event-status/<%= ev.registrationid %>">
 
               <div>
                 <strong><%= ev.eventname %></strong><br>
-                <small>
-                  <%= ev.eventdatestart ? ev.eventdatestart.toISOString().split('T')[0] : "" %>
-                  @ <%= ev.eventtimestart %>
-                </small>
+                <small><%= ev.eventdatestart ? ev.eventdatestart.toISOString().split('T')[0] : '' %>
+                  @ <%= ev.eventtimestart %></small>
               </div>
 
-        <label style="margin-top:5px; display:block;">
-          Status:
-          <select name="registrationstatus">
-            <option value="Not attending"
-              <%= (!ev.registrationstatus || ev.registrationstatus === "Not attending") ? "selected" : "" %>>
-              Not attending
-            </option>
-            <option value="Planning to attend"
-              <%= ev.registrationstatus === "Planning to attend" ? "selected" : "" %>>
-              Planning to attend
-            </option>
-          </select>
-        </label>
+              <label style="margin-top:5px;">
+                Status:
+                <select name="registrationstatus">
+                  <option value="Not attending"
+                    <%= (!ev.registrationstatus || ev.registrationstatus === "Not attending") ? "selected" : "" %>>
+                    Not attending
+                  </option>
+                  <option value="Planning to attend"
+                    <%= ev.registrationstatus === "Planning to attend" ? "selected" : "" %>>
+                    Planning to attend
+                  </option>
+                </select>
+              </label>
 
-              <button type="submit" class="edit-btn" style="margin-top:5px;">
-                Save Status
-              </button>
+              <button type="submit" class="edit-btn" style="margin-top:5px;">Save Status</button>
+
             </form>
 
           <% }) %>
 
         <% } else { %>
-          <p style="margin-top:10px;">No upcoming events scheduled.</p>
+          <p>No upcoming events.</p>
         <% } %>
 
-    </details>
-
-
+      </details>
 
       <!-- =============================== -->
       <!--        PAST UNSURVEYED         -->
@@ -299,32 +261,25 @@
 
             <div class="occ-edit-card" style="margin-bottom:10px;">
               <strong><%= sv.eventname %></strong><br>
-              <small>
-                <%= sv.eventdatestart ? sv.eventdatestart.toISOString().split('T')[0] : "" %>
-                @ <%= sv.eventtimestart %>
-              </small>
+              <small><%= sv.eventdatestart ? sv.eventdatestart.toISOString().split('T')[0] : '' %>
+                @ <%= sv.eventtimestart %></small>
 
               <form method="GET" action="/survey/fill/<%= sv.registrationid %>">
-                <button class="edit-btn" style="margin-top:5px;">
-                  Complete Survey
-                </button>
+                <button class="edit-btn" style="margin-top:5px;">Complete Survey</button>
               </form>
             </div>
 
           <% }) %>
 
         <% } else { %>
-          <p style="margin-top:10px;">No pending surveys for this child.</p>
+          <p>No pending surveys.</p>
         <% } %>
 
-    </details>
-
-
+      </details>
 
       <!-- =============================== -->
       <!--           MILESTONES            -->
       <!-- =============================== -->
-
       <details class="event-card" style="margin-top:20px;">
         <summary><strong>Milestones for <%= child.participantfirstname %></strong></summary>
 
@@ -337,38 +292,30 @@
                   class="compact-card"
                   style="margin-bottom:15px;">
 
-              <h4 style="margin-bottom:10px;">Edit Milestone</h4>
+              <h4>Edit Milestone</h4>
 
               <div class="compact-grid">
 
                 <div>
                   <label>Title</label>
                   <input type="text" name="milestonetitle"
-                         value="<%= m.milestonetitle %>" required>
+                        value="<%= m.milestonetitle %>" required>
                 </div>
 
                 <div>
                   <label>Date</label>
                   <input type="date" name="milestonedate"
-                         value="<%= m.milestonedate ? m.milestonedate.toISOString().split('T')[0] : '' %>"
-                         required>
+                        value="<%= m.milestonedate ? m.milestonedate.toISOString().split('T')[0] : '' %>"
+                        required>
                 </div>
 
                 <div style="grid-column: span 2;">
                   <label>Status</label>
                   <select name="milestonestatus" required>
-                    <option value="Not Started" <%= m.milestonestatus === "Not Started" ? "selected" : "" %>>
-                        Not Started
-                    </option>
-                    <option value="In Progress" <%= m.milestonestatus === "In Progress" ? "selected" : "" %>>
-                        In Progress
-                    </option>
-                    <option value="Completed" <%= m.milestonestatus === "Completed" ? "selected" : "" %>>
-                        Completed
-                    </option>
-                    <option value="Deferred" <%= m.milestonestatus === "Deferred" ? "selected" : "" %>>
-                        Deferred
-                    </option>
+                    <option value="Not Started" <%= m.milestonestatus === "Not Started" ? "selected" : "" %>>Not Started</option>
+                    <option value="In Progress" <%= m.milestonestatus === "In Progress" ? "selected" : "" %>>In Progress</option>
+                    <option value="Completed" <%= m.milestonestatus === "Completed" ? "selected" : "" %>>Completed</option>
+                    <option value="Deferred" <%= m.milestonestatus === "Deferred" ? "selected" : "" %>>Deferred</option>
                   </select>
                 </div>
 
@@ -376,20 +323,21 @@
 
               <div style="display:flex; gap:10px; margin-top:10px;">
                 <button type="submit" class="edit-btn compact-btn">Save</button>
-
-                <form action="/account/participant/<%= child.participantid %>/milestones/<%= m.milestoneid %>/delete"
-                      method="POST"
-                      onsubmit="return confirm('Delete this milestone?');">
-                  <button class="danger-btn compact-btn" type="submit">Delete</button>
-                </form>
               </div>
 
+            </form>  <!-- ✅ update form ends here -->
+
+            <!-- DELETE FORM (separate form, but NOT nested!) -->
+            <form action="/account/participant/<%= child.participantid %>/milestones/<%= m.milestoneid %>/delete"
+                  method="POST"
+                  onsubmit="return confirm('Delete this milestone?');">
+              <button class="danger-btn compact-btn" type="submit">Delete</button>
             </form>
 
           <% }) %>
 
         <% } else { %>
-          <p style="margin-top:10px;">No milestones yet.</p>
+          <p>No milestones yet.</p>
         <% } %>
 
         <a href="/account/participant/<%= child.participantid %>/milestones/add"
@@ -399,8 +347,6 @@
         </a>
 
       </details>
-
-
 
     <% }) %>
 

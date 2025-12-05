@@ -2412,8 +2412,6 @@ h1 {
     border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
-}
-<<<<<<< Updated upstream
     display: flex;
     justify-content: center;   /* centers form */
 }
@@ -2429,8 +2427,6 @@ h1 {
 .add-child-page .admin-container {
     display: block !important;   /* disable the 2-column flex layout */
 }
-=======
->>>>>>> Stashed changes
 
 .compact-card {
     background: #ffffff;
