@@ -2472,3 +2472,26 @@ h1 {
     border-radius: 8px;
     font-weight: 600;
 }
+
+/* Centers pages that do NOT use a card layout */
+.page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center; /* centers username, password, headings */
+}
+
+.page-container input[type="text"],
+.page-container input[type="password"] {
+    width: 60%;
+    max-width: 300px;
+    display: block;
+    margin: 8px auto;
+}
+
+/* Centers footer content while keeping footer full-width */
+.footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+}

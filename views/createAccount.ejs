@@ -2,29 +2,31 @@
 <title><%= title || "Create Account" %></title>
 
 <div>
-    <br><br>
-    <h1 class="lang-en">Create Account</h1>
-    <h1 class="lang-es">Crear Cuenta</h1>
-    <br>
-    <br><br>
+    <div class="page-container">
+        <br><br>
+        <h1 class="lang-en">Create Account</h1>
+        <h1 class="lang-es">Crear Cuenta</h1>
+        <br>
 
+    </div>
     <form action="/addUser" method="POST">
 
         <!-- Login Credentials -->
-        <div>
-            <label class="lang-en" for="username">Username</label>
-            <label class="lang-es" for="username">Nombre de Usuario</label>
-            <input type="text" id="username" name="username" required autofocus>
-        </div>
-        <br>
+        <div class="page-container">
+            <div>
+                <label class="lang-en" for="username">Username</label>
+                <label class="lang-es" for="username">Nombre de Usuario</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+            <br>
 
-        <div>
-            <label class="lang-en" for="password">Password</label>
-            <label class="lang-es" for="password">Contraseña</label>
-            <input type="password" id="password" name="password" required>
+            <div>
+                <label class="lang-en" for="password">Password</label>
+                <label class="lang-es" for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <br>
         </div>
-        <br>
-
         <!-- Program Details -->
         <br><br>
         <div class="page-intro-wrapper">

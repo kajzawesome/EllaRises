@@ -25,6 +25,7 @@
     <!-- =============================== -->
     <!--      PARENT INFORMATION         -->
     <!-- =============================== -->
+    
     <form action="/account/<%= parent.userid %>/update" method="POST" class="account-card">
 
       <h3 class="section-title">Parent Information</h3>
@@ -117,14 +118,17 @@
     </form>
 
     <!-- Add Child Button -->
+    <div class="page-container">
     <a href="/account/<%= parent.parentid %>/participant/add" class="add-child-btn">
       Add Child
     </a>
-
+    </div>
     <!-- ===================================== -->
     <!--               CHILDREN               -->
     <!-- ===================================== -->
+    <div class="page-container">
     <h3 style="margin-top:35px;">Children</h3>
+    </div>
 
     <% parent.participants.forEach(child => { %>
 

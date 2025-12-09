@@ -5,7 +5,7 @@
       <span class="lang-en">Make a Donation</span>
       <span class="lang-es">Hacer una Donación</span>
     </h1>
-
+    <div class="page-container">
     <p>
       <span class="lang-en">Your support helps us continue our mission. Thank you for contributing!</span>
       <span class="lang-es">Tu apoyo nos ayuda a continuar con nuestra misión. ¡Gracias por contribuir!</span>
@@ -26,82 +26,84 @@
             <form action="/pages/donations" method="POST" class="donation-form">
 
               <!-- Donor Info -->
-              <h2>
-                <span class="lang-en">Your Information</span>
-                <span class="lang-es">Tu Información</span>
-              </h2>
+              
+                <h2>
+                  <br><br>
+                  <span class="lang-en">Your Information</span>
+                  <span class="lang-es">Tu Información</span>
+                </h2>
 
-              <label for="name">
-                <span class="lang-en">Full Name</span>
-                <span class="lang-es">Nombre Completo</span>
-              </label>
-              <input type="text" id="name" name="name" autofocus />
-
-              <label for="email">
-                <span class="lang-en">Email Address</span>
-                <span class="lang-es">Correo Electrónico</span>
-              </label>
-              <input type="email" id="email" name="email" required />
-
-              <!-- Donation Amount -->
-              <h2>
-                <span class="lang-en">Donation Amount</span>
-                <span class="lang-es">Cantidad de Donación</span>
-              </h2>
-
-              <div class="amount-options" role="radiogroup" aria-label="Donation amounts">
-
-                <label>
-                  <input type="radio" name="amount" value="10">
-                  $10
+                <label for="name">
+                  <span class="lang-en">Full Name</span>
+                  <span class="lang-es">Nombre Completo</span>
                 </label>
+                <input type="text" id="name" name="name" autofocus />
 
-                <label>
-                  <input type="radio" name="amount" value="25">
-                  $25
+                <label for="email">
+                  <span class="lang-en">Email Address</span>
+                  <span class="lang-es">Correo Electrónico</span>
                 </label>
+                <input type="email" id="email" name="email" required />
 
-                <label>
-                  <input type="radio" name="amount" value="50">
-                  $50
-                </label>
+                <!-- Donation Amount -->
+                <h2>
+                  <span class="lang-en">Donation Amount</span>
+                  <span class="lang-es">Cantidad de Donación</span>
+                </h2>
 
-                <label>
-                  <input type="radio" name="amount" value="100">
-                  $100
-                </label>
+                <div class="amount-options" role="radiogroup" aria-label="Donation amounts">
 
-                <label>
-                  <input type="radio" name="amount" value="250">
-                  $250
-                </label>
+                  <label>
+                    <input type="radio" name="amount" value="10">
+                    $10
+                  </label>
 
-                <!-- Custom amount option -->
-                <label class="custom-option">
-                  <input type="radio" name="amount" value="custom">
-                  <span class="lang-en">Custom</span>
-                  <span class="lang-es">Personalizado</span>
+                  <label>
+                    <input type="radio" name="amount" value="25">
+                    $25
+                  </label>
 
-                  <input 
-                    type="number" 
-                    id="customAmount" 
-                    name="customAmount" 
-                    min="1"
-                    placeholder="$"
-                    class="custom-input"
-                  >
-                </label>
+                  <label>
+                    <input type="radio" name="amount" value="50">
+                    $50
+                  </label>
 
+                  <label>
+                    <input type="radio" name="amount" value="100">
+                    $100
+                  </label>
+
+                  <label>
+                    <input type="radio" name="amount" value="250">
+                    $250
+                  </label>
+
+                  <!-- Custom amount option -->
+                  <label class="custom-option">
+                    <input type="radio" name="amount" value="custom">
+                    <span class="lang-en">Custom</span>
+                    <span class="lang-es">Personalizado</span>
+
+                    <input 
+                      type="number" 
+                      id="customAmount" 
+                      name="customAmount" 
+                      min="1"
+                      placeholder="$"
+                      class="custom-input"
+                    >
+                  </label>
+
+                </div>
+
+                <!-- Optional Message -->
+                <h2>
+                  <span class="lang-en">Message (Optional)</span>
+                  <span class="lang-es">Mensaje (Opcional)</span>
+                </h2>
+                <textarea class="lang-en" name="message" rows="4">
+                </textarea>
               </div>
-
-              <!-- Optional Message -->
-              <h2>
-                <span class="lang-en">Message (Optional)</span>
-                <span class="lang-es">Mensaje (Opcional)</span>
-              </h2>
-              <textarea class="lang-en" name="message" rows="4">
-              </textarea>
-
               <button type="submit" class="donate-button">
                 <span class="lang-en">Donate Now</span>
                 <span class="lang-es">Donar Ahora</span>
